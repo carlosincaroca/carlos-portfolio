@@ -91,7 +91,9 @@ svg { display: block; }
 
 .hero { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 6rem 2rem 2rem; position: sticky; top: 0; overflow: hidden; }
 .hero-grid { position: absolute; inset: 0; opacity: 0.1; background-image: linear-gradient(var(--red) 1px, transparent 1px), linear-gradient(90deg, var(--red) 1px, transparent 1px); background-size: 40px 40px; animation: grid-drift 20s linear infinite; }
-.hero-title { font-size: clamp(5rem, 14vw, 12rem); line-height: 0.85; letter-spacing: -0.05em; color: var(--red); margin: 0; text-shadow: 4px 4px 0px rgba(0,0,0,0.1); animation: textshadow-throb 2s ease-in-out infinite; }
+.hero-title { font-size: clamp(5rem, 14vw, 12rem); line-height: 0.85; letter-spacing: -0.05em; color: var(--red); margin: 0; }
+.reveal-letter { display: inline-block; color: var(--red); transition: color 0.2s ease; cursor: default; }
+.reveal-letter:hover { color: var(--ink); }
 .hero-eyebrow { display: flex; align-items: center; gap: 1rem; margin-top: 1rem; color: var(--red); font-weight: 700; font-size: 0.875rem; }
 .hero-eyebrow .bar { height: 2px; width: 48px; background: var(--red); animation: line-width 2s ease-in-out infinite; }
 
@@ -268,3 +270,11 @@ svg { display: block; }
 .as-spec-item:hover { background: rgba(196,54,77,0.1); }
 .as-spec-num { font-family: 'JetBrains Mono', monospace; font-size: 0.6875rem; font-weight: 700; color: var(--red); min-width: 1.75rem; text-shadow: 0 1px 12px rgba(10,15,25,0.8); }
 .as-spec-label { font-size: 0.9375rem; font-weight: 500; color: rgba(255,255,255,0.95); text-shadow: 0 1px 16px rgba(10,15,25,0.9), 0 0 32px rgba(10,15,25,0.7); }
+
+.stagger-char { display: inline-block; opacity: 0; will-change: transform, opacity; }
+.stagger-char[data-dir="bottom"] { transform: translateY(110%); }
+.stagger-char[data-dir="top"]    { transform: translateY(-110%); }
+.stagger-char[data-dir="left"]   { transform: translateX(-110%); }
+.stagger-char[data-dir="right"]  { transform: translateX(110%); }
+.stagger-char.stagger-visible { animation: staggerCharIn 0.5s cubic-bezier(0.25, 0.1, 0.25, 1) forwards; }
+@keyframes staggerCharIn { to { transform: translate(0,0) scale(1); opacity: 1; } }

@@ -47,6 +47,18 @@ const projects = [
   },
 ];
 
+function RevealTitle({ text }) {
+  return (
+    <span style={{ display: 'inline-flex', letterSpacing: '-0.05em' }}>
+      {text.split('').map((char, i) => (
+        char === ' '
+          ? <span key={i} style={{ display: 'inline-block', width: '0.3em' }} />
+          : <span key={i} className="reveal-letter">{char}</span>
+      ))}
+    </span>
+  );
+}
+
 function StatTile({ value, suffix, label, delay }) {
   const display = value === 99 ? '∞' : `${value}${suffix}`;
   return (
@@ -124,7 +136,7 @@ function App() {
         </div>
         <div style={{ position: 'relative', zIndex: 1, maxWidth: '72rem', width: '100%', transform: `translateY(${heroTranslate}px)`, willChange: 'transform' }}>
           <div style={{ marginBottom: '3rem' }}>
-            <h1 className="hero-title">BIO MECH</h1>
+            <h1 className="hero-title"><RevealTitle text="BIO MECH" /></h1>
             <div className="hero-eyebrow">
               <div className="bar"></div>
               <p className="uppercase wide" style={{ margin: 0 }}>PORTFOLIO OF BIOMEDICAL ENGINEERING • COMPUTATIONAL BIOMECHANICS • MEDICAL DEVICES</p>

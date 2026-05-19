@@ -1,3 +1,93 @@
+const SCRAMBLE_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+
+function StaggerText({ text, direction = 'bottom', stagger = 0.04, delay = 0, className = '' }) {
+  const ref = React.useRef(null);
+
+  React.useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    while (el.firstChild) el.removeChild(el.firstChild);
+    const chars = [];
+    let charIndex = 0;
+
+    text.split(' ').forEach((word, wi, words) => {
+      const wordSpan = document.createElement('span');
+      wordSpan.style.cssText = 'display:inline-block;white-space:nowrap;vertical-align:top;';
+
+      word.split('').forEach(char => {
+        const wrap = document.createElement('span');
+        wrap.style.cssText = 'display:inline-block;overflow:hidden;vertical-align:top;';
+
+        const span = document.createElement('span');
+        span.className = 'stagger-char';
+        span.dataset.dir = direction;
+        span.style.animationDelay = (delay / 1000 + charIndex * stagger) + 's';
+        span.textContent = char;
+
+        wrap.appendChild(span);
+        wordSpan.appendChild(wrap);
+        chars.push(span);
+        charIndex++;
+      });
+
+      el.appendChild(wordSpan);
+      if (wi < words.length - 1) el.appendChild(document.createTextNode(' '));
+    });
+
+    const io = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        io.disconnect();
+        chars.forEach(span => span.classList.add('stagger-visible'));
+      }
+    }, { threshold: 0.2 });
+
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
+  return <span ref={ref} className={className}>{text}</span>;
+}
+
+function ScrambleText({ text, delay = 0, speed = 0.04, duration = 0.8 }) {
+  const ref = React.useRef(null);
+
+  React.useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    const run = () => {
+      const steps = duration / speed;
+      let step = 0;
+      const id = setInterval(() => {
+        const progress = step / steps;
+        let result = '';
+        for (let i = 0; i < text.length; i++) {
+          if (text[i] === ' ') { result += ' '; continue; }
+          result += progress * text.length > i
+            ? text[i]
+            : SCRAMBLE_CHARS[Math.floor(Math.random() * SCRAMBLE_CHARS.length)];
+        }
+        el.textContent = result;
+        step++;
+        if (step > steps) { clearInterval(id); el.textContent = text; }
+      }, speed * 1000);
+    };
+
+    const io = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        io.disconnect();
+        delay > 0 ? setTimeout(run, delay) : run();
+      }
+    }, { threshold: 0.4 });
+
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
+  return <span ref={ref}>{text}</span>;
+}
+
 function BlueprintHuman() {
   return (
     <svg viewBox="0 0 260 400" fill="none" xmlns="http://www.w3.org/2000/svg"
@@ -121,7 +211,7 @@ function AboutSection() {
                 <div className="as-bar"></div>
                 <span>{'// PROFILE'}</span>
               </div>
-              <h2 className="as-name">CARLOS<br />INCAROCA</h2>
+              <h2 className="as-name"><ScrambleText text="CARLOS" /><br /><ScrambleText text="INCAROCA" delay={300} /></h2>
               <p className="as-bio">
                 ME student at Brigham Young University specializing in the intersection of
                 mechanical engineering and biomedical applications. Designing systems where
@@ -132,7 +222,7 @@ function AboutSection() {
                 {meta.map(({ k, v }) => (
                   <div key={k} className="as-meta-row">
                     <span className="as-meta-key">{k}</span>
-                    <span className="as-meta-val">{v}</span>
+                    <span className="as-meta-val"><ScrambleText text={v} delay={200} speed={0.03} /></span>
                   </div>
                 ))}
               </div>
@@ -291,7 +381,10 @@ function SpecializationsSection() {
                 <div className="as-bar"></div>
                 <span>{'// AREAS OF SPECIALIZATION'}</span>
               </div>
-              <h2 className="as-spec-title">CORE<br />COMPETENCIES</h2>
+              <h2 className="as-spec-title">
+                <StaggerText text="CORE" direction="bottom" stagger={0.06} /><br />
+                <StaggerText text="COMPETENCIES" direction="top" stagger={0.04} delay={200} />
+              </h2>
             </div>
             <div className="as-spec-count">10 DISCIPLINES</div>
           </div>
@@ -306,7 +399,7 @@ function SpecializationsSection() {
                   <window.Reveal key={item} delay={(ci * half + i) * 50}>
                     <div className="as-spec-item">
                       <span className="as-spec-num">{String(n).padStart(2, '0')}</span>
-                      <span className="as-spec-label">{item}</span>
+                      <span className="as-spec-label"><StaggerText text={item} direction={n % 2 === 0 ? 'top' : 'bottom'} stagger={0.03} delay={(ci * half + i) * 60} /></span>
                     </div>
                   </window.Reveal>
                 );
