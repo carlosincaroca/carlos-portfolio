@@ -20,10 +20,11 @@
   <script type="text/babel" src="hands.jsx"></script>
   <script type="text/babel" src="project-index.jsx"></script>
   <script type="text/babel" src="case-study.jsx"></script>
+  <script type="text/babel" src="about-sections.jsx"></script>
   <script type="text/babel" src="app2.jsx"></script>
   <script type="text/babel" data-presets="env,react">
     function tryMount() {
-      if (window.App && window.Navigation && window.ProjectIndex && window.CaseStudy && window.Reveal && window.HandsModel) {
+      if (window.App && window.Navigation && window.ProjectIndex && window.CaseStudy && window.Reveal && window.HandsModel && window.IntroSection && window.AboutSection && window.SpecializationsSection && window.FloatingPillNav) {
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<window.App />);
       } else {

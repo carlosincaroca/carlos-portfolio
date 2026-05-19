@@ -43,3 +43,54 @@ function Navigation({ projectCount, onLogoClick, onIndexClick }) {
 }
 
 window.Navigation = Navigation;
+
+function FloatingPillNav() {
+  const [visible, setVisible] = React.useState(false);
+  const [active, setActive] = React.useState('hero');
+
+  React.useEffect(() => {
+    const update = () => {
+      const scrollY = window.scrollY;
+      setVisible(scrollY > window.innerHeight * 0.5);
+      const ids = ['project-index', 'specializations', 'about', 'intro'];
+      let found = 'hero';
+      for (const id of ids) {
+        const el = document.getElementById(id);
+        if (el) {
+          const top = el.getBoundingClientRect().top + scrollY;
+          if (scrollY >= top - window.innerHeight * 0.35) { found = id; break; }
+        }
+      }
+      setActive(found);
+    };
+    window.addEventListener('scroll', update, { passive: true });
+    update();
+    return () => window.removeEventListener('scroll', update);
+  }, []);
+
+  const links = [
+    { id: 'hero', label: 'HOME' },
+    { id: 'intro', label: 'INTRO' },
+    { id: 'about', label: 'ABOUT' },
+    { id: 'specializations', label: 'SKILLS' },
+    { id: 'project-index', label: 'WORK' },
+  ];
+
+  const scrollTo = (id) => {
+    if (id === 'hero') { window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  return (
+    <div className={`pill-nav${visible ? ' visible' : ''}`}>
+      {links.map(({ id, label }) => (
+        <button key={id} className={`pill-nav-btn${active === id ? ' active' : ''}`} onClick={() => scrollTo(id)}>
+          {label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+window.FloatingPillNav = FloatingPillNav;

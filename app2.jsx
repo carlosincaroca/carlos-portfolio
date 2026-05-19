@@ -62,30 +62,39 @@ function StatTile({ value, suffix, label, delay }) {
 
 function App() {
   const [selectedId, setSelectedId] = React.useState(null);
-  const [heroOpacity, setHeroOpacity] = React.useState(1);
   const [rotationProgress, setRotationProgress] = React.useState(0);
+  const [heroTranslate, setHeroTranslate] = React.useState(0);
 
   React.useEffect(() => {
-    const onScroll = () => {
-      const idx = document.getElementById('project-index');
+    let phase1 = 0;
+
+    const measure = () => {
       const bp = document.querySelector('.hero-blueprint');
-      let rp = 0;
-      if (idx && bp) {
-        const targetScroll = window.scrollY + (idx.getBoundingClientRect().top - bp.getBoundingClientRect().bottom);
-        rp = targetScroll > 0 ? Math.max(0, Math.min(1, window.scrollY / targetScroll)) : 0;
-      } else if (idx) {
-        const targetY = idx.getBoundingClientRect().top + window.scrollY;
-        rp = targetY > 0 ? Math.max(0, Math.min(1, window.scrollY / targetY)) : 0;
-      }
-      setRotationProgress(rp);
-      const fade = Math.max(0, Math.min(1, (rp - 0.97) / 0.03));
-      setHeroOpacity(1 - fade * 0.6);
+      if (!bp) return;
+      const r = bp.getBoundingClientRect();
+      phase1 = Math.max(0, r.top + r.height / 2 - window.innerHeight / 2);
     };
+
+    const onScroll = () => {
+      const scrollY = window.scrollY;
+      setHeroTranslate(-Math.min(scrollY, phase1));
+      const phase2 = Math.max(0, scrollY - phase1);
+      const rotRange = window.innerHeight * 1.2;
+      const rp = Math.max(0, Math.min(1, phase2 / rotRange));
+      setRotationProgress(rp);
+    };
+
+    const onResize = () => { measure(); onScroll(); };
     window.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('resize', onScroll, { passive: true });
-    onScroll();
-    const t = setTimeout(onScroll, 200);
-    return () => { window.removeEventListener('scroll', onScroll); window.removeEventListener('resize', onScroll); clearTimeout(t); };
+    window.addEventListener('resize', onResize, { passive: true });
+    const rafId = requestAnimationFrame(() => { measure(); onScroll(); });
+    const t = setTimeout(() => { measure(); onScroll(); }, 250);
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onResize);
+      cancelAnimationFrame(rafId);
+      clearTimeout(t);
+    };
   }, []);
 
   React.useEffect(() => {
@@ -105,14 +114,15 @@ function App() {
   return (
     <div style={{ background: 'var(--paper)' }}>
       <Navigation projectCount={projects.length} onLogoClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} onIndexClick={() => window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })} />
-      <section className="hero" style={{ opacity: heroOpacity }}>
+      <window.FloatingPillNav />
+      <section id="hero" className="hero">
         <div className="hero-grid"></div>
         <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none' }}>
           {Array.from({ length: 20 }).map((_, i) => (
             <div key={i} className="particle" style={{ left: `${((i * 53) % 100)}%`, top: `${((i * 79) % 100)}%`, '--dur': `${3 + ((i * 17) % 200) / 100}s`, '--delay': `${((i * 37) % 200) / 100}s` }}></div>
           ))}
         </div>
-        <div style={{ position: 'relative', zIndex: 1, maxWidth: '72rem', width: '100%' }}>
+        <div style={{ position: 'relative', zIndex: 1, maxWidth: '72rem', width: '100%', transform: `translateY(${heroTranslate}px)`, willChange: 'transform' }}>
           <div style={{ marginBottom: '3rem' }}>
             <h1 className="hero-title">BIO MECH</h1>
             <div className="hero-eyebrow">
@@ -143,6 +153,9 @@ function App() {
         </div>
       </section>
       <div style={{ height: '60vh', background: 'var(--paper)' }} aria-hidden="true"></div>
+      <window.IntroSection />
+      <window.AboutSection />
+      <window.SpecializationsSection />
       <section style={{ position: 'relative', zIndex: 20, background: 'var(--paper)' }}>
         <ProjectIndex projects={projects} onProjectSelect={setSelectedId} />
       </section>
