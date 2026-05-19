@@ -1,0 +1,7 @@
+.superpowers/
+verify/
+extracted/
+uploads/
+figma-reconstructed/
+*.make
+.DS_Store

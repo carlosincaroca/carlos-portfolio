@@ -1,0 +1,153 @@
+/* ============================================================
+   App — hero + sticky scroll + index + case-study routing
+   ============================================================ */
+
+const projects = [
+  {
+    id: 1,
+    title: 'CARDIAC / PUMP',
+    category: 'ANATOMY',
+    flow: '2.4 L/MIN',
+    specs: { efficiency: '94%', pressure: '120mmHg', volume: '70mL', rate: '72 BPM' },
+  },
+  {
+    id: 2,
+    title: 'EXOSKELETON SPINE',
+    category: 'BIOMECHANICS',
+    flow: 'LOAD DISTRIBUTION',
+    specs: { loadCapacity: '50kg', flexibility: '35°', segments: '24', material: 'Ti-6Al-4V' },
+  },
+  {
+    id: 3,
+    title: 'NEURAL INTERFACE',
+    category: 'BIOELECTRONICS',
+    flow: '1K CHANNELS',
+    specs: { channels: '1024', sampling: '30kHz', impedance: '<100kΩ', bandwidth: '0.1–10kHz' },
+  },
+  {
+    id: 4,
+    title: 'PROSTHETIC JOINT',
+    category: 'MECHANICS',
+    flow: 'ROM 150°',
+    specs: { range: '150°', torque: '140Nm', weight: '1.2kg', battery: '8hr' },
+  },
+  {
+    id: 5,
+    title: 'RESPIRATORY ASSIST',
+    category: 'PULMONARY',
+    flow: '15 L/MIN',
+    specs: { flow: '15L/min', pressure: '25cmH2O', fio2: '21–100%', compliance: 'AUTO' },
+  },
+  {
+    id: 6,
+    title: 'VASCULAR STENT',
+    category: 'CARDIOLOGY',
+    flow: 'Ø 3.5MM',
+    specs: { diameter: '3.5mm', length: '18mm', expansion: 'BALLOON', coating: 'DRUG-ELUTING' },
+  },
+];
+
+function StatTile({ value, suffix, label, delay }) {
+  const display = value === 99 ? '∞' : `${value}${suffix}`;
+  return (
+    <div className="stat-tile">
+      <div className="swipe"></div>
+      <div style={{ position: 'relative', zIndex: 1, padding: '1rem' }}>
+        <div className="stat-num" style={{ fontSize: '2.25rem', fontWeight: 900, color: 'var(--red)', opacity: 0, animation: `fade-in 0.5s ease-out ${delay}s forwards` }}>{display}</div>
+        <div className="stat-label" style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--gray-600)', textTransform: 'uppercase' }}>{label}</div>
+      </div>
+    </div>
+  );
+}
+
+function App() {
+  const [selectedId, setSelectedId] = React.useState(null);
+  const [heroOpacity, setHeroOpacity] = React.useState(1);
+  const [rotationProgress, setRotationProgress] = React.useState(0);
+
+  React.useEffect(() => {
+    const onScroll = () => {
+      const idx = document.getElementById('project-index');
+      const bp = document.querySelector('.hero-blueprint');
+      let rp = 0;
+      if (idx && bp) {
+        const targetScroll = window.scrollY + (idx.getBoundingClientRect().top - bp.getBoundingClientRect().bottom);
+        rp = targetScroll > 0 ? Math.max(0, Math.min(1, window.scrollY / targetScroll)) : 0;
+      } else if (idx) {
+        const targetY = idx.getBoundingClientRect().top + window.scrollY;
+        rp = targetY > 0 ? Math.max(0, Math.min(1, window.scrollY / targetY)) : 0;
+      }
+      setRotationProgress(rp);
+      const fade = Math.max(0, Math.min(1, (rp - 0.97) / 0.03));
+      setHeroOpacity(1 - fade * 0.6);
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    onScroll();
+    const t = setTimeout(onScroll, 200);
+    return () => { window.removeEventListener('scroll', onScroll); window.removeEventListener('resize', onScroll); clearTimeout(t); };
+  }, []);
+
+  React.useEffect(() => {
+    if (selectedId !== null) window.scrollTo({ top: 0, behavior: 'instant' });
+  }, [selectedId]);
+
+  if (selectedId !== null) {
+    const project = projects.find((p) => p.id === selectedId);
+    return (
+      <React.Fragment>
+        <Navigation projectCount={projects.length} onLogoClick={() => setSelectedId(null)} onIndexClick={() => setSelectedId(null)} />
+        <CaseStudy project={project} onBack={() => setSelectedId(null)} />
+      </React.Fragment>
+    );
+  }
+
+  return (
+    <div style={{ background: 'var(--paper)' }}>
+      <Navigation projectCount={projects.length} onLogoClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} onIndexClick={() => window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })} />
+      <section className="hero" style={{ opacity: heroOpacity }}>
+        <div className="hero-grid"></div>
+        <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none' }}>
+          {Array.from({ length: 20 }).map((_, i) => (
+            <div key={i} className="particle" style={{ left: `${((i * 53) % 100)}%`, top: `${((i * 79) % 100)}%`, '--dur': `${3 + ((i * 17) % 200) / 100}s`, '--delay': `${((i * 37) % 200) / 100}s` }}></div>
+          ))}
+        </div>
+        <div style={{ position: 'relative', zIndex: 1, maxWidth: '72rem', width: '100%' }}>
+          <div style={{ marginBottom: '3rem' }}>
+            <h1 className="hero-title">BIO MECH</h1>
+            <div className="hero-eyebrow">
+              <div className="bar"></div>
+              <p className="uppercase wide" style={{ margin: 0 }}>PORTFOLIO OF BIOMEDICAL ENGINEERING • COMPUTATIONAL BIOMECHANICS • MEDICAL DEVICES</p>
+            </div>
+          </div>
+          <div className="hero-blueprint">
+            <div className="hero-stage">
+              <window.HandsModel rotationProgress={rotationProgress} />
+              <div className="reg-mark tl">+</div>
+              <div className="reg-mark tr">+</div>
+              <div className="reg-mark bl">+</div>
+              <div className="reg-mark br">+</div>
+              <div className="rot-readout"><span>ROT</span><span>{String(Math.round((71 + rotationProgress * 360) % 360)).padStart(3, '0')}°</span></div>
+            </div>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', marginBottom: '3rem' }}>
+            <StatTile value={projects.length} suffix="" label="Projects" delay={1.0} />
+            <StatTile value={4} suffix="" label="Categories" delay={1.1} />
+            <StatTile value={99} suffix="+" label="Iterations" delay={1.2} />
+            <StatTile value={100} suffix="%" label="FDA Compliant" delay={1.3} />
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
+            <p className="bold uppercase wider" style={{ color: 'var(--red)', fontSize: '0.875rem', margin: 0 }}>Scroll to explore projects</p>
+            <div className="scroll-mouse"><div className="dot"></div></div>
+          </div>
+        </div>
+      </section>
+      <div style={{ height: '60vh', background: 'var(--paper)' }} aria-hidden="true"></div>
+      <section style={{ position: 'relative', zIndex: 20, background: 'var(--paper)' }}>
+        <ProjectIndex projects={projects} onProjectSelect={setSelectedId} />
+      </section>
+    </div>
+  );
+}
+
+window.App = App;
