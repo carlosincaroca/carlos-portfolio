@@ -184,7 +184,7 @@ function SpecBgCanvas() {
       positions[i*3]   = originalPositions[i*3]   = srcPos.getX(vi);
       positions[i*3+1] = originalPositions[i*3+1] = srcPos.getY(vi);
       positions[i*3+2] = originalPositions[i*3+2] = srcPos.getZ(vi);
-      const c = colorA.clone().lerp(colorB, Math.random());
+      const c = Math.random() < 0.5 ? colorA : colorB;
       colors[i*3] = c.r; colors[i*3+1] = c.g; colors[i*3+2] = c.b;
     }
 
@@ -192,8 +192,8 @@ function SpecBgCanvas() {
     geometry.setAttribute('color',    new THREE.BufferAttribute(colors, 3));
 
     const material = new THREE.PointsMaterial({
-      size: 0.02, vertexColors: true, blending: THREE.AdditiveBlending,
-      transparent: true, opacity: 0.85, depthWrite: false,
+      size: 0.018, vertexColors: true, blending: THREE.NormalBlending,
+      transparent: true, opacity: 0.9, depthWrite: false,
     });
 
     const points = new THREE.Points(geometry, material);

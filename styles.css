@@ -256,6 +256,7 @@ svg { display: block; }
 .as-meta-val { font-size: 0.875rem; font-weight: 700; color: var(--ink); text-align: right; }
 
 .as-spec { padding: 7rem 2rem; background: var(--ink); color: var(--white); position: relative; z-index: 20; }
+.as-spec::after { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 60% 50%, transparent 30%, rgba(15,20,30,0.55) 100%); pointer-events: none; z-index: 0; }
 .as-spec-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 3rem; }
 .as-spec-title { font-size: clamp(3rem, 6vw, 5rem); font-weight: 900; letter-spacing: -0.03em; line-height: 0.87; color: var(--white); margin: 0; }
 .as-spec-count { font-family: 'JetBrains Mono', monospace; font-size: 0.6875rem; color: rgba(255,255,255,0.3); letter-spacing: 0.15em; padding-bottom: 0.5rem; }
@@ -265,5 +266,5 @@ svg { display: block; }
 .as-spec-col + .as-spec-col { border-left: 1px solid rgba(255,255,255,0.1); }
 .as-spec-item { display: flex; align-items: center; gap: 1.25rem; padding: 1.25rem 1.5rem; border-top: 1px solid rgba(255,255,255,0.08); transition: background-color 0.2s; }
 .as-spec-item:hover { background: rgba(196,54,77,0.1); }
-.as-spec-num { font-family: 'JetBrains Mono', monospace; font-size: 0.6875rem; font-weight: 700; color: var(--red); min-width: 1.75rem; }
-.as-spec-label { font-size: 0.9375rem; font-weight: 500; color: rgba(255,255,255,0.8); }
+.as-spec-num { font-family: 'JetBrains Mono', monospace; font-size: 0.6875rem; font-weight: 700; color: var(--red); min-width: 1.75rem; text-shadow: 0 1px 12px rgba(10,15,25,0.8); }
+.as-spec-label { font-size: 0.9375rem; font-weight: 500; color: rgba(255,255,255,0.95); text-shadow: 0 1px 16px rgba(10,15,25,0.9), 0 0 32px rgba(10,15,25,0.7); }
