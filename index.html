@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="styles.css?v=29" />
 </head>
 <body>
   <div id="root"></div>
@@ -15,15 +15,16 @@
   <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" crossorigin="anonymous"></script>
   <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin="anonymous"></script>
   <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
-  <script type="text/babel" src="reveal.jsx"></script>
-  <script type="text/babel" src="navigation.jsx"></script>
-  <script type="text/babel" src="hands.jsx"></script>
-  <script type="text/babel" src="project-index.jsx"></script>
-  <script type="text/babel" src="case-study.jsx"></script>
-  <script type="text/babel" src="app2.jsx"></script>
+  <script type="text/babel" src="reveal.jsx?v=29"></script>
+  <script type="text/babel" src="navigation.jsx?v=29"></script>
+  <script type="text/babel" src="hands.jsx?v=29"></script>
+  <script type="text/babel" src="project-index.jsx?v=29"></script>
+  <script type="text/babel" src="case-study.jsx?v=29"></script>
+  <script type="text/babel" src="about-sections.jsx?v=29"></script>
+  <script type="text/babel" src="app2.jsx?v=29"></script>
   <script type="text/babel" data-presets="env,react">
     function tryMount() {
-      if (window.App && window.Navigation && window.ProjectIndex && window.CaseStudy && window.Reveal && window.HandsModel) {
+      if (window.App && window.Navigation && window.ProjectIndex && window.CaseStudy && window.Reveal && window.HandsModel && window.IntroSection && window.AboutSection && window.SpecializationsSection && window.FloatingPillNav) {
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<window.App />);
       } else {

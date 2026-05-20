@@ -190,6 +190,7 @@ function AboutSection() {
 
   return (
     <section id="about" className="as-about">
+      <div style={{ position: 'relative', zIndex: 1 }}>
       <div className="container-wide">
         <div className="as-about-grid">
           <window.Reveal>
@@ -229,6 +230,7 @@ function AboutSection() {
             </div>
           </window.Reveal>
         </div>
+      </div>
       </div>
     </section>
   );
@@ -283,7 +285,7 @@ function SpecBgCanvas() {
 
     const material = new THREE.PointsMaterial({
       size: 0.018, vertexColors: true, blending: THREE.NormalBlending,
-      transparent: true, opacity: 0.9, depthWrite: false,
+      transparent: true, opacity: 0.65, depthWrite: false,
     });
 
     const points = new THREE.Points(geometry, material);
@@ -377,7 +379,7 @@ function SpecializationsSection() {
         <window.Reveal>
           <div className="as-spec-header">
             <div>
-              <div className="as-eyebrow as-eyebrow-inv">
+              <div className="as-eyebrow">
                 <div className="as-bar"></div>
                 <span>{'// AREAS OF SPECIALIZATION'}</span>
               </div>
