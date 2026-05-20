@@ -134,12 +134,12 @@ function App() {
             <div key={i} className="particle" style={{ left: `${((i * 53) % 100)}%`, top: `${((i * 79) % 100)}%`, '--dur': `${3 + ((i * 17) % 200) / 100}s`, '--delay': `${((i * 37) % 200) / 100}s` }}></div>
           ))}
         </div>
-        <div style={{ position: 'relative', zIndex: 1, maxWidth: '72rem', width: '100%', transform: `translateY(${heroTranslate}px)`, willChange: 'transform' }}>
-          <div style={{ marginBottom: '3rem' }}>
+        <div style={{ position: 'relative', zIndex: 1, width: '100%', alignSelf: 'stretch', transform: `translateY(${heroTranslate}px)`, willChange: 'transform' }}>
+          <div style={{ maxWidth: '72rem', margin: '0', marginBottom: '-9rem', padding: '0 2rem', width: '100%', boxSizing: 'border-box' }}>
             <h1 className="hero-title"><RevealTitle text="BIO MECH" /></h1>
             <div className="hero-eyebrow">
               <div className="bar"></div>
-              <p className="uppercase wide" style={{ margin: 0 }}>PORTFOLIO OF BIOMEDICAL ENGINEERING • COMPUTATIONAL BIOMECHANICS • MEDICAL DEVICES</p>
+              <p className="uppercase wide" style={{ margin: 0, color: 'var(--ink)' }}>PORTFOLIO OF BIOMEDICAL ENGINEERING • COMPUTATIONAL BIOMECHANICS • MEDICAL DEVICES</p>
             </div>
           </div>
           <div className="hero-blueprint">
@@ -152,15 +152,17 @@ function App() {
               <div className="rot-readout"><span>ROT</span><span>{String(Math.round((71 + rotationProgress * 360) % 360)).padStart(3, '0')}°</span></div>
             </div>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', marginBottom: '3rem' }}>
-            <StatTile value={projects.length} suffix="" label="Projects" delay={1.0} />
-            <StatTile value={4} suffix="" label="Categories" delay={1.1} />
-            <StatTile value={99} suffix="+" label="Iterations" delay={1.2} />
-            <StatTile value={100} suffix="%" label="FDA Compliant" delay={1.3} />
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
-            <p className="bold uppercase wider" style={{ color: 'var(--red)', fontSize: '0.875rem', margin: 0 }}>Scroll to explore projects</p>
-            <div className="scroll-mouse"><div className="dot"></div></div>
+          <div style={{ maxWidth: '72rem', margin: '0 auto', padding: '0 2rem', width: '100%', boxSizing: 'border-box' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', marginBottom: '3rem' }}>
+              <StatTile value={projects.length} suffix="" label="Projects" delay={1.0} />
+              <StatTile value={4} suffix="" label="Categories" delay={1.1} />
+              <StatTile value={99} suffix="+" label="Iterations" delay={1.2} />
+              <StatTile value={100} suffix="%" label="FDA Compliant" delay={1.3} />
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
+              <p className="bold uppercase wider" style={{ color: 'var(--red)', fontSize: '0.875rem', margin: 0 }}>Scroll to explore projects</p>
+              <div className="scroll-mouse"><div className="dot"></div></div>
+            </div>
           </div>
         </div>
       </section>

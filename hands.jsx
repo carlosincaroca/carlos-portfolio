@@ -17,22 +17,21 @@
       let height = rect.height || 450;
 
       const scene = new THREE.Scene();
-      scene.background = new THREE.Color('#0e3a8a');
 
       const camera = new THREE.PerspectiveCamera(32, width / height, 0.1, 100);
       camera.position.set(0, 0.3, 8.5);
       camera.lookAt(0, 0, 0);
 
-      const renderer = new THREE.WebGLRenderer({ antialias: true });
+      const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
       renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
       renderer.setSize(width, height);
       const canvas = renderer.domElement;
       canvas.style.cssText = 'width:100%;height:100%;display:block;';
       container.appendChild(canvas);
 
-      const inkMat = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.92 });
-      const inkSoftMat = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.55 });
-      const gridMat = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.08 });
+      const inkMat = new THREE.LineBasicMaterial({ color: 0xC4364D, transparent: true, opacity: 0.9 });
+      const inkSoftMat = new THREE.LineBasicMaterial({ color: 0xC4364D, transparent: true, opacity: 0.45 });
+      const gridMat = new THREE.LineBasicMaterial({ color: 0x1F2937, transparent: true, opacity: 0.08 });
 
       function edges(geom, threshold = 12) { return new THREE.LineSegments(new THREE.EdgesGeometry(geom, threshold), inkMat); }
       function curveLine(points, samples = 64, material = inkMat) {
@@ -113,7 +112,9 @@
       const rightHand = buildHand();
       rightHand.rotation.order='YZX'; rightHand.position.set(GAP/2+TIP_REACH,0.15,0.0); rightHand.rotation.y=Math.PI+0.04; rightHand.rotation.z=0.055;
       const handsGroup = new THREE.Group();
-      handsGroup.add(leftHand); handsGroup.add(rightHand); scene.add(handsGroup);
+      handsGroup.add(leftHand); handsGroup.add(rightHand);
+      handsGroup.position.y = 0;
+      scene.add(handsGroup);
 
       const gridGroup = new THREE.Group();
       for (let i = -15; i <= 15; i += 0.5) { gridGroup.add(straightLine([-15,i,-8],[15,i,-8],gridMat)); gridGroup.add(straightLine([i,-15,-8],[i,15,-8],gridMat)); }
