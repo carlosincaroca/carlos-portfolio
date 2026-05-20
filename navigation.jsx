@@ -3,6 +3,9 @@ const { useState, useEffect } = React;
 function Navigation({ projectCount, onLogoClick, onIndexClick }) {
   const [time, setTime] = useState(new Date());
   const [scrollPct, setScrollPct] = useState(0);
+  const [dark, setDark] = React.useState(
+    () => document.documentElement.getAttribute('data-theme') === 'dark'
+  );
 
   useEffect(() => { const t = setInterval(() => setTime(new Date()), 1000); return () => clearInterval(t); }, []);
 
@@ -16,12 +19,23 @@ function Navigation({ projectCount, onLogoClick, onIndexClick }) {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
+  const toggleTheme = () => {
+    const next = !dark;
+    setDark(next);
+    document.documentElement.setAttribute('data-theme', next ? 'dark' : 'light');
+    localStorage.setItem('theme', next ? 'dark' : 'light');
+  };
+
   const tintAlpha = Math.min(scrollPct / 0.1, 1);
   const bg = `rgba(196, 54, 77, ${tintAlpha})`;
   const timeStr = time.toLocaleTimeString('en-US', { hour12: false });
+  const r = Math.round(31 + (255 - 31) * tintAlpha);
+  const g = Math.round(41 + (255 - 41) * tintAlpha);
+  const b = Math.round(55 + (255 - 55) * tintAlpha);
+  const textColor = dark ? 'rgba(255,255,255,0.9)' : `rgb(${r},${g},${b})`;
 
   return (
-    <nav className="nav" style={{ backgroundColor: bg }}>
+    <nav className="nav" style={{ backgroundColor: bg, color: textColor }}>
       <div className="nav-inner">
         <button className="nav-link black tight" onClick={onLogoClick} style={{ fontSize: '1.5rem' }}>
           <span className="pulse-soft">BIO•MECH</span>
@@ -34,6 +48,9 @@ function Navigation({ projectCount, onLogoClick, onIndexClick }) {
               <span>SYSTEM ONLINE</span>
             </div>
             <div className="nav-clock">{timeStr}</div>
+            <button className="nav-theme-toggle" onClick={toggleTheme}>
+              {dark ? 'Light mode' : 'Dark mode'}
+            </button>
           </div>
         </div>
       </div>
