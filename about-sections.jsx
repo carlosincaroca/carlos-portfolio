@@ -259,7 +259,7 @@ function SpecBgCanvas() {
     const mouse = new THREE.Vector2(0, 0);
     const clock = new THREE.Clock();
 
-    const particleCount = 50000;
+    const particleCount = 15000;
     const positions = new Float32Array(particleCount * 3);
     const originalPositions = new Float32Array(particleCount * 3);
     const colors = new Float32Array(particleCount * 3);

@@ -33,24 +33,10 @@ const projects = [
   },
   {
     id: 3,
-    title: 'NEURAL INTERFACE',
-    category: 'BIOELECTRONICS',
-    flow: '1K CHANNELS',
-    specs: { channels: '1024', sampling: '30kHz', impedance: '<100kΩ', bandwidth: '0.1–10kHz' },
-    detail: {
-      statusLabel: 'Pre-clinical phase',
-      statusSub: 'FDA 510(k) pathway',
-      lead: 'A 1024-channel MEMS neural interface delivering sub-100 kΩ impedance across the full cortical bandwidth — enabling high-fidelity spike sorting and local field potential recording at clinical scale.',
-      metrics: [{ lbl: 'Channels', val: '1024' }, { lbl: 'Sampling', val: '30kHz' }, { lbl: 'Impedance', val: '<100kΩ' }, { lbl: 'Bandwidth', val: '10kHz' }],
-      modeA: { label: 'Signal', title: 'Signal acquisition', desc: '1024 platinum-iridium electrodes sampled at 30 kHz per channel, with on-chip spike detection reducing data throughput by 40×.', items: ['1024 Pt-Ir electrode array', 'On-chip spike detection', '40× data compression'] },
-      modeB: { label: 'Implant', title: 'Implant design', desc: 'Flexible parylene-C substrate minimises micromotion damage. Hermetic titanium enclosure, MRI-conditional at 1.5T.', items: ['Parylene-C flexible substrate', 'Hermetic Ti enclosure', 'MRI-conditional 1.5T'] },
-      stack: ['MEMS fabrication', 'Pt-Ir electrodes', 'CMOS ASIC', 'Python + SciPy', 'FDA 510(k)'],
-      protocols: [
-        { name: 'Device fabrication', detail: 'MEMS cleanroom process for parylene-C substrate with photolithography-defined electrode sites.', status: 'COMPLETE' },
-        { name: 'Bench validation', detail: 'Impedance spectroscopy, crosstalk characterisation, and chronic soak testing at 37 °C for 6 months.', status: 'COMPLETE' },
-        { name: 'In-vivo study', detail: 'Non-human primate implant study under IACUC approval. Signal quality assessed over 12-week period.', status: 'ACTIVE' },
-      ],
-    },
+    title: 'MARS ROVER',
+    category: 'AEROSPACE',
+    flow: '25KM RANGE',
+    specs: { range: '25km', mass: '320kg', power: 'RTG', speed: '0.12m/s' },
   },
   {
     id: 4,
@@ -75,8 +61,8 @@ const projects = [
   },
   {
     id: 5,
-    title: 'RESPIRATORY ASSIST',
-    category: 'PULMONARY',
+    title: 'AUTONOMOUS ROBOT',
+    category: 'ROBOTICS',
     flow: '15 L/MIN',
     specs: { flow: '15L/min', pressure: '25cmH2O', fio2: '21–100%', compliance: 'AUTO' },
     detail: {
@@ -183,14 +169,25 @@ function App() {
     if (selectedId !== null) window.scrollTo({ top: 0, behavior: 'instant' });
   }, [selectedId]);
 
+  const goToIndex = () => {
+    setSelectedId(null);
+    setTimeout(() => { document.getElementById('project-index')?.scrollIntoView({ behavior: 'smooth' }); }, 50);
+  };
+
   if (selectedId !== null) {
     const project = projects.find((p) => p.id === selectedId);
     return (
       <React.Fragment>
-        <Navigation projectCount={projects.length} onLogoClick={() => setSelectedId(null)} onIndexClick={() => { setSelectedId(null); setTimeout(() => { const el = document.getElementById('project-index'); if (el) el.scrollIntoView({ behavior: 'smooth' }); }, 50); }} />
+        <Navigation projectCount={projects.length} onLogoClick={() => setSelectedId(null)} onIndexClick={goToIndex} />
         {selectedId === 1
-          ? <window.DeepLearningCaseStudy project={project} onBack={() => { setSelectedId(null); setTimeout(() => { const el = document.getElementById('project-index'); if (el) el.scrollIntoView({ behavior: 'smooth' }); }, 50); }} />
-          : <CaseStudy project={project} onBack={() => { setSelectedId(null); setTimeout(() => { const el = document.getElementById('project-index'); if (el) el.scrollIntoView({ behavior: 'smooth' }); }, 50); }} />
+          ? <window.DeepLearningCaseStudy project={project} onBack={goToIndex} />
+          : selectedId === 2
+          ? <window.SpineExoskeletonCaseStudy project={project} onBack={goToIndex} />
+          : selectedId === 3
+          ? <window.MarsRoverCaseStudy project={project} onBack={goToIndex} />
+          : selectedId === 5
+          ? <window.RespiratoryCaseStudy project={project} onBack={goToIndex} />
+          : <CaseStudy project={project} onBack={goToIndex} />
         }
       </React.Fragment>
     );

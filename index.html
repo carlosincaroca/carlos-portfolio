@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
   <script>(function(){var t=localStorage.getItem('theme');if(t==='dark')document.documentElement.setAttribute('data-theme','dark');})();</script>
-  <link rel="stylesheet" href="styles.css?v=42" />
+  <link rel="stylesheet" href="styles.css?v=67" />
 </head>
 <body>
   <div id="root"></div>
@@ -16,20 +16,46 @@
   <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" crossorigin="anonymous"></script>
   <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin="anonymous"></script>
   <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
-  <script type="text/babel" src="reveal.jsx?v=40"></script>
-  <script type="text/babel" src="navigation.jsx?v=40"></script>
-  <script type="text/babel" src="hands.jsx?v=40"></script>
-  <script type="text/babel" src="project-index.jsx?v=40"></script>
-  <script type="text/babel" src="case-study.jsx?v=40"></script>
-  <script type="text/babel" src="case-study-dl.jsx?v=40"></script>
-  <script type="text/babel" src="about-sections.jsx?v=40"></script>
-  <script type="text/babel" src="app2.jsx?v=42"></script>
+  <script src="https://static.sketchfab.com/api/sketchfab-viewer-1.12.1.js"></script>
+  <script type="text/babel" src="reveal.jsx?v=67"></script>
+  <script type="text/babel" src="navigation.jsx?v=67"></script>
+  <script type="text/babel" src="hands.jsx?v=67"></script>
+  <script type="text/babel" src="project-index.jsx?v=67"></script>
+  <script type="text/babel" src="case-study.jsx?v=67"></script>
+  <script type="text/babel" src="case-study-dl.jsx?v=67"></script>
+  <script type="text/babel" src="about-sections.jsx?v=67"></script>
+  <script type="text/babel" src="case-study-spine.jsx?v=67"></script>
+  <script type="text/babel" src="case-study-respiratory.jsx?v=67"></script>
+  <script type="text/babel" src="case-study-mars.jsx?v=67"></script>
+  <script type="text/babel" src="app2.jsx?v=67"></script>
   <script type="text/babel" data-presets="env,react">
+    class ErrorBoundary extends React.Component {
+      constructor(props) { super(props); this.state = { error: null }; }
+      static getDerivedStateFromError(error) { return { error }; }
+      render() {
+        if (this.state.error) return (
+          <div style={{ padding: '4rem 2rem', fontFamily: 'JetBrains Mono, monospace' }}>
+            <div style={{ fontSize: '0.65rem', letterSpacing: '0.25em', color: '#C4364D', marginBottom: '1rem' }}>SYSTEM ERROR</div>
+            <div style={{ fontSize: '0.8rem', color: '#374151', opacity: 0.8 }}>{this.state.error.message}</div>
+          </div>
+        );
+        return this.props.children;
+      }
+    }
+    let _mountAttempts = 0;
     function tryMount() {
-      if (window.App && window.Navigation && window.ProjectIndex && window.CaseStudy && window.DeepLearningCaseStudy && window.Reveal && window.HandsModel && window.IntroSection && window.AboutSection && window.SpecializationsSection && window.FloatingPillNav) {
+      if (window.App && window.Navigation && window.ProjectIndex && window.CaseStudy && window.DeepLearningCaseStudy && window.MarsRoverCaseStudy && window.SpineExoskeletonCaseStudy && window.RespiratoryCaseStudy && window.Reveal && window.HandsModel && window.IntroSection && window.AboutSection && window.SpecializationsSection && window.FloatingPillNav) {
+        document.getElementById('mount-fallback')?.remove();
         const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<window.App />);
+        root.render(<ErrorBoundary><window.App /></ErrorBoundary>);
       } else {
+        if (_mountAttempts++ === 333 /* ~10s */ && !document.getElementById('mount-fallback')) {
+          const fb = document.createElement('div');
+          fb.id = 'mount-fallback';
+          fb.style.cssText = 'padding:4rem 2rem;font-family:JetBrains Mono,monospace;color:#C4364D;font-size:0.7rem;letter-spacing:0.2em';
+          fb.textContent = 'STILL LOADING — CHECK CONSOLE IF THIS PERSISTS';
+          document.getElementById('root').appendChild(fb);
+        }
         setTimeout(tryMount, 30);
       }
     }

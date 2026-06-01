@@ -117,10 +117,12 @@
       const onMove  = e => { mouse.x = e.clientX; mouse.y = e.clientY; };
       const onLeave = () => { mouse.x = -9999; mouse.y = -9999; };
       const onResize = () => { cancelAnimationFrame(animId); init(); time = 0; animate(); };
+      const onVisibility = () => { if (document.hidden) cancelAnimationFrame(animId); else animate(); };
 
       window.addEventListener('mousemove',  onMove);
       window.addEventListener('mouseleave', onLeave);
       window.addEventListener('resize',     onResize);
+      document.addEventListener('visibilitychange', onVisibility);
       init();
       animate();
 
@@ -129,6 +131,7 @@
         window.removeEventListener('mousemove',  onMove);
         window.removeEventListener('mouseleave', onLeave);
         window.removeEventListener('resize',     onResize);
+        document.removeEventListener('visibilitychange', onVisibility);
       };
     }, []);
 

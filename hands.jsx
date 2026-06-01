@@ -131,7 +131,7 @@
       const rotAxis = new THREE.Vector3(0.35,1.0,0.22).normalize();
       const startRad = (71*Math.PI)/180;
       let raf=0;
-      const render = () => { const p=stateRef.current.progress||0; handsGroup.setRotationFromAxisAngle(rotAxis,startRad+p*Math.PI*2); renderer.render(scene,camera); raf=requestAnimationFrame(render); };
+      const render = () => { const p=stateRef.current.progress||0; const t=performance.now()/1000; handsGroup.setRotationFromAxisAngle(rotAxis,startRad+p*Math.PI*2+t*0.3); renderer.render(scene,camera); raf=requestAnimationFrame(render); };
       render();
 
       return () => { cancelAnimationFrame(raf); ro.disconnect(); renderer.dispose(); try { if(canvas.parentNode===container)container.removeChild(canvas); } catch(e){} };
