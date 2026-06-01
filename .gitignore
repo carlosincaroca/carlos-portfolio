@@ -5,3 +5,6 @@ uploads/
 figma-reconstructed/
 *.make
 .DS_Store
+.vercel
+.env*
+*.gltf

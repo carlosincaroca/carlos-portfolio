@@ -223,12 +223,6 @@ function App() {
             </div>
           </div>
           <div style={{ maxWidth: '72rem', margin: '0 auto', padding: '0 2rem', width: '100%', boxSizing: 'border-box' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', marginBottom: '3rem' }}>
-              <StatTile value={projects.length} suffix="" label="Projects" delay={1.0} />
-              <StatTile value={4} suffix="" label="Categories" delay={1.1} />
-              <StatTile value={99} suffix="+" label="Iterations" delay={1.2} />
-              <StatTile value={100} suffix="%" label="FDA Compliant" delay={1.3} />
-            </div>
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
               <p className="bold uppercase wider" style={{ color: 'var(--red)', fontSize: '0.875rem', margin: 0 }}>Scroll to explore projects</p>
               <div className="scroll-mouse"><div className="dot"></div></div>
