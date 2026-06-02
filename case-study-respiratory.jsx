@@ -1,9 +1,9 @@
 (function () {
 
   /* ── Mini-rover iframe background ─────────────────────────── */
-  function MiniRoverBg({ iframeRef }) {
+  function MiniRoverBg({ iframeRef, lit }) {
     return (
-      <div style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none' }}>
+      <div className={lit ? 'cs-bg-3d lit' : 'cs-bg-3d'} style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none' }}>
         <iframe
           ref={iframeRef}
           src="./mini-rover-bg.html"
@@ -106,7 +106,7 @@
 
     return (
       <div className="dl-wrap" style={{ background: modelView ? 'transparent' : undefined, transition: 'background-color 0.5s ease' }}>
-        <MiniRoverBg iframeRef={iframeRef} />
+        <MiniRoverBg iframeRef={iframeRef} lit={modelView} />
 
         <div className="dl-inner">
           <button className="cs-back" onClick={onBack} style={{ position: 'relative', zIndex: 10 }}>

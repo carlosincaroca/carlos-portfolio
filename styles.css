@@ -115,12 +115,79 @@ svg { display: block; }
 .nav-clock { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 0.75rem; padding: 0.25rem 0.75rem; border: 1px solid rgba(255,255,255,0.3); border-radius: 4px; animation: border-throb 2s ease-in-out infinite; }
 .nav-progress { height: 4px; background: currentColor; transform-origin: 0% 50%; transform: scaleX(0); }
 
-.nav-theme-toggle { border-radius: 9999px; border: 1px solid currentColor; padding: 0.25rem 1rem; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.35em; background: transparent; opacity: 0.7; transition: opacity 0.2s, border-color 0.2s; font-family: 'JetBrains Mono', monospace; white-space: nowrap; }
+.nav-theme-toggle { border-radius: 9999px; border: 1px solid currentColor; padding: 0.25rem 1rem; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.35em; background: transparent; opacity: 0.7; transition: opacity 0.2s, border-color 0.2s; font-family: 'JetBrains Mono', monospace; white-space: nowrap; cursor: pointer; }
 .nav-theme-toggle:hover { opacity: 1; }
+
+/* --- Mobile bar cluster (hidden on desktop) --- */
+.nav-mobile { display: none; align-items: center; gap: 0.875rem; }
+.nav-theme-icon { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; padding: 0; background: transparent; border: 0; color: currentColor; cursor: pointer; opacity: 0.85; transition: opacity 0.2s, transform 0.2s; }
+.nav-theme-icon:hover { opacity: 1; }
+.nav-theme-icon:active { transform: scale(0.9); }
+.nav-burger { width: 30px; height: 22px; position: relative; background: transparent; border: 0; padding: 0; cursor: pointer; display: inline-block; }
+.nav-burger span { position: absolute; right: 0; height: 2px; background: currentColor; border-radius: 2px; transition: width 0.25s ease; }
+.nav-burger span:nth-child(1) { top: 2px; width: 30px; }
+.nav-burger span:nth-child(2) { top: 10px; width: 21px; }
+.nav-burger span:nth-child(3) { top: 18px; width: 26px; }
+.nav-burger:hover span:nth-child(2) { width: 30px; }
+.nav-burger:hover span:nth-child(3) { width: 30px; }
+
+/* --- Full-screen console drawer --- */
+.nav-drawer {
+  position: fixed; inset: 0; z-index: 200;
+  display: flex; flex-direction: column;
+  background: var(--paper); color: var(--ink);
+  padding: 1.5rem 1.5rem 2rem;
+  opacity: 0; visibility: hidden; pointer-events: none;
+  transform: scale(1.015);
+  transition: opacity 0.32s ease, transform 0.32s ease, visibility 0s linear 0.32s;
+}
+.nav-drawer.open { opacity: 1; visibility: visible; pointer-events: auto; transform: scale(1); transition: opacity 0.32s ease, transform 0.32s ease, visibility 0s; }
+.nav-drawer-grid {
+  position: absolute; inset: 0; opacity: 0.06; pointer-events: none;
+  background-image: linear-gradient(var(--red) 1px, transparent 1px), linear-gradient(90deg, var(--red) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+.nav-drawer-top { position: relative; z-index: 1; display: flex; align-items: center; justify-content: space-between; padding-bottom: 1.25rem; border-bottom: 2px solid var(--red); }
+.nav-drawer-logo { font-size: 1.5rem; color: var(--red); }
+.nav-drawer-close { position: relative; width: 28px; height: 28px; background: transparent; border: 0; padding: 0; cursor: pointer; color: var(--ink); }
+.nav-drawer-close span { position: absolute; top: 13px; left: 2px; width: 24px; height: 2px; background: currentColor; border-radius: 2px; }
+.nav-drawer-close span:nth-child(1) { transform: rotate(45deg); }
+.nav-drawer-close span:nth-child(2) { transform: rotate(-45deg); }
+
+.nav-drawer-links { position: relative; z-index: 1; display: flex; flex-direction: column; flex: 1; justify-content: center; gap: 0; }
+.nav-drawer-link {
+  display: flex; align-items: center; gap: 1rem;
+  padding: 1.15rem 0; background: transparent; border: 0; border-bottom: 1px solid var(--gray-200);
+  cursor: pointer; text-align: left; color: var(--ink); width: 100%;
+  opacity: 0; transform: translateY(14px);
+}
+.nav-drawer-link:first-child { border-top: 1px solid var(--gray-200); }
+.nav-drawer.open .nav-drawer-link { animation: ndl-in 0.5s cubic-bezier(0.2,0.7,0.2,1) forwards; animation-delay: calc(0.12s + var(--i) * 0.06s); }
+.ndl-num { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; font-weight: 700; color: var(--red); letter-spacing: 0.1em; }
+.ndl-rule { width: 16px; height: 1px; background: var(--red); opacity: 0.5; flex-shrink: 0; }
+.ndl-label { font-size: 1.6rem; font-weight: 900; letter-spacing: -0.02em; line-height: 1; transition: transform 0.2s, color 0.2s; }
+.ndl-badge { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; font-weight: 700; font-style: normal; color: var(--gray-600); margin-left: 0.5rem; vertical-align: middle; }
+.nav-drawer-link:hover .ndl-label, .nav-drawer-link:active .ndl-label { color: var(--red); transform: translateX(4px); }
+.nav-drawer-link.active .ndl-label { color: var(--red); }
+.nav-drawer-link.active .ndl-rule { width: 32px; opacity: 1; }
+
+.nav-drawer-foot { position: relative; z-index: 1; display: flex; align-items: center; justify-content: space-between; padding-top: 1.5rem; border-top: 2px solid var(--red); }
+.nav-drawer-clock { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--gray-600); letter-spacing: 0.1em; }
+.nav-drawer .nav-theme-toggle { color: var(--ink); opacity: 1; }
+
+@keyframes ndl-in { to { opacity: 1; transform: translateY(0); } }
+
+@media (max-width: 640px) {
+  .nav .nav-desktop { display: none; }
+  .nav .nav-mobile { display: flex; }
+  .nav-inner { padding: 0.875rem 1.25rem; }
+  .nav-logo { font-size: 1.25rem !important; }
+}
 
 .hero { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 6rem 0 2rem; position: sticky; top: 0; overflow: hidden; }
 .hero-grid { position: absolute; inset: 0; opacity: 0.1; background-image: linear-gradient(var(--red) 1px, transparent 1px), linear-gradient(90deg, var(--red) 1px, transparent 1px); background-size: 40px 40px; animation: grid-drift 20s linear infinite; }
 .hero-title { font-size: clamp(5rem, 14vw, 12rem); line-height: 0.85; letter-spacing: -0.05em; color: var(--red); margin: 0; }
+.hero-head { max-width: 72rem; margin: 0; margin-bottom: -9rem; padding: 0 2rem; width: 100%; box-sizing: border-box; }
 .reveal-letter { display: inline-block; color: var(--red); transition: color 0.5s cubic-bezier(0.4, 0, 0.2, 1); cursor: default; will-change: color; }
 .reveal-letter:hover { color: var(--ink); }
 .hero-eyebrow { display: flex; align-items: center; gap: 1rem; margin-top: 1rem; color: var(--red); font-weight: 700; font-size: 0.875rem; }
@@ -299,7 +366,7 @@ svg { display: block; }
 }
 [data-theme="dark"] .dl-card { background: rgba(26,34,53,0.72); border-color: rgba(255,255,255,0.08); }
 
-.dl-header { display: grid; gap: 2.5rem; }
+.dl-header { display: grid; gap: 2.5rem; grid-template-columns: minmax(0, 1fr); }
 @media (min-width: 1024px) { .dl-header { grid-template-columns: minmax(0,1.2fr) minmax(0,0.9fr); align-items: end; } }
 
 .dl-header-left { display: flex; flex-direction: column; gap: 2rem; }
@@ -352,7 +419,7 @@ svg { display: block; }
 @keyframes dl-grid  { 0%,100% { transform:rotate(-2deg); opacity:.7; } 50% { transform:rotate(2deg); opacity:1; } }
 @keyframes dl-pulse { 0%,100% { stroke-dasharray:0 200; opacity:.2; } 45%,60% { stroke-dasharray:200 0; opacity:1; } }
 
-.dl-middle { display: grid; gap: 2.5rem; }
+.dl-middle { display: grid; gap: 2.5rem; grid-template-columns: minmax(0, 1fr); }
 @media (min-width: 1280px) { .dl-middle { grid-template-columns: minmax(0,.9fr) minmax(0,1.2fr) minmax(0,.9fr); align-items: stretch; } }
 @media (max-width: 1279px) { .dl-img-figure { order: 1; } .dl-control-card { order: 2; } .dl-proto-card { order: 3; } }
 
@@ -466,6 +533,9 @@ svg { display: block; }
 .ctrl-pill:hover  { background: rgba(196,54,77,0.07); }
 .ctrl-pill:active { background: rgba(196,54,77,0.14); }
 
+/* The spine dim toggle dock is mobile-only (no dim exists on desktop); shown via the mobile block */
+.cs-dim-dock { display: none; }
+
 .stagger-char { display: inline-block; opacity: 0; will-change: transform, opacity; }
 .stagger-char[data-dir="bottom"] { transform: translateY(110%); }
 .stagger-char[data-dir="top"]    { transform: translateY(-110%); }
@@ -473,3 +543,42 @@ svg { display: block; }
 .stagger-char[data-dir="right"]  { transform: translateX(110%); }
 .stagger-char.stagger-visible { animation: staggerCharIn 0.5s cubic-bezier(0.25, 0.1, 0.25, 1) forwards; }
 @keyframes staggerCharIn { to { transform: translate(0,0) scale(1); opacity: 1; } }
+
+/* ============================================================
+   Mobile layout fixes (≤640px)
+   ============================================================ */
+@media (max-width: 640px) {
+  /* Hero — keep title from clipping, stop the 3D stage overlapping the eyebrow */
+  .hero-title { font-size: clamp(3rem, 15vw, 5rem); }
+  .hero-head { margin-bottom: -2rem; padding: 0 1.5rem; }
+  .hero-eyebrow { font-size: 0.75rem; }
+  .hero-blueprint { padding: 1rem; margin-bottom: 1rem; }
+
+  /* Case studies — let shrinkable content fit, wrap the metrics pill into a grid */
+  .dl-inner { padding: 4.5rem 1.25rem 3.5rem; gap: 2.5rem; }
+  .dl-card { padding: 1.5rem; border-radius: 1.25rem; }
+  .dl-metrics-strip { flex-wrap: wrap; border-radius: 1rem; }
+  .dl-metric { flex: 1 1 50%; }
+  .dl-metric:nth-child(2n) { border-right: none; }
+  .dl-metric:nth-child(n+3) { border-top: 1px solid var(--gray-200); }
+
+  /* Keep the floating pill nav within small viewports so its end buttons aren't clipped */
+  .pill-nav { max-width: calc(100vw - 1.25rem); }
+  .pill-nav-btn { padding: 0.5rem 0.75rem; font-size: 0.625rem; letter-spacing: 0.05em; }
+
+  /* Stop the CORE/COMPETENCIES header from overflowing the viewport (was the lone source of horizontal scroll) */
+  .as-spec { padding: 4.5rem 1.5rem; }
+  .as-spec-header { flex-direction: column; align-items: flex-start; gap: 0.75rem; margin-bottom: 2rem; }
+  .as-spec-title { font-size: clamp(2rem, 9vw, 3rem); }
+  .as-spec-count { padding-bottom: 0; }
+
+  /* Dim heavy 3D backgrounds so un-carded header text stays readable */
+  .cs-bg-3d { opacity: 0.3 !important; }
+  /* ...unless the visitor reveals the model (spine: View 3D / respiratory: Model View) */
+  .model-lit .cs-bg-3d, .cs-bg-3d.lit { opacity: 1 !important; }
+
+  /* Spine's dim toggle reuses the shimmer control dock; show it only on mobile */
+  .cs-dim-dock { display: flex; }
+  .model-lit .cs-dim-dock .ctrl-pill { background: rgba(196,54,77,0.14); }
+}
+[data-theme="dark"] .dl-metric:nth-child(n+3) { border-top-color: rgba(255,255,255,0.08); }

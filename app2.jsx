@@ -132,6 +132,7 @@ function App() {
   const [selectedId, setSelectedId] = React.useState(null);
   const [rotationProgress, setRotationProgress] = React.useState(0);
   const [heroTranslate, setHeroTranslate] = React.useState(0);
+  const [modelLit, setModelLit] = React.useState(false);
 
   React.useEffect(() => {
     let phase1 = 0;
@@ -167,6 +168,7 @@ function App() {
 
   React.useEffect(() => {
     if (selectedId !== null) window.scrollTo({ top: 0, behavior: 'instant' });
+    setModelLit(false); // reset 3D dim whenever the open project changes
   }, [selectedId]);
 
   const goToIndex = () => {
@@ -176,8 +178,9 @@ function App() {
 
   if (selectedId !== null) {
     const project = projects.find((p) => p.id === selectedId);
+    const has3dBg = selectedId === 2; // spine has no Model View of its own; respiratory's Model View owns the un-dim
     return (
-      <React.Fragment>
+      <div className={modelLit ? 'cs-page model-lit' : 'cs-page'}>
         <Navigation projectCount={projects.length} onLogoClick={() => setSelectedId(null)} onIndexClick={goToIndex} />
         {selectedId === 1
           ? <window.DeepLearningCaseStudy project={project} onBack={goToIndex} />
@@ -189,7 +192,16 @@ function App() {
           ? <window.RespiratoryCaseStudy project={project} onBack={goToIndex} />
           : <CaseStudy project={project} onBack={goToIndex} />
         }
-      </React.Fragment>
+        {has3dBg && (
+          <div className="ctrl-dock cs-dim-dock">
+            <div className="ctrl-pill-group">
+              <button className="ctrl-pill" onClick={() => setModelLit((v) => !v)} aria-pressed={modelLit}>
+                {modelLit ? 'Dim' : 'View 3D'}
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
     );
   }
 
@@ -205,7 +217,7 @@ function App() {
           ))}
         </div>
         <div style={{ position: 'relative', zIndex: 1, width: '100%', alignSelf: 'stretch', transform: `translateY(${heroTranslate}px)`, willChange: 'transform' }}>
-          <div style={{ maxWidth: '72rem', margin: '0', marginBottom: '-9rem', padding: '0 2rem', width: '100%', boxSizing: 'border-box' }}>
+          <div className="hero-head">
             <h1 className="hero-title"><RevealTitle text="BIO MECH" /></h1>
             <div className="hero-eyebrow">
               <div className="bar"></div>

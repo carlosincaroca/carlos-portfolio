@@ -39,7 +39,7 @@
     }, []);
 
     return (
-      <div style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none' }}>
+      <div className="cs-bg-3d" style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none' }}>
         <iframe
           ref={iframeRef}
           src=""
