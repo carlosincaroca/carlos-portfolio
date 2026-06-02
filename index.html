@@ -7,8 +7,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet" />
   <script>(function(){var t=localStorage.getItem('theme');if(t==='dark')document.documentElement.setAttribute('data-theme','dark');})();</script>
-  <link rel="stylesheet" href="styles.css?v=74" />
+  <link rel="stylesheet" href="styles.css?v=77" />
 </head>
 <body>
   <div id="root"></div>
@@ -17,17 +18,19 @@
   <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin="anonymous"></script>
   <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
   <script src="https://static.sketchfab.com/api/sketchfab-viewer-1.12.1.js"></script>
-  <script type="text/babel" src="reveal.jsx?v=74"></script>
-  <script type="text/babel" src="navigation.jsx?v=74"></script>
-  <script type="text/babel" src="hands.jsx?v=74"></script>
-  <script type="text/babel" src="project-index.jsx?v=74"></script>
-  <script type="text/babel" src="case-study.jsx?v=74"></script>
-  <script type="text/babel" src="case-study-dl.jsx?v=74"></script>
-  <script type="text/babel" src="about-sections.jsx?v=74"></script>
-  <script type="text/babel" src="case-study-spine.jsx?v=74"></script>
-  <script type="text/babel" src="case-study-respiratory.jsx?v=74"></script>
-  <script type="text/babel" src="case-study-mars.jsx?v=74"></script>
-  <script type="text/babel" src="app2.jsx?v=74"></script>
+  <script type="text/babel" src="reveal.jsx?v=77"></script>
+  <script type="text/babel" src="content.jsx?v=77"></script>
+  <script type="text/babel" src="i18n.jsx?v=77"></script>
+  <script type="text/babel" src="navigation.jsx?v=77"></script>
+  <script type="text/babel" src="hands.jsx?v=77"></script>
+  <script type="text/babel" src="project-index.jsx?v=77"></script>
+  <script type="text/babel" src="case-study.jsx?v=77"></script>
+  <script type="text/babel" src="case-study-dl.jsx?v=77"></script>
+  <script type="text/babel" src="about-sections.jsx?v=77"></script>
+  <script type="text/babel" src="case-study-spine.jsx?v=77"></script>
+  <script type="text/babel" src="case-study-respiratory.jsx?v=77"></script>
+  <script type="text/babel" src="case-study-mars.jsx?v=77"></script>
+  <script type="text/babel" src="app2.jsx?v=77"></script>
   <script type="text/babel" data-presets="env,react">
     class ErrorBoundary extends React.Component {
       constructor(props) { super(props); this.state = { error: null }; }
@@ -44,7 +47,7 @@
     }
     let _mountAttempts = 0;
     function tryMount() {
-      if (window.App && window.Navigation && window.ProjectIndex && window.CaseStudy && window.DeepLearningCaseStudy && window.MarsRoverCaseStudy && window.SpineExoskeletonCaseStudy && window.RespiratoryCaseStudy && window.Reveal && window.HandsModel && window.IntroSection && window.AboutSection && window.SpecializationsSection && window.FloatingPillNav) {
+      if (window.App && window.Navigation && window.ProjectIndex && window.CaseStudy && window.DeepLearningCaseStudy && window.MarsRoverCaseStudy && window.SpineExoskeletonCaseStudy && window.RespiratoryCaseStudy && window.Reveal && window.HandsModel && window.IntroSection && window.AboutSection && window.SpecializationsSection && window.FloatingPillNav && window.CONTENT && window.LanguageSelector) {
         document.getElementById('mount-fallback')?.remove();
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<ErrorBoundary><window.App /></ErrorBoundary>);

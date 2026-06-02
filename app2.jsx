@@ -133,6 +133,17 @@ function App() {
   const [rotationProgress, setRotationProgress] = React.useState(0);
   const [heroTranslate, setHeroTranslate] = React.useState(0);
   const [modelLit, setModelLit] = React.useState(false);
+  const [lang, setLang] = React.useState(() => localStorage.getItem('lang') || 'en');
+
+  React.useEffect(() => {
+    localStorage.setItem('lang', lang);
+    document.documentElement.lang = lang;
+  }, [lang]);
+
+  const c = window.CONTENT[lang] || window.CONTENT.en;
+  const ctx = { lang, setLang, c };
+  // Overlay translated card fields onto the base project data (values/detail stay)
+  const localizedProjects = projects.map((p, i) => ({ ...p, ...(c.projects[i] || {}) }));
 
   React.useEffect(() => {
     let phase1 = 0;
@@ -177,9 +188,10 @@ function App() {
   };
 
   if (selectedId !== null) {
-    const project = projects.find((p) => p.id === selectedId);
+    const project = localizedProjects.find((p) => p.id === selectedId);
     const has3dBg = selectedId === 2; // spine has no Model View of its own; respiratory's Model View owns the un-dim
     return (
+      <window.LangContext.Provider value={ctx}>
       <div className={modelLit ? 'cs-page model-lit' : 'cs-page'}>
         <Navigation projectCount={projects.length} onLogoClick={() => setSelectedId(null)} onIndexClick={goToIndex} />
         {selectedId === 1
@@ -202,10 +214,12 @@ function App() {
           </div>
         )}
       </div>
+      </window.LangContext.Provider>
     );
   }
 
   return (
+    <window.LangContext.Provider value={ctx}>
     <div style={{ background: 'var(--paper)' }}>
       <Navigation projectCount={projects.length} onLogoClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} onIndexClick={() => { const el = document.getElementById('project-index'); if (el) el.scrollIntoView({ behavior: 'smooth' }); }} />
       <window.FloatingPillNav />
@@ -221,7 +235,7 @@ function App() {
             <h1 className="hero-title"><RevealTitle text="BIO MECH" /></h1>
             <div className="hero-eyebrow">
               <div className="bar"></div>
-              <p className="uppercase wide" style={{ margin: 0, color: 'var(--ink)' }}>PORTFOLIO OF BIOMEDICAL ENGINEERING • COMPUTATIONAL BIOMECHANICS • MEDICAL DEVICES</p>
+              <p className="uppercase wide" style={{ margin: 0, color: 'var(--ink)' }}>{c.hero.tagline}</p>
             </div>
           </div>
           <div className="hero-blueprint">
@@ -236,7 +250,7 @@ function App() {
           </div>
           <div style={{ maxWidth: '72rem', margin: '0 auto', padding: '0 2rem', width: '100%', boxSizing: 'border-box' }}>
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
-              <p className="bold uppercase wider" style={{ color: 'var(--red)', fontSize: '0.875rem', margin: 0 }}>Scroll to explore projects</p>
+              <p className="bold uppercase wider" style={{ color: 'var(--red)', fontSize: '0.875rem', margin: 0 }}>{c.hero.scroll}</p>
               <div className="scroll-mouse"><div className="dot"></div></div>
             </div>
           </div>
@@ -247,9 +261,10 @@ function App() {
       <window.AboutSection />
       <window.SpecializationsSection />
       <section style={{ position: 'relative', zIndex: 20, background: 'var(--paper)' }}>
-        <ProjectIndex projects={projects} onProjectSelect={setSelectedId} />
+        <ProjectIndex projects={localizedProjects} onProjectSelect={setSelectedId} />
       </section>
     </div>
+    </window.LangContext.Provider>
   );
 }
 

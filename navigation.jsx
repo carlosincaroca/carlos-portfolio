@@ -8,6 +8,7 @@ function Navigation({ projectCount, onLogoClick, onIndexClick }) {
   const [dark, setDark] = React.useState(
     () => document.documentElement.getAttribute('data-theme') === 'dark'
   );
+  const { c } = window.useLang();
 
   useEffect(() => { const t = setInterval(() => setTime(new Date()), 1000); return () => clearInterval(t); }, []);
 
@@ -68,11 +69,11 @@ function Navigation({ projectCount, onLogoClick, onIndexClick }) {
   };
 
   const drawerLinks = [
-    { id: 'hero', n: '01', label: 'HOME' },
-    { id: 'intro', n: '02', label: 'INTRO' },
-    { id: 'about', n: '03', label: 'ABOUT' },
-    { id: 'specializations', n: '04', label: 'SKILLS' },
-    { id: 'project-index', n: '05', label: 'INDEX OF WORKS', badge: `[${projectCount}]` },
+    { id: 'hero', n: '01', label: c.nav.drawer.home },
+    { id: 'intro', n: '02', label: c.nav.drawer.intro },
+    { id: 'about', n: '03', label: c.nav.drawer.about },
+    { id: 'specializations', n: '04', label: c.nav.drawer.skills },
+    { id: 'project-index', n: '05', label: c.nav.drawer.index, badge: `[${projectCount}]` },
   ];
 
   return (
@@ -83,15 +84,17 @@ function Navigation({ projectCount, onLogoClick, onIndexClick }) {
             <span className="pulse-soft">BIO•MECH</span>
           </button>
           <div className="nav-desktop flex" style={{ alignItems: 'center', gap: '2rem' }}>
-            <button className="nav-link bold uppercase wider" onClick={onIndexClick} style={{ fontSize: '0.875rem' }}>INDEX OF WORKS [{projectCount}]</button>
+            <button className="nav-link bold uppercase wider" onClick={onIndexClick} style={{ fontSize: '0.875rem' }}>{c.nav.indexOfWorks} [{projectCount}]</button>
             <div className="flex" style={{ alignItems: 'center', gap: '1.5rem' }}>
               <div className="nav-clock">{timeStr}</div>
               <button className="nav-theme-toggle" onClick={toggleTheme}>
-                {dark ? 'Light mode' : 'Dark mode'}
+                {dark ? c.nav.themeLight : c.nav.themeDark}
               </button>
+              <window.LanguageSelector />
             </div>
           </div>
           <div className="nav-mobile">
+            <window.LanguageSelector compact />
             <button className="nav-theme-icon" onClick={toggleTheme} aria-label={dark ? 'Switch to light mode' : 'Switch to dark mode'}>
               {dark ? (
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -137,7 +140,7 @@ function Navigation({ projectCount, onLogoClick, onIndexClick }) {
         <div className="nav-drawer-foot">
           <span className="nav-drawer-clock">{timeStr}</span>
           <button className="nav-theme-toggle" onClick={toggleTheme}>
-            {dark ? 'Light mode' : 'Dark mode'}
+            {dark ? c.nav.themeLight : c.nav.themeDark}
           </button>
         </div>
       </div>
@@ -150,6 +153,7 @@ window.Navigation = Navigation;
 function FloatingPillNav() {
   const [visible, setVisible] = React.useState(false);
   const [active, setActive] = React.useState('hero');
+  const { c } = window.useLang();
 
   React.useEffect(() => {
     const update = () => {
@@ -172,11 +176,11 @@ function FloatingPillNav() {
   }, []);
 
   const links = [
-    { id: 'hero', label: 'HOME' },
-    { id: 'intro', label: 'INTRO' },
-    { id: 'about', label: 'ABOUT' },
-    { id: 'specializations', label: 'SKILLS' },
-    { id: 'project-index', label: 'WORK' },
+    { id: 'hero', label: c.nav.pill.home },
+    { id: 'intro', label: c.nav.pill.intro },
+    { id: 'about', label: c.nav.pill.about },
+    { id: 'specializations', label: c.nav.pill.skills },
+    { id: 'project-index', label: c.nav.pill.work },
   ];
 
   const scrollTo = (id) => {

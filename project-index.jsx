@@ -22,12 +22,13 @@ function ProjectCardDiagram({ active }) {
 
 function ProjectCard({ project, index, onClick }) {
   const [hovered, setHovered] = React.useState(false);
+  const { c } = window.useLang();
   return (
     <window.Reveal delay={index * 100}>
       <button className="project-card card-bordered" onClick={() => onClick(project.id)} onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}>
         <div className="project-card-num">
           <div className="swipe"></div>
-          <span>PROJECT {String(index + 1).padStart(2, '0')}</span>
+          <span>{c.index.projectWord} {String(index + 1).padStart(2, '0')}</span>
           <span style={{ fontSize: '0.75rem' }}>{project.category}</span>
         </div>
         <div className="project-blueprint">
@@ -35,14 +36,14 @@ function ProjectCard({ project, index, onClick }) {
           <ProjectCardDiagram active={hovered} />
           <div className="project-num-overlay">
             <div className="big">{index + 1}</div>
-            <div className="label">TECHNICAL DIAGRAM</div>
+            <div className="label">{c.index.technicalDiagram}</div>
           </div>
         </div>
         <div className="project-info">
           <h3>{project.title}</h3>
           <div className="meta">
             <span>{project.flow}</span>
-            <span className="view">VIEW SPECS →</span>
+            <span className="view">{c.index.viewSpecs}</span>
           </div>
         </div>
       </button>
@@ -51,6 +52,7 @@ function ProjectCard({ project, index, onClick }) {
 }
 
 function ProjectIndex({ projects, onProjectSelect }) {
+  const { c } = window.useLang();
   return (
     <div className="index-wrap" id="project-index">
       <div className="container-wide">
@@ -58,12 +60,12 @@ function ProjectIndex({ projects, onProjectSelect }) {
           <div className="index-header">
             <div className="shimmer"></div>
             <div style={{ position: 'relative', zIndex: 1 }}>
-              <h1 className="index-title">INDEX<br />OF WORKS</h1>
+              <h1 className="index-title" dangerouslySetInnerHTML={{ __html: c.index.titleHTML }}></h1>
               <div className="index-meta">
                 {[
-                  { color: '#2E5C9A', label: `${String(projects.length).padStart(2, '0')} PROJECTS` },
-                  { color: '#C4364D', label: '04 SYSTEMS' },
-                  { color: '#374151', label: '∞ REVISIONS' },
+                  { color: '#2E5C9A', label: `${String(projects.length).padStart(2, '0')} ${c.index.projectsWord}` },
+                  { color: '#C4364D', label: `04 ${c.index.systemsWord}` },
+                  { color: '#374151', label: `∞ ${c.index.revisionsWord}` },
                 ].map((it, i) => (
                   <div key={i} className="item">
                     <div className="swatch" style={{ backgroundColor: it.color, animationDelay: `${i * 0.3}s` }}></div>
@@ -79,9 +81,9 @@ function ProjectIndex({ projects, onProjectSelect }) {
         </div>
         <window.Reveal>
           <div className="index-footer">
-            <div className="left"><div className="bar"></div><span>END OF INDEX</span></div>
+            <div className="left"><div className="bar"></div><span>{c.index.endOfIndex}</span></div>
             <div className="flex" style={{ gap: '1.5rem' }}>
-              <span>LAST UPDATED: 2026.05.18</span>
+              <span>{c.index.lastUpdated}: 2026.05.18</span>
               <span className="rev">REV: 4.2</span>
             </div>
           </div>

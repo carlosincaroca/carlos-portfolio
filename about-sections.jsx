@@ -147,29 +147,21 @@ function BlueprintHuman() {
 }
 
 function IntroSection() {
+  const { c } = window.useLang();
   return (
     <section id="intro" className="as-intro">
       <div className="container-wide">
         <window.Reveal>
           <div className="as-eyebrow">
             <div className="as-bar"></div>
-            <span>{'// INTRODUCTION'}</span>
+            <span>{c.intro.eyebrow}</span>
           </div>
         </window.Reveal>
         <window.Reveal delay={100}>
-          <h2 className="as-intro-headline">
-            Engineering <em>human-grade</em><br />
-            solutions — where <em>mechanical<br />
-            precision</em> meets biological<br />
-            complexity.
-          </h2>
+          <h2 className="as-intro-headline" dangerouslySetInnerHTML={{ __html: c.intro.headlineHTML }}></h2>
         </window.Reveal>
         <window.Reveal delay={200}>
-          <p className="as-intro-body">
-            Biomedical engineer bridging the gap between clinical need and mechanical
-            innovation. Focused on systems where precision engineering enables better
-            patient outcomes — from cardiac assist devices to neural interfaces and beyond.
-          </p>
+          <p className="as-intro-body">{c.intro.body}</p>
         </window.Reveal>
         <window.Reveal delay={280}>
           <div className="as-intro-accent-line"></div>
@@ -180,13 +172,8 @@ function IntroSection() {
 }
 
 function AboutSection() {
-  const meta = [
-    { k: 'INSTITUTION', v: 'Brigham Young University' },
-    { k: 'DEGREE', v: 'B.S. Mechanical Engineering' },
-    { k: 'TRACK', v: 'Biomedical Engineering' },
-    { k: 'LOCATION', v: 'Provo, Utah' },
-    { k: 'STATUS', v: 'ACTIVE CANDIDATE' },
-  ];
+  const { c } = window.useLang();
+  const meta = c.about.meta;
 
   return (
     <section id="about" className="as-about">
@@ -203,22 +190,17 @@ function AboutSection() {
               <div style={{ position: 'relative', zIndex: 1, width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2.5rem' }}>
                 <BlueprintHuman />
               </div>
-              <div className="as-blueprint-tag">ANATOMICAL REF SHEET — REV 3.1</div>
+              <div className="as-blueprint-tag">{c.about.blueprintTag}</div>
             </div>
           </window.Reveal>
           <window.Reveal delay={150}>
             <div className="as-about-content">
               <div className="as-eyebrow">
                 <div className="as-bar"></div>
-                <span>{'// PROFILE'}</span>
+                <span>{c.about.eyebrow}</span>
               </div>
               <h2 className="as-name"><ScrambleText text="CARLOS" /><br /><ScrambleText text="INCAROCA" delay={300} /></h2>
-              <p className="as-bio">
-                ME student at Brigham Young University specializing in the intersection of
-                mechanical engineering and biomedical applications. Designing systems where
-                precision engineering enables better patient outcomes — from concept to
-                clinical validation.
-              </p>
+              <p className="as-bio">{c.about.bio}</p>
               <div className="as-meta-table">
                 {meta.map(({ k, v }) => (
                   <div key={k} className="as-meta-row">
@@ -357,19 +339,10 @@ function SpecBgCanvas() {
 }
 
 function SpecializationsSection() {
-  const items = [
-    'Cardiac Systems & Hemodynamics',
-    'Neural Interface Design',
-    'Prosthetics & Orthotics',
-    'Vascular Engineering',
-    'Respiratory Device Systems',
-    'Exoskeletal Biomechanics',
-    'Bioelectronics & Sensing',
-    'Computational Biomechanics',
-    'Medical Imaging Integration',
-    'FDA Regulatory Compliance',
-  ];
+  const { c } = window.useLang();
+  const items = c.spec.items;
   const half = 5;
+  const titleLines = c.spec.titleHTML.split(/<br\s*\/?>/i);
 
   return (
     <section id="specializations" className="as-spec">
@@ -381,14 +354,18 @@ function SpecializationsSection() {
             <div>
               <div className="as-eyebrow">
                 <div className="as-bar"></div>
-                <span>{'// AREAS OF SPECIALIZATION'}</span>
+                <span>{c.spec.eyebrow}</span>
               </div>
               <h2 className="as-spec-title">
-                <StaggerText text="CORE" direction="bottom" stagger={0.06} /><br />
-                <StaggerText text="COMPETENCIES" direction="top" stagger={0.04} delay={200} />
+                {titleLines.map((line, i) => (
+                  <React.Fragment key={i}>
+                    {i > 0 && <br />}
+                    <StaggerText text={line} direction={i % 2 === 0 ? 'bottom' : 'top'} stagger={i === 0 ? 0.06 : 0.04} delay={i * 200} />
+                  </React.Fragment>
+                ))}
               </h2>
             </div>
-            <div className="as-spec-count">10 DISCIPLINES</div>
+            <div className="as-spec-count">{c.spec.count}</div>
           </div>
         </window.Reveal>
         <div className="as-spec-divider"></div>
