@@ -181,16 +181,13 @@ function AboutSection() {
       <div className="container-wide">
         <div className="as-about-grid">
           <window.Reveal>
-            <div className="as-blueprint-panel">
-              <div className="as-blueprint-grid-bg"></div>
+            <div className="as-blueprint-panel as-photo-panel">
+              <img className="as-profile-photo" src="assets/carlos-profile.jpg" alt="Carlos Inca Roca" loading="lazy" />
+              <img className="as-profile-photo as-profile-photo-bw" src="assets/carlos-profile-bw.jpg" alt="" aria-hidden="true" loading="lazy" />
               <span className="reg-mark tl">+</span>
               <span className="reg-mark tr">+</span>
               <span className="reg-mark bl">+</span>
               <span className="reg-mark br">+</span>
-              <div style={{ position: 'relative', zIndex: 1, width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2.5rem' }}>
-                <BlueprintHuman />
-              </div>
-              <div className="as-blueprint-tag">{c.about.blueprintTag}</div>
             </div>
           </window.Reveal>
           <window.Reveal delay={150}>
@@ -199,7 +196,7 @@ function AboutSection() {
                 <div className="as-bar"></div>
                 <span>{c.about.eyebrow}</span>
               </div>
-              <h2 className="as-name"><ScrambleText text="CARLOS" /><br /><ScrambleText text="INCAROCA" delay={300} /></h2>
+              <h2 className="as-name"><ScrambleText text="CARLOS" /><br /><ScrambleText text="INCA ROCA" delay={300} /></h2>
               <p className="as-bio">{c.about.bio}</p>
               <div className="as-meta-table">
                 {meta.map(({ k, v }) => (
