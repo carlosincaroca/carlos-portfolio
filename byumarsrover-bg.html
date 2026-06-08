@@ -125,7 +125,7 @@
     import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 
     /* ── Model source (Vercel Blob — Draco-compressed .glb) ── */
-    const MODEL_URL = 'https://it4hsyd2kjmsott7.public.blob.vercel-storage.com/mini-rover.glb';
+    const MODEL_URL = 'https://it4hsyd2kjmsott7.public.blob.vercel-storage.com/byumarsrover.glb';
 
     /* ── Renderer — transparent so the portfolio bg shows through ── */
     const canvas   = document.getElementById('canvas');
@@ -186,9 +186,7 @@
     ground.receiveShadow = true;
     scene.add(ground);
 
-    /* Sync ground, fog, and the stage backdrop variant to the page theme.
-       The dark stage stays dramatic; the light stage is a bright studio with
-       the same ambiance (vignette + blueprint grid). */
+    /* Sync ground, fog, and the stage backdrop variant to the page theme. */
     function applyTheme() {
       const dark  = isDark();
       groundMat.color.setHex(dark ? GROUND_DARK : GROUND_LIGHT);
@@ -205,15 +203,16 @@
     applyTheme();
 
     /* ── Model pivot (clean rotation around centre) ── */
+    const MODEL_Y = -0.5;   // ◀ ROVER VERTICAL POSITION: + = up, − = down (world units; model ≈ 3 tall)
     const pivot = new THREE.Group();
+    pivot.rotation.y = Math.PI - Math.PI / 3;   // start angle (matches the viewer)
+    pivot.position.y = MODEL_Y;
     scene.add(pivot);
 
     /* ── Explode config & state ── */
-    const EXPLODE_AMOUNT  = 0.2;   // how far parts fly out
-    const BRACKET_LIFT    = 0.4;   // how high brackets rise above motors
-    const WHEEL_SPREAD    = 1.3;   // wheel distance multiplier
-    const SENSOR_SPREAD   = 0.35;  // QRD opto-sensors barely drift
-    const SERVO_SPREAD    = 0.4;   // servos drift outward with the assembly
+    const EXPLODE_AMOUNT  = 0.35;  // how far parts fly out
+    const WHEEL_SPREAD    = 1.6;   // extra distance for the 6 wheels
+    const GRIPPER_SPREAD  = 1.7;   // extra distance for the gripper
     const EXPLODE_SPEED   = 1.8;   // seconds to fully explode / implode
 
     const parts = [];              // filled after model loads
@@ -236,7 +235,7 @@
     const defaultTarget  = new THREE.Vector3(0, 0, 0);
     const easeInOutCubic = (t) => t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t + 2, 3) / 2;
 
-    /* ── Interaction hint (auto-fades on first drag/zoom, ~4s fallback) ── */
+    /* ── Interaction hint (persists until first drag/zoom) ── */
     const hintEl = document.getElementById('hint');
     function showHint() { if (hintEl) hintEl.classList.add('show'); }
     function hideHint() { if (hintEl) hintEl.classList.remove('show'); }
@@ -293,7 +292,7 @@
           if (obj.isMesh) { obj.castShadow = true; obj.receiveShadow = true; }
         });
 
-        /* Centre + fit */
+        /* Centre + fit (Onshape export is Z-up → rotate −90° X to stand upright) */
         const box    = new THREE.Box3().setFromObject(model);
         const center = box.getCenter(new THREE.Vector3());
         const size   = box.getSize(new THREE.Vector3());
@@ -302,12 +301,12 @@
 
         model.position.sub(center.multiplyScalar(scale));
         model.scale.setScalar(scale);
-        model.rotation.x = Math.PI;
+        model.rotation.x = -Math.PI / 2;
         pivot.add(model);
 
         /* Camera framing */
-        const CAM_ZOOM    = 1.0;   // 1.0 fits snugly, <1 closer, >1 further
-        const CAM_ELEV    = 30;    // degrees above horizon
+        const CAM_ZOOM    = 0.85;  // <1 = closer
+        const CAM_ELEV    = 15;    // degrees above horizon
         const CAM_AZIMUTH = 180;   // horizontal orbit (180 = back)
         const fitDist = (maxDim * scale * CAM_ZOOM) / Math.tan((camera.fov * Math.PI) / 360);
         const elevRad = CAM_ELEV    * Math.PI / 180;
@@ -326,19 +325,38 @@
         controls.maxDistance  = fitDist * 2.5;
         controls.maxPolarAngle = Math.PI / 2 - 0.05;   // stay above the floor
 
-        /* Seat ground just below the model */
-        const scaledBox = new THREE.Box3().setFromObject(pivot);
-        ground.position.y = scaledBox.min.y - 0.01;
-
         loaderEl.classList.add('hidden');
 
-        /* ── Mesh merge (draw-call reduction) ──────────────────────
-           Collapse each top-level part's descendant meshes into one mesh
-           per material (baked into part-local space). The 36 parts stay
-           separate, so explode is unaffected — this just trims draw calls. */
+        /* ── Top-level components under "Assembly 1" ── */
         const assemblyRoot  = model.children[0];
         const assemblyParts = assemblyRoot ? assemblyRoot.children : model.children;
 
+        // GLTFLoader sanitizes .name (spaces → underscores); match on userData.name.
+        const origName = (o) => (o.userData && o.userData.name) || o.name || '';
+        const isWheelNode   = (o) => origName(o).includes('6 Spoke Assembly');
+        const isGripperNode = (o) => origName(o).includes('Gripper Assembly');
+        const isArmNode     = (o) => origName(o).includes('New Arm Assembly');
+        const isCouplerNode = (o) => /JCC26-36|Ruland/.test(origName(o));
+        // Anchors (stay fixed; everything else explodes off them).
+        const isAnchorNode  = (o) => origName(o).includes('Chassis 2026') ||
+                                     origName(o).includes('occurrence of Part 1');
+
+        /* Promote the 6 wheels out of the chassis (the anchor) so each can
+           move independently (.attach preserves world transform). */
+        const chassisNode = assemblyParts.find((c) => origName(c).includes('Chassis 2026'));
+        if (chassisNode) {
+          chassisNode.children.filter(isWheelNode).forEach((w) => assemblyRoot.attach(w));
+        }
+        /* Fuse the JCC/Ruland couplers into the arm so they ride with it. */
+        const armNode = assemblyParts.find(isArmNode);
+        if (armNode) {
+          assemblyParts.filter(isCouplerNode).forEach((c) => armNode.attach(c));
+        }
+
+        /* ── Mesh merge (draw-call reduction) ──────────────────────
+           Collapse each top-level part's descendant meshes into one mesh per
+           material, baked into part-local space. The top-level groups stay
+           separate, so Explode still moves them independently. */
         const cleanGeo = (src, relMatrix) => {
           const g = src.index ? src.toNonIndexed() : src.clone();
           g.applyMatrix4(relMatrix);
@@ -374,72 +392,20 @@
           });
         });
 
-        /* ── Explode setup ─────────────────────────────────────────
-           Display names repeat across parts and GLTFLoader underscores
-           them — match on the ORIGINAL name (userData.name). */
+        /* ── Explode setup — radial, proportional to distance from centre ── */
         const modelWorldCenter = new THREE.Vector3();
         new THREE.Box3().setFromObject(pivot).getCenter(modelWorldCenter);
 
-        const origName = (o) => (o.userData && o.userData.name) || o.name || '';
-        const has = (o, s) => origName(o).toLowerCase().includes(s);
-
         parts.length = 0;
-
-        /* The servo is exported as many co-located pieces; give the whole
-           cluster ONE shared direction so it moves as a single rigid block. */
-        const servoParts = assemblyParts.filter((p) => has(p, 'servo'));
-        let servoLocalDir = null;
-        if (servoParts.length) {
-          const sbox = new THREE.Box3();
-          servoParts.forEach((p) => sbox.expandByObject(p));
-          if (!sbox.isEmpty()) {
-            const dir = sbox.getCenter(new THREE.Vector3()).sub(modelWorldCenter);
-            if (dir.length() < 0.001) dir.set(0, 1, 0);
-            dir.y = Math.max(dir.y, 0);
-            dir.normalize();
-            const pq = new THREE.Quaternion();
-            servoParts[0].parent.getWorldQuaternion(pq);
-            servoLocalDir = dir.applyQuaternion(pq.invert());
-          }
-        }
-
-        /* Pinned directions for parts that otherwise clump (world-space). */
-        const OVERRIDES = {
-          0:  { dir: [0, 0, -1], spread: 1.0 },   // Part 7
-          1:  { dir: [0, 0, 1],  spread: 1.3 },   // Wheel's Body ┐ move together
-          31: { dir: [0, 0, 1],  spread: 1.3 },   // Ball         ┘
-          3:  { dir: [0, 1, 0],  spread: 0.8 },   // Part 8 → straight up
-          6:  { dir: [0, 0, 1],  spread: 0.25 },  // QRD opto sensor
-          10: { dir: [0, 0, -1], spread: -1.3 },  // Part 5 → forward (negative flips)
-          44: { dir: [0, 0, -1], spread: 1.4 },   // HC-SR04 <1> → backward
-        };
-
-        assemblyParts.forEach((part, idx) => {
+        assemblyParts.forEach((part) => {
           const partBox = new THREE.Box3().setFromObject(part);
           if (partBox.isEmpty()) return;
-
-          // Anchored (stays put): the rover base.
-          if (has(part, 'rover base')) return;
-
-          // Servo: every piece shares ONE direction → moves as a rigid block.
-          if (has(part, 'servo')) {
-            if (servoLocalDir) parts.push({
-              mesh: part,
-              originalPos: part.position.clone(),
-              localDir: servoLocalDir,
-              spread: SERVO_SPREAD,
-            });
-            return;
-          }
-
-          const ov = OVERRIDES[idx];
+          if (isAnchorNode(part)) return;   // chassis + Part 1 stay fixed
 
           const partWorldCenter = new THREE.Vector3();
           partBox.getCenter(partWorldCenter);
 
-          const worldDir = ov
-            ? new THREE.Vector3(ov.dir[0], ov.dir[1], ov.dir[2])
-            : partWorldCenter.clone().sub(modelWorldCenter);
+          const worldDir = partWorldCenter.clone().sub(modelWorldCenter);
           if (worldDir.length() < 0.001)
             worldDir.set(Math.random() - 0.5, 0.3, Math.random() - 0.5);
 
@@ -448,16 +414,12 @@
             worldDir.set(Math.random() - 0.5, 0.3, Math.random() - 0.5);
           worldDir.normalize();
 
-          if (has(part, 'bracket')) worldDir.y += BRACKET_LIFT;
-          worldDir.normalize();
-
           const parentQuat = new THREE.Quaternion();
           part.parent.getWorldQuaternion(parentQuat);
           const localDir = worldDir.clone().applyQuaternion(parentQuat.invert());
 
-          const spread = ov ? ov.spread
-                       : (has(part, 'wheel') || has(part, 'pololu'))   ? WHEEL_SPREAD
-                       : (has(part, 'qrd') || has(part, 'opto trans')) ? SENSOR_SPREAD
+          const spread = isWheelNode(part)   ? WHEEL_SPREAD
+                       : isGripperNode(part) ? GRIPPER_SPREAD
                        : 1.0;
 
           parts.push({
@@ -467,6 +429,10 @@
             spread,
           });
         });
+
+        /* Seat the model on the ground now that reparent + merge have settled. */
+        const restBox = new THREE.Box3().setFromObject(pivot);
+        ground.position.y = restBox.min.y - 0.01;
       },
       (xhr) => {
         if (xhr.total) {

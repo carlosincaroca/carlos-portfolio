@@ -130,6 +130,7 @@ function StatTile({ value, suffix, label, delay }) {
 
 function App() {
   const [selectedId, setSelectedId] = React.useState(null);
+  const [armOpen, setArmOpen] = React.useState(false); // Mars sub-page: rover-arm viewer
   const [rotationProgress, setRotationProgress] = React.useState(0);
   const [heroTranslate, setHeroTranslate] = React.useState(0);
   const [modelLit, setModelLit] = React.useState(false);
@@ -180,6 +181,7 @@ function App() {
   React.useEffect(() => {
     if (selectedId !== null) window.scrollTo({ top: 0, behavior: 'instant' });
     setModelLit(false); // reset 3D dim whenever the open project changes
+    setArmOpen(false);  // leaving Mars closes the rover-arm sub-page
   }, [selectedId]);
 
   const goToIndex = () => {
@@ -199,7 +201,9 @@ function App() {
           : selectedId === 2
           ? <window.SpineExoskeletonCaseStudy project={project} onBack={goToIndex} />
           : selectedId === 3
-          ? <window.MarsRoverCaseStudy project={project} onBack={goToIndex} />
+          ? (armOpen
+              ? <window.RoverArmCaseStudy onBack={() => setArmOpen(false)} />
+              : <window.MarsRoverCaseStudy project={project} onBack={goToIndex} onOpenArm={() => setArmOpen(true)} />)
           : selectedId === 5
           ? <window.RespiratoryCaseStudy project={project} onBack={goToIndex} />
           : <CaseStudy project={project} onBack={goToIndex} />
@@ -263,8 +267,62 @@ function App() {
       <section style={{ position: 'relative', zIndex: 20, background: 'var(--paper)' }}>
         <ProjectIndex projects={localizedProjects} onProjectSelect={setSelectedId} />
       </section>
+      <SiteFooter />
     </div>
     </window.LangContext.Provider>
+  );
+}
+
+function SiteFooter() {
+  const toTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
+  const links = [
+    { id: 'linkedin', label: 'LinkedIn', href: 'https://www.linkedin.com/in/carlos-incaroca/', ext: true, icon: (
+      <path d="M4.98 3.5C4.98 4.88 3.87 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1s2.48 1.12 2.48 2.5zM5 8H0v16h5V8zm7.98 0H8.96v16h4.02v-8.4c0-3.94 5.13-4.26 5.13 0V24H22V13.36c0-6.66-7.13-6.41-8.04-3.13V8z" />
+    ) },
+    { id: 'email', label: 'Email', href: 'mailto:carlos.incaroca@gmail.com', ext: false, icon: (
+      <React.Fragment>
+        <rect x="2.5" y="4.5" width="19" height="15" rx="2" fill="none" stroke="currentColor" strokeWidth="1.8" />
+        <path d="M3.5 6.5 12 12.5 20.5 6.5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+      </React.Fragment>
+    ) },
+    { id: 'github', label: 'GitHub', href: 'https://github.com/carlosincaroca?tab=repositories', ext: true, icon: (
+      <path d="M12 .5C5.37.5 0 5.78 0 12.29c0 5.2 3.44 9.6 8.21 11.16.6.11.82-.25.82-.56 0-.28-.01-1.02-.02-2-3.34.71-4.04-1.58-4.04-1.58-.55-1.37-1.34-1.74-1.34-1.74-1.09-.73.08-.71.08-.71 1.2.08 1.84 1.21 1.84 1.21 1.07 1.79 2.81 1.27 3.5.97.11-.76.42-1.27.76-1.56-2.67-.3-5.47-1.31-5.47-5.81 0-1.28.47-2.33 1.23-3.15-.12-.3-.53-1.51.12-3.15 0 0 1-.32 3.3 1.2.96-.26 1.98-.39 3-.4 1.02.01 2.04.14 3 .4 2.3-1.52 3.3-1.2 3.3-1.2.65 1.64.24 2.85.12 3.15.77.82 1.23 1.87 1.23 3.15 0 4.51-2.81 5.5-5.49 5.79.43.36.81 1.09.81 2.2 0 1.59-.01 2.87-.01 3.26 0 .31.21.68.83.56C20.57 21.88 24 17.49 24 12.29 24 5.78 18.63.5 12 .5z" />
+    ) },
+    { id: 'resume', label: 'Résumé', href: '#', ext: true, icon: (
+      <React.Fragment>
+        <path d="M14 2.5H6.5A1.5 1.5 0 0 0 5 4v16a1.5 1.5 0 0 0 1.5 1.5h11A1.5 1.5 0 0 0 19 20V7.5z" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
+        <path d="M14 2.5V7.5H19" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
+        <path d="M8.5 12.5h7M8.5 16h7M8.5 9h2.5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+      </React.Fragment>
+    ) },
+  ];
+  return (
+    <footer className="site-footer" role="contentinfo">
+      <div className="sf-inner">
+        <div className="sf-brand-col">
+          <button className="sf-mark black tight" onClick={toTop} aria-label="Back to top">IατR</button>
+          <div className="sf-sig">IATRA ENGINEERING</div>
+        </div>
+        <div className="sf-social">
+          {links.map((l) => (
+            <a
+              key={l.id}
+              className="sf-icon"
+              href={l.href}
+              aria-label={l.label}
+              title={l.label}
+              {...(l.ext ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+            >
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">{l.icon}</svg>
+            </a>
+          ))}
+        </div>
+      </div>
+      <div className="sf-base">
+        <span>© 2026 IATRA Engineering</span>
+        <span>Carlos Inca Roca</span>
+      </div>
+    </footer>
   );
 }
 

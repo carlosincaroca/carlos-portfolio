@@ -1,6 +1,19 @@
 (function () {
 
-  /* ── Solar particle background (Three.js, no bloom) ────── */
+  /* ── Mars-rover 3D model background (iframe) ───────────── */
+  function MarsRoverBg({ iframeRef, lit }) {
+    return (
+      <div className={lit ? 'cs-bg-3d lit' : 'cs-bg-3d'} style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: lit ? 'auto' : 'none' }}>
+        <iframe
+          ref={iframeRef}
+          src="./byumarsrover-bg.html?v=124"
+          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', border: 'none', opacity: lit ? 1 : 0.92, transition: 'opacity 0.5s ease' }}
+        />
+      </div>
+    );
+  }
+
+  /* ── Solar particle background (Three.js, no bloom) — kept for reference ── */
   function SolarBg() {
     const ref = React.useRef(null);
 
@@ -279,7 +292,123 @@
     'NASA-JPL heritage design',
   ];
 
-  /* ── Orbital diagram canvas ────────────────────────────── */
+  /* ── Kinematic-diagram canvas (articulated rover-arm sweep) ── */
+  function ArmCanvas() {
+    const ref = React.useRef(null);
+
+    React.useEffect(() => {
+      const canvas = ref.current;
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      let raf, t = 0;
+
+      const resize = () => {
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        canvas.width  = canvas.offsetWidth  * dpr;
+        canvas.height = canvas.offsetHeight * dpr;
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      };
+      resize();
+      const ro = new ResizeObserver(resize);
+      ro.observe(canvas);
+
+      const draw = () => {
+        t += 0.01;
+        const w = canvas.offsetWidth, h = canvas.offsetHeight;
+        ctx.clearRect(0, 0, w, h);
+        const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+
+        const reach = Math.min(w, h) * 0.62;
+        const L = [reach * 0.42, reach * 0.34, reach * 0.22]; // link lengths
+        const bx = w / 2, by = h * 0.80;                      // shoulder base
+
+        const ink = dark ? 'rgba(200,212,224,0.85)' : 'hsl(215,28%,22%)';
+        const red = dark ? '#C4364D' : '#5A0A14';
+
+        // Reach envelope — dashed arc the end-effector can reach
+        const maxLen = L[0] + L[1] + L[2];
+        ctx.beginPath();
+        ctx.arc(bx, by, maxLen, Math.PI, Math.PI * 2);
+        ctx.setLineDash([3, 5]);
+        ctx.strokeStyle = dark ? 'rgba(196,54,77,0.22)' : 'rgba(196,54,77,0.30)';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // Forward kinematics — joint angles oscillate to sweep the workspace
+        const a1 = -Math.PI / 2 + 0.6 * Math.sin(t * 0.6);
+        const a2 = a1 + (-1.05 + 0.7 * Math.sin(t * 0.8 + 1));
+        const a3 = a2 + (-0.5 + 0.5 * Math.sin(t * 1.0 + 2));
+        const angs = [a1, a2, a3];
+
+        const pts = [{ x: bx, y: by }];
+        let cx = bx, cy = by;
+        for (let i = 0; i < 3; i++) {
+          cx += Math.cos(angs[i]) * L[i];
+          cy += Math.sin(angs[i]) * L[i];
+          pts.push({ x: cx, y: cy });
+        }
+
+        // Base plinth
+        ctx.beginPath();
+        ctx.moveTo(bx - 16, by + 6); ctx.lineTo(bx + 16, by + 6);
+        ctx.strokeStyle = ink; ctx.lineWidth = 3; ctx.lineCap = 'round'; ctx.stroke();
+
+        // Links
+        for (let i = 0; i < 3; i++) {
+          ctx.beginPath();
+          ctx.moveTo(pts[i].x, pts[i].y);
+          ctx.lineTo(pts[i + 1].x, pts[i + 1].y);
+          ctx.strokeStyle = ink;
+          ctx.lineWidth = 4 - i;       // taper toward the wrist
+          ctx.lineCap = 'round';
+          ctx.stroke();
+        }
+
+        // Joints
+        for (let i = 0; i < 3; i++) {
+          ctx.beginPath();
+          ctx.arc(pts[i].x, pts[i].y, 3.5, 0, Math.PI * 2);
+          ctx.fillStyle = dark ? '#0b0e16' : '#F4F0E8';
+          ctx.fill();
+          ctx.strokeStyle = red; ctx.lineWidth = 1.5; ctx.stroke();
+        }
+
+        // End-effector (gripper) with glow
+        const ee = pts[3];
+        const glow = ctx.createRadialGradient(ee.x, ee.y, 0, ee.x, ee.y, 14);
+        glow.addColorStop(0, 'rgba(196,54,77,0.5)');
+        glow.addColorStop(1, 'transparent');
+        ctx.beginPath(); ctx.arc(ee.x, ee.y, 14, 0, Math.PI * 2);
+        ctx.fillStyle = glow; ctx.fill();
+        // jaws
+        const ja = angs[2];
+        const open = 5 + 2.5 * Math.sin(t * 2.2);
+        const nx = Math.cos(ja + Math.PI / 2), ny = Math.sin(ja + Math.PI / 2);
+        const tx = Math.cos(ja), ty = Math.sin(ja);
+        [-1, 1].forEach((s) => {
+          ctx.beginPath();
+          ctx.moveTo(ee.x + nx * open * s, ee.y + ny * open * s);
+          ctx.lineTo(ee.x + nx * open * s + tx * 7, ee.y + ny * open * s + ty * 7);
+          ctx.strokeStyle = red; ctx.lineWidth = 2; ctx.lineCap = 'round'; ctx.stroke();
+        });
+        ctx.beginPath(); ctx.arc(ee.x, ee.y, 2.2, 0, Math.PI * 2);
+        ctx.fillStyle = red; ctx.fill();
+
+        raf = requestAnimationFrame(draw);
+      };
+      draw();
+
+      return () => { cancelAnimationFrame(raf); ro.disconnect(); };
+    }, []);
+
+    return React.createElement('canvas', {
+      ref,
+      style: { position: 'absolute', inset: 0, width: '100%', height: '100%' },
+    });
+  }
+
+  /* ── Orbital diagram canvas (kept for reference) ────────── */
   function OrbitalCanvas() {
     const ref = React.useRef(null);
 
@@ -417,23 +546,62 @@
   }
 
   /* ── Main component ────────────────────────────────────── */
-  function MarsRoverCaseStudy({ project, onBack }) {
-    const [mode, setMode] = React.useState('mobility');
+  function MarsRoverCaseStudy({ project, onBack, onOpenArm }) {
+    const [mode, setMode]           = React.useState('mobility');
+    const [exploded, setExploded]   = React.useState(false);
+    const [modelView, setModelView] = React.useState(false);
+    const [scrolled, setScrolled]   = React.useState(false);
+    const iframeRef                 = React.useRef(null);
+    const lastTouchRef              = React.useRef(false);
     const md = MODES[mode];
 
-    return (
-      <div className="dl-wrap">
-        <SolarBg />
+    const handleExplode = () => {
+      const iframe = iframeRef.current;
+      if (!iframe || !iframe.contentWindow || !iframe.contentWindow.toggleExplode) return;
+      const newState = iframe.contentWindow.toggleExplode();
+      setExploded(newState === 1);
+    };
 
-        <div className="dl-inner">
-          <button className="cs-back" onClick={onBack} style={{ position: 'relative', zIndex: 10 }}>
+    React.useEffect(() => {
+      const iframe = iframeRef.current;
+      if (!iframe || !iframe.contentWindow || !iframe.contentWindow.setModelView) return;
+      iframe.contentWindow.setModelView(modelView, lastTouchRef.current);
+    }, [modelView]);
+
+    React.useEffect(() => {
+      const onPointer = (e) => { lastTouchRef.current = e.pointerType === 'touch'; };
+      window.addEventListener('pointerdown', onPointer, true);
+      return () => window.removeEventListener('pointerdown', onPointer, true);
+    }, []);
+
+    React.useEffect(() => {
+      const onScroll = () => setScrolled(window.scrollY > 40);
+      onScroll();
+      window.addEventListener('scroll', onScroll, { passive: true });
+      return () => window.removeEventListener('scroll', onScroll);
+    }, []);
+
+    React.useEffect(() => {
+      const el = document.documentElement;
+      const body = document.body;
+      if (modelView) { el.style.background = 'transparent'; body.style.background = 'transparent'; }
+      else { el.style.background = ''; body.style.background = ''; }
+      return () => { el.style.background = ''; body.style.background = ''; };
+    }, [modelView]);
+
+    return (
+      <div className="dl-wrap" style={{ background: modelView ? 'transparent' : undefined, transition: 'background-color 0.5s ease' }}>
+        <MarsRoverBg iframeRef={iframeRef} lit={modelView} />
+
+        <div className="dl-inner" style={{ pointerEvents: modelView ? 'none' : undefined }}>
+          <button className="cs-back" onClick={onBack} style={{ position: 'relative', zIndex: 10, pointerEvents: 'auto' }}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" />
             </svg>
             BACK TO INDEX
           </button>
 
-          <header className="dl-header">
+          <header className="dl-header" style={{ opacity: modelView ? 0 : 1, transition: 'opacity 0.35s ease', pointerEvents: modelView ? 'none' : undefined, willChange: 'opacity' }}>
             <div className="dl-header-left">
               <div className="dl-badges">
                 <span className="dl-pill"><span className="dl-pill-dot"></span>Aerospace / Robotics</span>
@@ -492,7 +660,7 @@
             </div>
           </header>
 
-          <div className="dl-middle">
+          <div className="dl-middle" style={{ opacity: modelView ? 0 : 1, transition: 'opacity 0.35s ease', pointerEvents: modelView ? 'none' : undefined, willChange: 'opacity' }}>
             <div className="dl-card dl-control-card">
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <h3 className="dl-lbl">Tech stack</h3>
@@ -508,15 +676,25 @@
               </div>
             </div>
 
-            <figure className="dl-img-figure">
+            <figure
+              className="dl-img-figure"
+              role="button"
+              tabIndex={0}
+              aria-label="Open the rover-arm 3D viewer"
+              title="Open rover-arm viewer"
+              onClick={onOpenArm}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onOpenArm && onOpenArm(); } }}
+              style={{ cursor: onOpenArm ? 'pointer' : undefined }}
+            >
               <div className="dl-img-wrap">
-                <OrbitalCanvas />
+                <ArmCanvas />
                 <span className="dl-ring1"></span>
                 <span className="dl-ring2"></span>
+                <span aria-hidden="true" style={{ position: 'absolute', top: '12px', right: '12px', zIndex: 2, fontFamily: "'JetBrains Mono', monospace", fontSize: '9px', letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--red)', border: '1px solid var(--red)', borderRadius: '100px', padding: '4px 10px', pointerEvents: 'none' }}>View arm →</span>
               </div>
               <figcaption className="dl-figcaption">
-                <span>Solar system diagram</span>
-                <span className="dl-fig-line"><span className="dl-fig-dash"></span>Mars mission orbit</span>
+                <span>Kinematic diagram</span>
+                <span className="dl-fig-line"><span className="dl-fig-dash"></span>6-DOF reach envelope</span>
               </figcaption>
             </figure>
 
@@ -531,6 +709,34 @@
             </div>
           </div>
         </div>
+
+        <aside className={`ctrl-rail${scrolled && !modelView ? ' is-collapsed' : ''}`} aria-label="Assembly controls">
+          <span className="rail-spine" aria-hidden="true">Assembly · Ctrl</span>
+          <span className="rail-cross" aria-hidden="true">+</span>
+
+          <button className={`rail-btn${exploded ? ' is-active' : ''}`} onClick={handleExplode} title="Explode / assemble the model">
+            <span className="rail-leader" aria-hidden="true"></span>
+            <svg className="rail-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 10.5V4" /><path d="M9.5 6 12 3.5 14.5 6" />
+              <path d="M12 13.5V20" /><path d="M9.5 18 12 20.5 14.5 18" />
+              <path d="M10.5 12H4" /><path d="M6 9.5 3.5 12 6 14.5" />
+              <path d="M13.5 12H20" /><path d="M18 9.5 20.5 12 18 14.5" />
+            </svg>
+            <span className="rail-label">{exploded ? 'Assemble' : 'Explode'}</span>
+          </button>
+
+          <button className={`rail-btn rail-btn--view${modelView ? ' is-active' : ''}`} onClick={() => setModelView(v => !v)} title="Enter / exit model view">
+            <span className="rail-leader" aria-hidden="true"></span>
+            <svg className="rail-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 3l7.5 4.3v9.4L12 21l-7.5-4.3V7.3L12 3z" />
+              <path d="M4.5 7.3 12 11.6l7.5-4.3" />
+              <path d="M12 11.6V21" />
+            </svg>
+            <span className="rail-label">{modelView ? 'Exit View' : 'Model View'}</span>
+          </button>
+
+          <span className="rail-cross" aria-hidden="true">+</span>
+        </aside>
       </div>
     );
   }

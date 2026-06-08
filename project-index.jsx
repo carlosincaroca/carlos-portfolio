@@ -79,15 +79,6 @@ function ProjectIndex({ projects, onProjectSelect }) {
         <div className="project-grid">
           {projects.map((p, i) => <ProjectCard key={p.id} project={p} index={i} onClick={onProjectSelect} />)}
         </div>
-        <window.Reveal>
-          <div className="index-footer">
-            <div className="left"><div className="bar"></div><span>{c.index.endOfIndex}</span></div>
-            <div className="flex" style={{ gap: '1.5rem' }}>
-              <span>{c.index.lastUpdated}: 2026.05.18</span>
-              <span className="rev">REV: 4.2</span>
-            </div>
-          </div>
-        </window.Reveal>
       </div>
     </div>
   );

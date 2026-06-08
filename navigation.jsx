@@ -1,8 +1,8 @@
 const { useState, useEffect } = React;
 
 function Navigation({ projectCount, onLogoClick, onIndexClick }) {
-  const [time, setTime] = useState(new Date());
   const [scrollPct, setScrollPct] = useState(0);
+  const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [active, setActive] = useState('hero');
   const [dark, setDark] = React.useState(
@@ -10,12 +10,11 @@ function Navigation({ projectCount, onLogoClick, onIndexClick }) {
   );
   const { c } = window.useLang();
 
-  useEffect(() => { const t = setInterval(() => setTime(new Date()), 1000); return () => clearInterval(t); }, []);
-
   useEffect(() => {
     const onScroll = () => {
       const max = document.documentElement.scrollHeight - window.innerHeight;
       setScrollPct(max > 0 ? Math.min(window.scrollY / max, 1) : 0);
+      setScrolled(window.scrollY > 50);
     };
     window.addEventListener('scroll', onScroll, { passive: true });
     onScroll();
@@ -51,7 +50,6 @@ function Navigation({ projectCount, onLogoClick, onIndexClick }) {
 
   const tintAlpha = Math.min(scrollPct / 0.1, 1);
   const bg = `rgba(196, 54, 77, ${tintAlpha})`;
-  const timeStr = time.toLocaleTimeString('en-US', { hour12: false });
   const r = Math.round(31 + (255 - 31) * tintAlpha);
   const g = Math.round(41 + (255 - 41) * tintAlpha);
   const b = Math.round(55 + (255 - 55) * tintAlpha);
@@ -80,13 +78,12 @@ function Navigation({ projectCount, onLogoClick, onIndexClick }) {
     <React.Fragment>
       <nav className="nav" style={{ backgroundColor: bg, color: textColor }}>
         <div className="nav-inner">
-          <button className="nav-link black tight nav-logo" onClick={onLogoClick} style={{ fontSize: '1.5rem' }}>
-            <span className="pulse-soft">BIO•MECH</span>
+          <button className={`nav-link black tight nav-logo${scrolled ? ' shrunk' : ''}`} onClick={onLogoClick} style={{ fontSize: '1.5rem' }} aria-label="IATR — back to top">
+            <span className="pulse-soft nav-logo-mark"><span className="nlm-i">I</span><span className="nlm-core">ατ</span><span className="nlm-r">R</span></span>
           </button>
           <div className="nav-desktop flex" style={{ alignItems: 'center', gap: '2rem' }}>
             <button className="nav-link bold uppercase wider" onClick={onIndexClick} style={{ fontSize: '0.875rem' }}>{c.nav.indexOfWorks} [{projectCount}]</button>
             <div className="flex" style={{ alignItems: 'center', gap: '1.5rem' }}>
-              <div className="nav-clock">{timeStr}</div>
               <button className="nav-theme-toggle" onClick={toggleTheme}>
                 {dark ? c.nav.themeLight : c.nav.themeDark}
               </button>
@@ -106,7 +103,6 @@ function Navigation({ projectCount, onLogoClick, onIndexClick }) {
                 </svg>
               )}
             </button>
-            <div className="nav-clock">{timeStr}</div>
             <button className="nav-burger" onClick={() => setMenuOpen(true)} aria-label="Open menu" aria-expanded={menuOpen}>
               <span></span><span></span><span></span>
             </button>
@@ -138,7 +134,6 @@ function Navigation({ projectCount, onLogoClick, onIndexClick }) {
           ))}
         </nav>
         <div className="nav-drawer-foot">
-          <span className="nav-drawer-clock">{timeStr}</span>
           <button className="nav-theme-toggle" onClick={toggleTheme}>
             {dark ? c.nav.themeLight : c.nav.themeDark}
           </button>

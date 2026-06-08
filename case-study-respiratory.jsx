@@ -3,11 +3,11 @@
   /* ── Mini-rover iframe background ─────────────────────────── */
   function MiniRoverBg({ iframeRef, lit }) {
     return (
-      <div className={lit ? 'cs-bg-3d lit' : 'cs-bg-3d'} style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none' }}>
+      <div className={lit ? 'cs-bg-3d lit' : 'cs-bg-3d'} style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: lit ? 'auto' : 'none' }}>
         <iframe
           ref={iframeRef}
-          src="./mini-rover-bg.html"
-          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', border: 'none', opacity: 0.92 }}
+          src="./mini-rover-bg.html?v=121"
+          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', border: 'none', opacity: lit ? 1 : 0.92, transition: 'opacity 0.5s ease' }}
         />
       </div>
     );
@@ -81,7 +81,9 @@
     const [mode, setMode]           = React.useState('ventilation');
     const [exploded, setExploded]   = React.useState(false);
     const [modelView, setModelView] = React.useState(false);
+    const [scrolled, setScrolled]   = React.useState(false);
     const iframeRef                 = React.useRef(null);
+    const lastTouchRef              = React.useRef(false);
     const md = MODES[mode];
 
     const handleExplode = () => {
@@ -90,6 +92,25 @@
       const newState = iframe.contentWindow.toggleExplode();
       setExploded(newState === 1);
     };
+
+    React.useEffect(() => {
+      const onPointer = (e) => { lastTouchRef.current = e.pointerType === 'touch'; };
+      window.addEventListener('pointerdown', onPointer, true);
+      return () => window.removeEventListener('pointerdown', onPointer, true);
+    }, []);
+
+    React.useEffect(() => {
+      const iframe = iframeRef.current;
+      if (!iframe || !iframe.contentWindow || !iframe.contentWindow.setModelView) return;
+      iframe.contentWindow.setModelView(modelView, lastTouchRef.current);
+    }, [modelView]);
+
+    React.useEffect(() => {
+      const onScroll = () => setScrolled(window.scrollY > 40);
+      onScroll();
+      window.addEventListener('scroll', onScroll, { passive: true });
+      return () => window.removeEventListener('scroll', onScroll);
+    }, []);
 
     React.useEffect(() => {
       const el = document.documentElement;
@@ -108,15 +129,15 @@
       <div className="dl-wrap" style={{ background: modelView ? 'transparent' : undefined, transition: 'background-color 0.5s ease' }}>
         <MiniRoverBg iframeRef={iframeRef} lit={modelView} />
 
-        <div className="dl-inner">
-          <button className="cs-back" onClick={onBack} style={{ position: 'relative', zIndex: 10 }}>
+        <div className="dl-inner" style={{ pointerEvents: modelView ? 'none' : undefined }}>
+          <button className="cs-back" onClick={onBack} style={{ position: 'relative', zIndex: 10, pointerEvents: 'auto' }}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" />
             </svg>
             BACK TO INDEX
           </button>
 
-          <header className="dl-header" style={{ opacity: modelView ? 0 : 1, transition: 'opacity 0.5s ease', pointerEvents: modelView ? 'none' : undefined }}>
+          <header className="dl-header" style={{ opacity: modelView ? 0 : 1, transition: 'opacity 0.35s ease', pointerEvents: modelView ? 'none' : undefined, willChange: 'opacity' }}>
             <div className="dl-header-left">
               <div className="dl-badges">
                 <span className="dl-pill"><span className="dl-pill-dot"></span>Robotics / Autonomous Systems</span>
@@ -175,7 +196,7 @@
             </div>
           </header>
 
-          <div className="dl-middle" style={{ opacity: modelView ? 0 : 1, transition: 'opacity 0.5s ease', pointerEvents: modelView ? 'none' : undefined }}>
+          <div className="dl-middle" style={{ opacity: modelView ? 0 : 1, transition: 'opacity 0.35s ease', pointerEvents: modelView ? 'none' : undefined, willChange: 'opacity' }}>
             <div className="dl-card dl-control-card">
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <h3 className="dl-lbl">Tech stack</h3>
@@ -217,16 +238,33 @@
           </div>
         </div>
 
-        <div className="ctrl-dock">
-          <div className="ctrl-pill-group">
-            <button className="ctrl-pill" onClick={handleExplode}>
-              {exploded ? 'Assemble' : 'Explode'}
-            </button>
-            <button className="ctrl-pill" onClick={() => setModelView(v => !v)}>
-              {modelView ? 'Exit View' : 'Model View'}
-            </button>
-          </div>
-        </div>
+        <aside className={`ctrl-rail${scrolled && !modelView ? ' is-collapsed' : ''}`} aria-label="Assembly controls">
+          <span className="rail-spine" aria-hidden="true">Assembly · Ctrl</span>
+          <span className="rail-cross" aria-hidden="true">+</span>
+
+          <button className={`rail-btn${exploded ? ' is-active' : ''}`} onClick={handleExplode} title="Explode / assemble the model">
+            <span className="rail-leader" aria-hidden="true"></span>
+            <svg className="rail-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 10.5V4" /><path d="M9.5 6 12 3.5 14.5 6" />
+              <path d="M12 13.5V20" /><path d="M9.5 18 12 20.5 14.5 18" />
+              <path d="M10.5 12H4" /><path d="M6 9.5 3.5 12 6 14.5" />
+              <path d="M13.5 12H20" /><path d="M18 9.5 20.5 12 18 14.5" />
+            </svg>
+            <span className="rail-label">{exploded ? 'Assemble' : 'Explode'}</span>
+          </button>
+
+          <button className={`rail-btn rail-btn--view${modelView ? ' is-active' : ''}`} onClick={() => setModelView(v => !v)} title="Enter / exit model view">
+            <span className="rail-leader" aria-hidden="true"></span>
+            <svg className="rail-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 3l7.5 4.3v9.4L12 21l-7.5-4.3V7.3L12 3z" />
+              <path d="M4.5 7.3 12 11.6l7.5-4.3" />
+              <path d="M12 11.6V21" />
+            </svg>
+            <span className="rail-label">{modelView ? 'Exit View' : 'Model View'}</span>
+          </button>
+
+          <span className="rail-cross" aria-hidden="true">+</span>
+        </aside>
       </div>
     );
   }

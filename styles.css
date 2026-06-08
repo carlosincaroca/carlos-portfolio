@@ -112,6 +112,9 @@ svg { display: block; }
 .nav-link:hover::after { width: 100%; }
 .nav-link:hover { transform: scale(1.05); }
 .nav-link:active { transform: scale(0.95); }
+.nav-logo-mark { display: inline-flex; align-items: baseline; }
+.nav-logo .nlm-i, .nav-logo .nlm-r { display: inline-block; overflow: hidden; max-width: 1ch; opacity: 1; transition: max-width 0.5s cubic-bezier(0.22,1,0.36,1), opacity 0.5s ease; }
+.nav-logo.shrunk .nlm-i, .nav-logo.shrunk .nlm-r { max-width: 0; opacity: 0; }
 .nav-clock { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 0.75rem; padding: 0.25rem 0.75rem; border: 1px solid rgba(255,255,255,0.3); border-radius: 4px; animation: border-throb 2s ease-in-out infinite; }
 .nav-progress { height: 4px; background: currentColor; transform-origin: 0% 50%; transform: scaleX(0); }
 
@@ -280,10 +283,22 @@ svg { display: block; }
 .fade-up { opacity: 0; transform: translateY(50px); transition: opacity 0.6s cubic-bezier(.2,.7,.2,1), transform 0.6s cubic-bezier(.2,.7,.2,1); will-change: opacity, transform; }
 .fade-up.in { opacity: 1; transform: translateY(0); }
 
-.index-footer { margin-top: 3rem; border-top: 4px solid var(--red); padding-top: 2rem; display: flex; justify-content: space-between; align-items: center; font-size: 0.875rem; font-weight: 700; color: var(--gray-600); }
-.index-footer .left { display: flex; align-items: center; gap: 0.5rem; }
-.index-footer .bar { height: 2px; width: 32px; background: var(--red); }
-.index-footer .rev { animation: pulse-opacity-soft 2s ease-in-out infinite; }
+
+/* Site footer — IATR */
+.site-footer { position: relative; z-index: 20; background: var(--paper); border-top: 1px solid var(--border-soft); padding: clamp(3.25rem, 6vw, 5rem) 2rem clamp(2rem, 3vw, 2.5rem); }
+.sf-inner { max-width: 72rem; margin: 0 auto; display: flex; justify-content: space-between; align-items: flex-end; gap: 2rem; flex-wrap: wrap; }
+.sf-brand-col { display: flex; flex-direction: column; align-items: flex-start; gap: 0.6rem; }
+.sf-mark { font-size: 1.6rem; line-height: 1; color: var(--ink); letter-spacing: -0.03em; background: none; border: 0; padding: 0; cursor: pointer; }
+.sf-sig { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 0.625rem; font-weight: 600; letter-spacing: 0.26em; text-transform: uppercase; color: var(--gray-600); }
+.sf-social { display: flex; align-items: center; gap: 0.5rem; }
+.sf-icon { display: inline-flex; align-items: center; justify-content: center; width: 2.25rem; height: 2.25rem; border-radius: 8px; color: var(--gray-600); transition: color 0.18s ease, background-color 0.18s ease; }
+.sf-icon:hover { color: var(--ink); background: var(--border-soft); }
+.sf-base { max-width: 72rem; margin: clamp(2.25rem, 4vw, 3rem) auto 0; padding-top: 1.25rem; border-top: 1px solid var(--border-soft); display: flex; justify-content: space-between; align-items: center; gap: 1rem; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 0.6875rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--gray-600); }
+@media (max-width: 520px) {
+  .sf-inner { flex-direction: column; align-items: flex-start; gap: 1.5rem; }
+  .sf-social { margin-left: -0.5rem; }
+  .sf-base { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+}
 
 .cs-back { display: flex; align-items: center; gap: 0.5rem; color: var(--red); font-weight: 700; margin-bottom: 2rem; transition: transform 0.2s; }
 .cs-back:hover { transform: translateX(-5px) scale(1.05); }
@@ -356,6 +371,13 @@ svg { display: block; }
 .as-meta-row:hover { background: var(--paper); }
 .as-meta-key { font-size: 0.6875rem; font-weight: 700; color: var(--gray-600); text-transform: uppercase; letter-spacing: 0.1em; font-family: 'JetBrains Mono', monospace; }
 .as-meta-val { font-size: 0.875rem; font-weight: 700; color: var(--ink); text-align: right; }
+.as-contact { margin-top: 2rem; }
+.as-contact .as-eyebrow { margin-bottom: 1rem; }
+.as-contact-row { display: flex; gap: 0.75rem; flex-wrap: wrap; padding-bottom: 1.75rem; }
+.as-chip { position: relative; width: 3rem; height: 3rem; display: inline-flex; align-items: center; justify-content: center; border: 2px solid var(--gray-200); color: var(--ink); transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.2s ease; }
+.as-chip:hover { background: var(--red); border-color: var(--red); color: #fff; transform: translateY(-3px); }
+.as-chip-label { position: absolute; top: calc(100% + 0.5rem); left: 50%; transform: translateX(-50%); font-family: 'JetBrains Mono', monospace; font-size: 0.5625rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--red); white-space: nowrap; opacity: 0; transition: opacity 0.2s ease; pointer-events: none; }
+.as-chip:hover .as-chip-label { opacity: 1; }
 
 .as-spec { padding: 7rem 2rem; background: var(--paper); color: var(--ink); border-top: 4px solid var(--red); position: relative; z-index: 20; }
 .as-spec::after { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 60% 50%, transparent 30%, rgba(245,241,232,0.6) 100%); pointer-events: none; z-index: 0; }
@@ -576,6 +598,146 @@ svg { display: block; }
 }
 .ctrl-pill:hover  { background: rgba(196,54,77,0.07); }
 .ctrl-pill:active { background: rgba(196,54,77,0.14); }
+
+/* ── Assembly instrument rail (autonomous-robot / respiratory case study) ── */
+.ctrl-rail {
+  position: fixed;
+  right: 1.25rem;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  padding: 8px;
+  background: var(--rot-bg);
+  border: 1px solid var(--red);
+  border-radius: 14px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.14);
+  animation: railIn 0.6s cubic-bezier(0.22,1,0.36,1) 0.3s both;
+}
+@keyframes railIn {
+  from { opacity: 0; transform: translate(1.5rem, -50%); }
+  to   { opacity: 1; transform: translate(0, -50%); }
+}
+
+.rail-spine {
+  position: absolute;
+  left: -1.35rem;
+  top: 50%;
+  transform: translateY(-50%) rotate(180deg);
+  writing-mode: vertical-rl;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  opacity: 0.5;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.rail-cross {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  line-height: 1;
+  text-align: center;
+  color: var(--red);
+  opacity: 0.45;
+  padding: 1px 0 3px;
+  user-select: none;
+}
+
+.rail-btn {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  width: 78px;
+  padding: 11px 6px;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--red);
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, gap 0.5s ease, padding 0.5s ease;
+}
+.rail-btn + .rail-btn { margin-top: 2px; }
+.rail-btn:hover  { background: rgba(196,54,77,0.08); }
+.rail-btn:active { background: rgba(196,54,77,0.15); }
+.rail-btn.is-active        { color: var(--blue); background: rgba(46,92,154,0.12); }
+.rail-btn--view.is-active  { color: var(--red);  background: rgba(196,54,77,0.14); }
+
+.rail-ico { width: 22px; height: 22px; }
+
+.rail-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8.5px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  line-height: 1;
+  max-width: 140px;
+  overflow: hidden;
+  transition: max-width 0.5s cubic-bezier(0.22,1,0.36,1), opacity 0.5s ease;
+}
+
+/* Collapsed on scroll → just the glyphs; hovering the rail re-expands to labelled */
+.ctrl-rail.is-collapsed .rail-label       { max-width: 0; opacity: 0; }
+.ctrl-rail.is-collapsed .rail-btn         { gap: 0; }
+.ctrl-rail.is-collapsed:hover .rail-label { max-width: 140px; opacity: 1; }
+.ctrl-rail.is-collapsed:hover .rail-btn   { gap: 5px; }
+
+/* hover leader line — draws toward the model */
+.rail-leader {
+  position: absolute;
+  right: 100%;
+  top: 50%;
+  margin-right: 10px;
+  transform: translateY(-50%);
+  height: 1px;
+  width: 0;
+  background: var(--blue);
+  opacity: 0;
+  transition: width 0.34s cubic-bezier(0.22,1,0.36,1), opacity 0.2s ease;
+  pointer-events: none;
+}
+.rail-btn:hover .rail-leader { width: 2.75rem; opacity: 0.65; }
+.rail-leader::before {
+  content: '+';
+  position: absolute;
+  left: -8px; top: 50%;
+  transform: translateY(-50%);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  line-height: 1;
+  color: var(--blue);
+}
+
+/* Below ~1600px the right gutter closes — collapse to a top-right cluster under the nav */
+@media (max-width: 1599px) {
+  .ctrl-rail {
+    top: 4.5rem; bottom: auto;
+    right: 0.7rem;   /* ◀ PILL LEFT/RIGHT KNOB: larger = further from right edge (more left) */
+    transform: none;
+    flex-direction: row;
+    align-items: center;
+    padding: 5px;
+    animation: railInTop 0.6s cubic-bezier(0.22,1,0.36,1) 0.3s both;
+  }
+  .rail-spine, .rail-cross, .rail-leader { display: none; }
+  .rail-btn { flex-direction: row; gap: 8px; width: auto; padding: 9px 14px; }
+  .rail-btn + .rail-btn { margin-top: 0; }
+  .ctrl-rail.is-collapsed .rail-btn         { padding-left: 11px; padding-right: 11px; }
+  .ctrl-rail.is-collapsed:hover .rail-btn   { gap: 8px; padding-left: 14px; padding-right: 14px; }
+}
+@keyframes railInTop {
+  from { opacity: 0; transform: translateY(-1.5rem); }
+  to   { opacity: 1; transform: translateY(0); }
+}
 
 /* The spine dim toggle dock is mobile-only (no dim exists on desktop); shown via the mobile block */
 .cs-dim-dock { display: none; }
