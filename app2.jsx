@@ -40,24 +40,10 @@ const projects = [
   },
   {
     id: 4,
-    title: 'PROSTHETIC JOINT',
-    category: 'MECHANICS',
-    flow: 'ROM 150°',
-    specs: { range: '150°', torque: '140Nm', weight: '1.2kg', battery: '8hr' },
-    detail: {
-      statusLabel: 'Clinical trials',
-      statusSub: 'ISO 22523 certified',
-      lead: 'A powered prosthetic knee joint delivering 140 Nm peak torque across 150° ROM — with real-time gait-phase detection and an 8-hour runtime tuned for full-day ambulation.',
-      metrics: [{ lbl: 'ROM', val: '150°' }, { lbl: 'Torque', val: '140Nm' }, { lbl: 'Weight', val: '1.2kg' }, { lbl: 'Battery', val: '8hr' }],
-      modeA: { label: 'Mechanical', title: 'Mechanical system', desc: 'Brushless DC actuator coupled to a 3-stage planetary gearbox. Titanium shell, UHMWPE bearing surfaces, and compliant ankle adapter.', items: ['Brushless DC + planetary gearbox', 'Ti shell / UHMWPE bearings', 'Compliant ankle adapter'] },
-      modeB: { label: 'Control', title: 'Control system', desc: 'Finite-state impedance controller with IMU-based gait-phase detection. Adapts stiffness and damping to terrain in under 20 ms.', items: ['Finite-state impedance control', 'IMU gait-phase detection', '<20ms terrain adaptation'] },
-      stack: ['Ti-6Al-4V / PEEK', 'BLDC actuator', 'ROS 2', 'PID + impedance', 'ISO 22523'],
-      protocols: [
-        { name: 'Mechanical design', detail: 'Actuator sizing, gearbox selection, and structural FEA. Fatigue validation per ISO 22523 cyclic loading.', status: 'COMPLETE' },
-        { name: 'Control validation', detail: 'Hardware-in-the-loop testing with amputee simulation. Stair ascent, ramp, and stumble-recovery scenarios.', status: 'COMPLETE' },
-        { name: 'Clinical trial', detail: '15-subject trans-femoral amputee trial. Primary endpoint: 6-minute walk test improvement vs passive prosthesis.', status: 'ACTIVE' },
-      ],
-    },
+    title: 'HEXAPOD ROBOT',
+    category: 'ROBOTICS',
+    flow: '18 DOF',
+    specs: { legs: '6', dof: '18', servos: '18', gait: 'TRIPOD' },
   },
   {
     id: 5,
@@ -204,6 +190,8 @@ function App() {
           ? (armOpen
               ? <window.RoverArmCaseStudy onBack={() => setArmOpen(false)} />
               : <window.MarsRoverCaseStudy project={project} onBack={goToIndex} onOpenArm={() => setArmOpen(true)} />)
+          : selectedId === 4
+          ? <window.HexapodCaseStudy project={project} onBack={goToIndex} />
           : selectedId === 5
           ? <window.RespiratoryCaseStudy project={project} onBack={goToIndex} />
           : <CaseStudy project={project} onBack={goToIndex} />

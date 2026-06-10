@@ -19,7 +19,7 @@
   <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
   <script src="https://static.sketchfab.com/api/sketchfab-viewer-1.12.1.js"></script>
   <script type="text/babel" src="reveal.jsx?v=124"></script>
-  <script type="text/babel" src="content.jsx?v=124"></script>
+  <script type="text/babel" src="content.jsx?v=127"></script>
   <script type="text/babel" src="i18n.jsx?v=124"></script>
   <script type="text/babel" src="navigation.jsx?v=124"></script>
   <script type="text/babel" src="hands.jsx?v=124"></script>
@@ -28,10 +28,11 @@
   <script type="text/babel" src="case-study-dl.jsx?v=124"></script>
   <script type="text/babel" src="about-sections.jsx?v=124"></script>
   <script type="text/babel" src="case-study-spine.jsx?v=124"></script>
-  <script type="text/babel" src="case-study-respiratory.jsx?v=124"></script>
-  <script type="text/babel" src="case-study-mars.jsx?v=126"></script>
-  <script type="text/babel" src="case-study-rover-arm.jsx?v=126"></script>
-  <script type="text/babel" src="app2.jsx?v=125"></script>
+  <script type="text/babel" src="case-study-respiratory.jsx?v=131"></script>
+  <script type="text/babel" src="case-study-mars.jsx?v=131"></script>
+  <script type="text/babel" src="case-study-rover-arm.jsx?v=131"></script>
+  <script type="text/babel" src="case-study-hexapod.jsx?v=131"></script>
+  <script type="text/babel" src="app2.jsx?v=127"></script>
   <script type="text/babel" data-presets="env,react">
     class ErrorBoundary extends React.Component {
       constructor(props) { super(props); this.state = { error: null }; }
@@ -48,7 +49,7 @@
     }
     let _mountAttempts = 0;
     function tryMount() {
-      if (window.App && window.Navigation && window.ProjectIndex && window.CaseStudy && window.DeepLearningCaseStudy && window.MarsRoverCaseStudy && window.SpineExoskeletonCaseStudy && window.RespiratoryCaseStudy && window.Reveal && window.HandsModel && window.IntroSection && window.AboutSection && window.SpecializationsSection && window.FloatingPillNav && window.CONTENT && window.LanguageSelector) {
+      if (window.App && window.Navigation && window.ProjectIndex && window.CaseStudy && window.DeepLearningCaseStudy && window.MarsRoverCaseStudy && window.SpineExoskeletonCaseStudy && window.RespiratoryCaseStudy && window.HexapodCaseStudy && window.Reveal && window.HandsModel && window.IntroSection && window.AboutSection && window.SpecializationsSection && window.FloatingPillNav && window.CONTENT && window.LanguageSelector) {
         document.getElementById('mount-fallback')?.remove();
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<ErrorBoundary><window.App /></ErrorBoundary>);

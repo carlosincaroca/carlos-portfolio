@@ -128,7 +128,7 @@
     import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 
     /* ── Model source (Vercel Blob — Draco-compressed .glb) ── */
-    const MODEL_URL = 'https://it4hsyd2kjmsott7.public.blob.vercel-storage.com/byumarsrover.glb';
+    const MODEL_URL = 'https://it4hsyd2kjmsott7.public.blob.vercel-storage.com/hexapod.glb';
 
     /* ── Renderer — transparent so the portfolio bg shows through ── */
     const canvas   = document.getElementById('canvas');
@@ -162,7 +162,18 @@
     const keyLight = new THREE.DirectionalLight(0xd0eeff, 2.4);
     keyLight.position.set(4, 6, 3);
     keyLight.castShadow = true;
-    keyLight.shadow.mapSize.setScalar(2048);
+    keyLight.shadow.mapSize.setScalar(4096);
+    keyLight.shadow.normalBias = 0.02;
+    /* Tight shadow frustum around the assembled model = high texel density
+       (crisp shadows); widened during explode so flying parts stay covered. */
+    const SHADOW_TIGHT = 3.0;
+    const SHADOW_WIDE  = 6.0;
+    {
+      const sc = keyLight.shadow.camera;
+      sc.left = -SHADOW_TIGHT; sc.right = SHADOW_TIGHT;
+      sc.top = SHADOW_TIGHT; sc.bottom = -SHADOW_TIGHT;
+      sc.updateProjectionMatrix();
+    }
     scene.add(keyLight);
     const fillLight = new THREE.DirectionalLight(0xff8844, 0.7);
     fillLight.position.set(-5, 2, -3);
@@ -189,7 +200,9 @@
     ground.receiveShadow = true;
     scene.add(ground);
 
-    /* Sync ground, fog, and the stage backdrop variant to the page theme. */
+    /* Sync ground, fog, and the stage backdrop variant to the page theme.
+       The dark stage stays dramatic; the light stage is a bright studio with
+       the same ambiance (vignette + blueprint grid). */
     function applyTheme() {
       const dark  = isDark();
       groundMat.color.setHex(dark ? GROUND_DARK : GROUND_LIGHT);
@@ -213,21 +226,39 @@
     applyTheme();
 
     /* ── Model pivot (clean rotation around centre) ── */
-    const MODEL_Y = -0.5;   // ◀ ROVER VERTICAL POSITION: + = up, − = down (world units; model ≈ 3 tall)
     const pivot = new THREE.Group();
-    pivot.rotation.y = Math.PI - Math.PI / 3;   // start angle (matches the viewer)
-    pivot.position.y = MODEL_Y;
     scene.add(pivot);
 
-    /* ── Explode config & state ── */
-    const EXPLODE_AMOUNT  = 0.35;  // how far parts fly out
-    const WHEEL_SPREAD    = 1.6;   // extra distance for the 6 wheels
-    const GRIPPER_SPREAD  = 1.7;   // extra distance for the gripper
+    /* ── Explode config & state ──────────────────────────────────
+       Two-level proportional displacement: each leg sub-unit's delta is
+         (legCentre − modelCentre)·GLOBAL + (subCentre − legCentre)·LOCAL
+       Electronics are co-located at the centre, so proportional can't
+       separate them — they get an absolute XZ fan + vertical lift instead. */
+    const EXPLODE_AMOUNT  = 1.0;   // master multiplier on every displacement
+    const EXPLODE_GLOBAL  = 1.0;   // legs separate ∝ distance from body centre
+    const EXPLODE_LOCAL   = 1.4;   // leg parts bloom ∝ distance from leg centre
+    const MOTOR_SPREADS   = {      // per-motor controls (same slot on all 6 legs)
+      1: { spread: 1.1 },                        // Motor 1 (furthest from body)
+      2: { spread: 1.5 },                        // Motor 2 (middle)
+      3: { spread: 0.3, dir: [0, 1, 0] },        // Motor 3 (closest) — straight up
+    };
+    const ELEC_OUT        = 0.5;   // electronics fan outward (world units)
+    const ELEC_LIFT       = 0.9;   // electronics rise (world units)
+    const RIG_LIFT        = 0.8;   // whole rig raised so parts don't hit the floor
+    const EXPLODED_ZOOM   = 0.61;  // camera zoom while exploded (assembled: CAM_ZOOM)
+    const EXPLODED_ELEV   = 15.9;  // camera elevation while exploded (assembled: CAM_ELEV)
     const EXPLODE_SPEED   = 1.8;   // seconds to fully explode / implode
+    const CAM_SPEED       = 0.9;   // seconds for the camera phase (runs first)
 
     const parts = [];              // filled after model loads
     let explodeTarget = 0;         // 0 = assembled, 1 = exploded
-    let explodeFactor = 0;         // current animated value
+    let explodeFactor = 0;         // current animated value (parts)
+    let camFactor     = 0;         // current animated value (camera pull-back phase)
+    let camBaseDist   = 0;         // set after load (model-fit distance at zoom 1)
+    let camZoomIn     = 1;         // assembled zoom (CAM_ZOOM, set after load)
+    let camElevIn     = 30;        // assembled elevation (CAM_ELEV, set after load)
+    let camAzimuth    = 0;         // default azimuth (CAM_AZIMUTH, set after load)
+    let groundSeatY   = 0;         // ground height touching the assembled model
 
     /* Exposed for the parent page (same-origin) */
     window.toggleExplode = () => {
@@ -241,11 +272,25 @@
        Exit → ease camera back to the default pose, re-lock.            */
     const CAM_RESET_TIME = 0.6;          // seconds for the ease-back
     let camTween         = null;         // { fromPos, fromTarget, t }
-    let defaultCamPos    = null;         // captured after framing
+    let modelReady       = false;        // framing captured (default pose computable)
     const defaultTarget  = new THREE.Vector3(0, 0, 0);
     const easeInOutCubic = (t) => t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t + 2, 3) / 2;
 
-    /* ── Interaction hint (persists until first drag/zoom) ── */
+    /* The default pose follows the explode state: the explode sequence pulls
+       the camera back (camFactor 0→1), so the ease-back destination must be
+       computed from the CURRENT camFactor, not a fixed snapshot. */
+    function defaultPose(f, out) {
+      const zoom = camZoomIn + (EXPLODED_ZOOM - camZoomIn) * f;
+      const elev = (camElevIn + (EXPLODED_ELEV - camElevIn) * f) * Math.PI / 180;
+      const dist = camBaseDist * zoom;
+      return (out || new THREE.Vector3()).set(
+        defaultTarget.x + dist * Math.sin(camAzimuth) * Math.cos(elev),
+        defaultTarget.y + dist * Math.sin(elev),
+        defaultTarget.z + dist * Math.cos(camAzimuth) * Math.cos(elev)
+      );
+    }
+
+    /* ── Interaction hint (auto-fades on first drag/zoom, ~4s fallback) ── */
     const hintEl = document.getElementById('hint');
     function showHint() { if (hintEl) hintEl.classList.add('show'); }
     function hideHint() { if (hintEl) hintEl.classList.remove('show'); }
@@ -275,7 +320,7 @@
       } else {
         controls.enabled = false;
         hideHint();
-        if (defaultCamPos) camTween = {
+        if (modelReady) camTween = {
           fromPos:    camera.position.clone(),
           fromTarget: controls.target.clone(),
           t: 0,
@@ -302,7 +347,7 @@
           if (obj.isMesh) { obj.castShadow = true; obj.receiveShadow = true; }
         });
 
-        /* Centre + fit (Onshape export is Z-up → rotate −90° X to stand upright) */
+        /* Centre + fit */
         const box    = new THREE.Box3().setFromObject(model);
         const center = box.getCenter(new THREE.Vector3());
         const size   = box.getSize(new THREE.Vector3());
@@ -311,62 +356,146 @@
 
         model.position.sub(center.multiplyScalar(scale));
         model.scale.setScalar(scale);
-        model.rotation.x = -Math.PI / 2;
+        // This export is already Y-up (height is the Y axis) — no flip needed.
         pivot.add(model);
 
+        /* Seat ground just below the model (RIG_LIFT later opens the gap) */
+        const scaledBox = new THREE.Box3().setFromObject(pivot);
+        ground.position.y = scaledBox.min.y - 0.01;
+
         /* Camera framing */
-        const CAM_ZOOM    = 0.85;  // <1 = closer
-        const CAM_ELEV    = 15;    // degrees above horizon
-        const CAM_AZIMUTH = 180;   // horizontal orbit (180 = back)
-        const fitDist = (maxDim * scale * CAM_ZOOM) / Math.tan((camera.fov * Math.PI) / 360);
-        const elevRad = CAM_ELEV    * Math.PI / 180;
-        const aziRad  = CAM_AZIMUTH * Math.PI / 180;
+        const CAM_ZOOM    = 0.47;  // 1.0 fits snugly, <1 closer, >1 further
+        const CAM_ELEV    = 26.0;  // degrees above horizon
+        const CAM_AZIMUTH = 23.6;  // horizontal orbit (0 = front)
+        camBaseDist = (maxDim * scale) / Math.tan((camera.fov * Math.PI) / 360);
+        camZoomIn   = CAM_ZOOM;
+        camElevIn   = CAM_ELEV;
+        camAzimuth  = CAM_AZIMUTH * Math.PI / 180;
+
+        const fitDist = camBaseDist * CAM_ZOOM;
+        const elevRad = CAM_ELEV * Math.PI / 180;
         camera.position.set(
-          fitDist * Math.sin(aziRad) * Math.cos(elevRad),
+          fitDist * Math.sin(camAzimuth) * Math.cos(elevRad),
           fitDist * Math.sin(elevRad),
-          fitDist * Math.cos(aziRad) * Math.cos(elevRad)
+          fitDist * Math.cos(camAzimuth) * Math.cos(elevRad)
         );
         controls.target.copy(defaultTarget);
         controls.update();
 
-        /* Capture default pose + constrain Model View zoom/orbit */
-        defaultCamPos = camera.position.clone();
+        /* Constrain Model View zoom/orbit */
         controls.minDistance  = fitDist * 0.45;
         controls.maxDistance  = fitDist * 2.5;
         controls.maxPolarAngle = Math.PI / 2 - 0.05;   // stay above the floor
 
         loaderEl.classList.add('hidden');
 
-        /* ── Top-level components under "Assembly 1" ── */
-        const assemblyRoot  = model.children[0];
-        const assemblyParts = assemblyRoot ? assemblyRoot.children : model.children;
+        /* ── Regroup (P5) ───────────────────────────────────────────
+           The export is flat: 727 top-level children — 6 arm assemblies, the
+           body, and ~720 loose electronics nodes. Group them into physical
+           units so each explodes as one rigid thing:
+            · UNO R4         = its 53 loose pieces           → one host
+            · Buck converter = its 37 loose pieces           → one host
+            · LIPO / 9V      = already single nodes
+            · Aux            = the unnamed Surface/Part swarm → one host
+              (the PCA9685 isn't named in the export — it lives in here)
+           And inside each leg:
+            · 3 motors  = consecutive runs of "Part 1..11" (+ nearest horn)
+            · 2 shocks  = the 10 "1603-BZ01" pieces, split 5+5 in tree order
+            · 5 structural "Hexapod *" pieces stay individual sub-units */
+        const assemblyRoot = model.children[0]; // "HEXAPOD FINAL ASSEMBLY3"
 
-        // GLTFLoader sanitizes .name (spaces → underscores); match on userData.name.
         const origName = (o) => (o.userData && o.userData.name) || o.name || '';
-        const isWheelNode   = (o) => origName(o).includes('6 Spoke Assembly');
-        const isGripperNode = (o) => origName(o).includes('Gripper Assembly');
-        const isArmNode     = (o) => origName(o).includes('New Arm Assembly');
-        const isCouplerNode = (o) => /JCC26-36|Ruland/.test(origName(o));
-        // Anchors (stay fixed; everything else explodes off them).
-        const isAnchorNode  = (o) => origName(o).includes('Chassis 2026') ||
-                                     origName(o).includes('occurrence of Part 1');
+        const has = (o, s) => origName(o).toLowerCase().includes(s);
 
-        /* Promote the 6 wheels out of the chassis (the anchor) so each can
-           move independently (.attach preserves world transform). */
-        const chassisNode = assemblyParts.find((c) => origName(c).includes('Chassis 2026'));
-        if (chassisNode) {
-          chassisNode.children.filter(isWheelNode).forEach((w) => assemblyRoot.attach(w));
-        }
-        /* Fuse the JCC/Ruland couplers into the arm so they ride with it. */
-        const armNode = assemblyParts.find(isArmNode);
-        if (armNode) {
-          assemblyParts.filter(isCouplerNode).forEach((c) => armNode.attach(c));
-        }
+        assemblyRoot.updateWorldMatrix(true, true);
+
+        const mkHost = (parent, label) => {
+          const h = new THREE.Group();
+          h.userData.name = label;
+          parent.add(h);
+          return h;
+        };
+        const centerOf = (o) =>
+          new THREE.Box3().setFromObject(o).getCenter(new THREE.Vector3());
+
+        // -- top level: fuse loose electronics pieces onto unit hosts --
+        const unoHost  = mkHost(assemblyRoot, 'UNO R4');
+        const buckHost = mkHost(assemblyRoot, 'Buck Converter');
+        const auxHost  = mkHost(assemblyRoot, 'Aux (PCA9685 + wiring)');
+        const legs = [];
+        let bodyNode = null;
+        [...assemblyRoot.children].forEach((child) => {
+          if (child === unoHost || child === buckHost || child === auxHost) return;
+          if (has(child, 'arm assembly')) { legs.push(child); return; }
+          if (has(child, 'hexapod body')) { bodyNode = child; return; } // anchored base
+          if (has(child, 'lipo') || has(child, '9v-batter')) return; // own units
+          if (has(child, 'uno r4'))         { unoHost.attach(child);  return; }
+          if (has(child, 'buck converter')) { buckHost.attach(child); return; }
+          auxHost.attach(child); // preserves world transform
+        });
+
+        // -- inside each leg: group motors + shocks into rigid hosts --
+        legs.forEach((leg) => {
+          const snapshot = [...leg.children];
+          const motorHosts = [];
+          let curMotor = null, curNums = null;
+          const shockPieces = [];
+          const horns = [];
+          snapshot.forEach((child) => {
+            const nm = origName(child).toLowerCase();
+            const partNum = nm.match(/^occurrence of part (\d+)$/);
+            if (partNum) {
+              // a new motor starts when a part number repeats in the run
+              if (!curMotor || curNums.has(partNum[1])) {
+                curMotor = mkHost(leg, 'Motor ' + (motorHosts.length + 1));
+                curNums = new Set();
+                motorHosts.push(curMotor);
+              }
+              curNums.add(partNum[1]);
+              curMotor.attach(child);
+            } else if (nm.includes('1603')) {
+              shockPieces.push(child);
+            } else if (nm.includes('servo horn')) {
+              horns.push(child);
+            }
+            // 'Hexapod *' structural pieces stay as direct children
+          });
+          const shockA = mkHost(leg, 'Shock 1');
+          const shockB = mkHost(leg, 'Shock 2');
+          const half = Math.ceil(shockPieces.length / 2);
+          shockPieces.forEach((p, i) => (i < half ? shockA : shockB).attach(p));
+          // each horn rides with its nearest motor
+          horns.forEach((horn) => {
+            const hc = centerOf(horn);
+            let best = motorHosts[0], bd = Infinity;
+            motorHosts.forEach((m) => {
+              const d = centerOf(m).distanceTo(hc);
+              if (d < bd) { bd = d; best = m; }
+            });
+            if (best) best.attach(horn);
+          });
+          // Number motors by physical position, not tree order:
+          // Motor 1 = furthest from the body … Motor 3 = closest.
+          const bodyCentre = centerOf(bodyNode);
+          [...motorHosts]
+            .sort((a, b) => centerOf(b).distanceTo(bodyCentre)
+                          - centerOf(a).distanceTo(bodyCentre))
+            .forEach((m, i) => { m.userData.name = 'Motor ' + (i + 1); });
+        });
+
+        // Movable units: leg sub-units move within their leg; everything else
+        // top-level (except the body) moves as a whole.
+        const assemblyParts = assemblyRoot.children;
+        const mergeTargets = [];
+        assemblyParts.forEach((child) => {
+          if (legs.includes(child)) mergeTargets.push(...child.children);
+          else mergeTargets.push(child);
+        });
 
         /* ── Mesh merge (draw-call reduction) ──────────────────────
-           Collapse each top-level part's descendant meshes into one mesh per
-           material, baked into part-local space. The top-level groups stay
-           separate, so Explode still moves them independently. */
+           Collapse each movable unit's descendant meshes into one mesh per
+           material (baked into unit-local space). Units stay separate, so the
+           explode below is unaffected — this just trims draw calls. */
         const cleanGeo = (src, relMatrix) => {
           const g = src.index ? src.toNonIndexed() : src.clone();
           g.applyMatrix4(relMatrix);
@@ -376,7 +505,7 @@
           out.setAttribute('normal',   g.attributes.normal);
           return out;
         };
-        assemblyParts.forEach((part) => {
+        mergeTargets.forEach((part) => {
           part.updateWorldMatrix(true, true);
           const partInv = part.matrixWorld.clone().invert();
           const groups  = new Map(); // material -> { geos:[], olds:[] }
@@ -402,47 +531,77 @@
           });
         });
 
-        /* ── Explode setup — radial, proportional to distance from centre ── */
+        /* ── Explode setup ───────────────────────────────────────── */
         const modelWorldCenter = new THREE.Vector3();
         new THREE.Box3().setFromObject(pivot).getCenter(modelWorldCenter);
 
         parts.length = 0;
+
+        const subTag = (sub) => origName(sub)
+          .replace(/^Hexapod /i, '').replace(/ Final.*$/i, '');
+
+        const pushUnit = (unit, worldDelta, baseSpread = 1.0) => {
+          const ubox = new THREE.Box3().setFromObject(unit);
+          if (ubox.isEmpty()) return;
+          // worldToLocal handles the model's native unit scale (P6)
+          const wp = new THREE.Vector3();
+          unit.getWorldPosition(wp);
+          const localDir = unit.parent.worldToLocal(wp.clone().add(worldDelta))
+            .sub(unit.position);
+          parts.push({ mesh: unit, originalPos: unit.position.clone(), localDir, spread: baseSpread });
+        };
+
         assemblyParts.forEach((part) => {
-          const partBox = new THREE.Box3().setFromObject(part);
-          if (partBox.isEmpty()) return;
-          if (isAnchorNode(part)) return;   // chassis + Part 1 stay fixed
+          if (has(part, 'hexapod body')) return; // anchored base
 
-          const partWorldCenter = new THREE.Vector3();
-          partBox.getCenter(partWorldCenter);
+          if (legs.includes(part)) {
+            const legCentre = centerOf(part);
+            const radial = legCentre.clone().sub(modelWorldCenter);
+            radial.y = 0;
+            part.children.forEach((sub) => {
+              const subCentre = centerOf(sub);
+              const globalPart = radial.clone().multiplyScalar(EXPLODE_GLOBAL);
+              let localPart = subCentre.clone().sub(legCentre).multiplyScalar(EXPLODE_LOCAL);
+              const mNum = origName(sub).match(/^Motor (\d)$/);
+              const mCfg = mNum ? MOTOR_SPREADS[mNum[1]] : null;
+              if (mCfg && mCfg.dir) {
+                // dir-motors: ride outward with the leg at full strength;
+                // spread scales ONLY the redirected bloom (the vertical kick)
+                localPart = new THREE.Vector3(mCfg.dir[0], mCfg.dir[1], mCfg.dir[2])
+                  .normalize().multiplyScalar(localPart.length() * mCfg.spread);
+                pushUnit(sub, globalPart.add(localPart), 1.0);
+              } else {
+                pushUnit(sub, globalPart.add(localPart), mCfg ? mCfg.spread : 1.0);
+              }
+            });
+            return;
+          }
 
-          const worldDir = partWorldCenter.clone().sub(modelWorldCenter);
-          if (worldDir.length() < 0.001)
-            worldDir.set(Math.random() - 0.5, 0.3, Math.random() - 0.5);
-
-          worldDir.y = Math.max(worldDir.y, 0);
-          if (worldDir.length() < 0.001)
-            worldDir.set(Math.random() - 0.5, 0.3, Math.random() - 0.5);
-          worldDir.normalize();
-
-          const parentQuat = new THREE.Quaternion();
-          part.parent.getWorldQuaternion(parentQuat);
-          const localDir = worldDir.clone().applyQuaternion(parentQuat.invert());
-
-          const spread = isWheelNode(part)   ? WHEEL_SPREAD
-                       : isGripperNode(part) ? GRIPPER_SPREAD
-                       : 1.0;
-
-          parts.push({
-            mesh: part,
-            originalPos: part.position.clone(),
-            localDir,
-            spread,
-          });
+          // electronics: fan outward in XZ + rise off the body
+          const fan = centerOf(part).sub(modelWorldCenter);
+          fan.y = 0;
+          if (fan.length() < 1e-6) fan.set(Math.random() - 0.5, 0, Math.random() - 0.5);
+          fan.normalize();
+          const worldDelta = fan.multiplyScalar(ELEC_OUT)
+            .add(new THREE.Vector3(0, ELEC_LIFT, 0));
+          pushUnit(part, worldDelta);
         });
 
-        /* Seat the model on the ground now that reparent + merge have settled. */
-        const restBox = new THREE.Box3().setFromObject(pivot);
-        ground.position.y = restBox.min.y - 0.01;
+        // Lift the whole rig (P7) so exploded parts clear the floor —
+        // camera and target rise with it, so the framing is unchanged.
+        pivot.position.y  += RIG_LIFT;
+        controls.target.y += RIG_LIFT;
+        camera.position.y += RIG_LIFT;
+        defaultTarget.y   += RIG_LIFT;
+        controls.update();
+
+        // Re-seat the ground against the LIFTED model so the feet touch it
+        // while assembled; animate() lowers it during explode so flying
+        // parts keep their floor clearance.
+        groundSeatY = ground.position.y + RIG_LIFT;
+        ground.position.y = groundSeatY;
+
+        modelReady = true;
       },
       (xhr) => {
         if (xhr.total) {
@@ -471,10 +630,33 @@
       const delta = (now - lastTime) / 1000;
       lastTime    = now;
 
-      /* Explode lerp */
-      const step = delta / EXPLODE_SPEED;
-      if (explodeFactor < explodeTarget) explodeFactor = Math.min(explodeFactor + step, explodeTarget);
-      if (explodeFactor > explodeTarget) explodeFactor = Math.max(explodeFactor - step, explodeTarget);
+      /* Two-phase explode sequence: exploding = camera pulls back FIRST,
+         then parts fly; assembling = parts return first, then camera
+         pushes back in. */
+      const step    = delta / EXPLODE_SPEED;
+      const camStep = delta / CAM_SPEED;
+      const prevCam = camFactor;
+      if (explodeTarget === 1) {
+        if (camFactor < 1)           camFactor     = Math.min(camFactor + camStep, 1);
+        else if (explodeFactor < 1)  explodeFactor = Math.min(explodeFactor + step, 1);
+      } else {
+        if (explodeFactor > 0)       explodeFactor = Math.max(explodeFactor - step, 0);
+        else if (camFactor > 0)      camFactor     = Math.max(camFactor - camStep, 0);
+      }
+
+      /* Drive the camera distance/elevation only while its phase animates,
+         keeping the current azimuth — works both locked and in Model View. */
+      if (camFactor !== prevCam && modelReady && !camTween) {
+        const dist = camBaseDist * (camZoomIn + (EXPLODED_ZOOM - camZoomIn) * camFactor);
+        const elev = (camElevIn + (EXPLODED_ELEV - camElevIn) * camFactor) * Math.PI / 180;
+        const v    = camera.position.clone().sub(controls.target);
+        const azi  = Math.atan2(v.x, v.z); // keep the user's current azimuth
+        camera.position.set(
+          controls.target.x + dist * Math.sin(azi) * Math.cos(elev),
+          controls.target.y + dist * Math.sin(elev),
+          controls.target.z + dist * Math.cos(azi) * Math.cos(elev)
+        );
+      }
 
       if (parts.length > 0) {
         parts.forEach(({ mesh, originalPos, localDir, spread }) => {
@@ -483,11 +665,25 @@
         });
       }
 
-      /* Camera: ease back to default on Model View exit, else normal update */
-      if (camTween && defaultCamPos) {
+      /* Ground recedes with the explode so downward-blooming parts clear it */
+      if (modelReady) ground.position.y = groundSeatY - RIG_LIFT * explodeFactor;
+
+      /* Shadow frustum tracks the explode: tight (crisp) assembled, wide exploded */
+      {
+        const s = SHADOW_TIGHT + (SHADOW_WIDE - SHADOW_TIGHT) * explodeFactor;
+        const sc = keyLight.shadow.camera;
+        if (sc.right !== s) {
+          sc.left = -s; sc.right = s; sc.top = s; sc.bottom = -s;
+          sc.updateProjectionMatrix();
+        }
+      }
+
+      /* Camera: ease back to the default pose on Model View exit (the pose
+         tracks the current explode pull-back), else normal update */
+      if (camTween && modelReady) {
         camTween.t = Math.min(camTween.t + delta / CAM_RESET_TIME, 1);
         const e = easeInOutCubic(camTween.t);
-        camera.position.lerpVectors(camTween.fromPos, defaultCamPos, e);
+        camera.position.lerpVectors(camTween.fromPos, defaultPose(camFactor), e);
         controls.target.lerpVectors(camTween.fromTarget, defaultTarget, e);
         camera.lookAt(controls.target);
         if (camTween.t >= 1) camTween = null;

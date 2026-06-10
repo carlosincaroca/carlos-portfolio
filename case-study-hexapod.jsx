@@ -1,12 +1,12 @@
 (function () {
 
-  /* ── Mini-rover iframe background ─────────────────────────── */
-  function MiniRoverBg({ iframeRef, lit }) {
+  /* ── Hexapod iframe background ─────────────────────────────── */
+  function HexapodBg({ iframeRef, lit }) {
     return (
       <div className={lit ? 'cs-bg-3d lit' : 'cs-bg-3d'} style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: lit ? 'auto' : 'none' }}>
         <iframe
           ref={iframeRef}
-          src="./mini-rover-bg.html?v=125"
+          src="./hexapod-bg.html?v=10"
           style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', border: 'none', opacity: lit ? 1 : 0.92, transition: 'opacity 0.5s ease' }}
         />
       </div>
@@ -15,41 +15,47 @@
 
   /* ── Mode content ──────────────────────────────────────────── */
   const MODES = {
-    ventilation: {
-      title: 'Ventilation modes',
-      desc: 'Pressure-support, volume-control, and CPAP modes with auto-PEEP detection. Breath-by-breath adaptive triggering for patient synchrony.',
-      items: ['PSV / VCV / CPAP modes', 'Auto-PEEP detection', 'Adaptive triggering <5ms'],
+    locomotion: {
+      title: 'Locomotion system',
+      desc: 'Six 3-DOF legs driven by alternating tripod and wave gaits. Per-leg inverse kinematics resolves foot placement; coilover shocks on each leg damp ground impact.',
+      items: ['Tripod / wave gait engine', 'Per-leg inverse kinematics', 'Coilover shock suspension'],
     },
-    monitoring: {
-      title: 'Monitoring system',
-      desc: 'Continuous SpO₂, ETCO₂, and respiratory mechanics tracking. Alarm escalation with cloud telemetry for remote clinician review.',
-      items: ['SpO₂ + ETCO₂ sensing', 'Respiratory mechanics loop', 'Cloud telemetry dashboard'],
+    electronics: {
+      title: 'Electronics system',
+      desc: 'Arduino UNO R4 commanding 18 servos through a PCA9685 16-channel PWM driver. Buck-regulated LiPo supplies the servo rail; an isolated 9V keeps logic clean.',
+      items: ['UNO R4 + PCA9685 PWM driver', 'Buck-regulated LiPo servo rail', 'Isolated 9V logic supply'],
     },
   };
 
   const PROTOCOLS = [
-    { name: 'Bench testing',   detail: 'ASL 5000 lung simulator testing across 40 patient conditions. Trigger delay, leak compensation, and alarm validation.', status: 'COMPLETE' },
-    { name: 'Clinical study',  detail: '30-patient step-down ICU study. Primary: patient-ventilator synchrony score vs standard of care.', status: 'COMPLETE' },
-    { name: 'FDA submission',  detail: '510(k) predicate comparison submitted. Awaiting additional performance data request response.', status: 'ACTIVE' },
+    { name: 'CAD assembly',            detail: 'Full-robot assembly in Onshape: body, 6× three-motor legs, suspension shocks, and electronics bay. Validated for fit and motor clearance.', status: 'COMPLETE' },
+    { name: 'Electronics integration', detail: 'UNO R4, PCA9685 servo driver, buck converter, and dual battery supplies wired and bench-tested across all 18 channels.', status: 'COMPLETE' },
+    { name: 'Gait development',        detail: 'Tripod gait tuning on hardware: stride length, body height, and phase offsets. Wave and ripple gaits in progress.', status: 'ACTIVE' },
   ];
 
-  const STACK = ['Turbine blower', 'PID flow control', 'LabVIEW FPGA', 'ISO 80601-2-12', 'FDA 510(k)'];
+  const STACK = ['Arduino UNO R4', 'PCA9685 PWM', '18× servo', 'Buck + LiPo', 'Onshape CAD'];
 
-  /* ── Lung glyph SVG ────────────────────────────────────────── */
-  function LungGlyph() {
+  /* ── Hexapod glyph SVG ─────────────────────────────────────── */
+  function HexapodGlyph() {
     return (
       <svg viewBox="0 0 120 120" className="dl-deck-glyph" aria-hidden="true">
         <circle className="dl-glyph-orbit" cx="60" cy="60" r="46" fill="none" strokeWidth="1.4" stroke="var(--red)" />
-        {/* Trachea */}
-        <line x1="60" y1="20" x2="60" y2="48" stroke="var(--red)" strokeWidth="1.4" opacity="0.7" />
-        {/* Left bronchus */}
-        <path d="M60 48 Q44 52 38 62" fill="none" stroke="var(--red)" strokeWidth="1.2" opacity="0.7" />
-        {/* Right bronchus */}
-        <path d="M60 48 Q76 52 82 62" fill="none" stroke="var(--red)" strokeWidth="1.2" opacity="0.7" />
-        {/* Left lung lobe */}
-        <ellipse cx="38" cy="74" rx="14" ry="18" fill="none" stroke="var(--red)" strokeWidth="1.1" opacity="0.45" />
-        {/* Right lung lobe */}
-        <ellipse cx="82" cy="74" rx="14" ry="18" fill="none" stroke="var(--red)" strokeWidth="1.1" opacity="0.45" />
+        {/* Hex body */}
+        <path d="M60 44 74 52 74 68 60 76 46 68 46 52 Z" fill="none" stroke="var(--red)" strokeWidth="1.4" opacity="0.7" />
+        {/* Legs — two segments each, mirrored pairs */}
+        <path d="M46 52 32 46 24 34" fill="none" stroke="var(--red)" strokeWidth="1.2" opacity="0.6" />
+        <path d="M74 52 88 46 96 34" fill="none" stroke="var(--red)" strokeWidth="1.2" opacity="0.6" />
+        <path d="M46 60 28 60 18 66" fill="none" stroke="var(--red)" strokeWidth="1.2" opacity="0.6" />
+        <path d="M74 60 92 60 102 66" fill="none" stroke="var(--red)" strokeWidth="1.2" opacity="0.6" />
+        <path d="M46 68 32 74 24 86" fill="none" stroke="var(--red)" strokeWidth="1.2" opacity="0.6" />
+        <path d="M74 68 88 74 96 86" fill="none" stroke="var(--red)" strokeWidth="1.2" opacity="0.6" />
+        {/* Leg joints */}
+        <circle cx="32" cy="46" r="1.8" fill="var(--red)" opacity="0.5" />
+        <circle cx="88" cy="46" r="1.8" fill="var(--red)" opacity="0.5" />
+        <circle cx="28" cy="60" r="1.8" fill="var(--red)" opacity="0.5" />
+        <circle cx="92" cy="60" r="1.8" fill="var(--red)" opacity="0.5" />
+        <circle cx="32" cy="74" r="1.8" fill="var(--red)" opacity="0.5" />
+        <circle cx="88" cy="74" r="1.8" fill="var(--red)" opacity="0.5" />
         <circle className="dl-glyph-pulse" cx="60" cy="14" r="3.5" fill="var(--red)" />
         <circle cx="60" cy="60" r="3" fill="var(--red)" opacity="0.5" />
       </svg>
@@ -77,8 +83,8 @@
   }
 
   /* ── Main component ────────────────────────────────────────── */
-  function RespiratoryCaseStudy({ project, onBack }) {
-    const [mode, setMode]           = React.useState('ventilation');
+  function HexapodCaseStudy({ project, onBack }) {
+    const [mode, setMode]           = React.useState('locomotion');
     const [exploded, setExploded]   = React.useState(false);
     const [modelView, setModelView] = React.useState(false);
     const [scrolled, setScrolled]   = React.useState(false);
@@ -127,7 +133,7 @@
 
     return (
       <div className="dl-wrap" style={{ background: modelView ? 'transparent' : undefined, transition: 'background-color 0.5s ease' }}>
-        <MiniRoverBg iframeRef={iframeRef} lit={modelView} />
+        <HexapodBg iframeRef={iframeRef} lit={modelView} />
 
         <div className="dl-inner" style={{ pointerEvents: modelView ? 'none' : undefined }}>
           <button className="cs-back" onClick={onBack} style={{ position: 'relative', zIndex: 10, pointerEvents: 'auto' }}>
@@ -140,34 +146,34 @@
           <header className="dl-header" style={{ opacity: modelView ? 0 : 1, transition: 'opacity 0.35s ease', pointerEvents: modelView ? 'none' : undefined, willChange: 'opacity' }}>
             <div className="dl-header-left">
               <div className="dl-badges">
-                <span className="dl-pill"><span className="dl-pill-dot"></span>Robotics / Autonomous Systems</span>
-                <span className="dl-pill dl-pill-ghost">BIO MECH / PROJECT 05</span>
+                <span className="dl-pill"><span className="dl-pill-dot"></span>Robotics / Legged Locomotion</span>
+                <span className="dl-pill dl-pill-ghost">BIO MECH / PROJECT 04</span>
               </div>
 
               <div>
                 <h1 className="dl-title">
-                  Multi-task<br />
-                  autonomous<br />
+                  18-DOF<br />
+                  hexapod<br />
                   robot.
                 </h1>
                 <p className="dl-lead">
-                  A portable ventilatory assist device delivering up to 15 L/min at 25 cmH₂O with auto-compliance sensing — designed for step-down care and home ventilation in COPD and post-surgical patients.
+                  A six-legged walking robot with 3 servo joints per leg — 18 degrees of freedom driven by an Arduino UNO R4 through a PCA9685 PWM driver, with per-leg suspension shocks and tripod-gait locomotion.
                 </p>
               </div>
 
               <div className="dl-metrics-row">
                 <div className="dl-status-pill">
                   <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <span className="dl-pill-dot"></span>FDA review
+                    <span className="dl-pill-dot"></span>Hardware build
                   </span>
                   <span style={{ opacity: 0.5 }}>∙</span>
-                  <span>510(k) submission filed</span>
+                  <span>Gait tuning in progress</span>
                 </div>
                 <div className="dl-metrics-strip">
-                  <div className="dl-metric"><span className="dl-metric-lbl">Flow</span><span className="dl-metric-val">15L/min</span></div>
-                  <div className="dl-metric"><span className="dl-metric-lbl">Pressure</span><span className="dl-metric-val">25cmH₂O</span></div>
-                  <div className="dl-metric"><span className="dl-metric-lbl">FiO₂</span><span className="dl-metric-val">21–100%</span></div>
-                  <div className="dl-metric"><span className="dl-metric-lbl">Compliance</span><span className="dl-metric-val">AUTO</span></div>
+                  <div className="dl-metric"><span className="dl-metric-lbl">Legs</span><span className="dl-metric-val">6</span></div>
+                  <div className="dl-metric"><span className="dl-metric-lbl">DOF</span><span className="dl-metric-val">18</span></div>
+                  <div className="dl-metric"><span className="dl-metric-lbl">Servos</span><span className="dl-metric-val">18</span></div>
+                  <div className="dl-metric"><span className="dl-metric-lbl">Gait</span><span className="dl-metric-val">TRIPOD</span></div>
                 </div>
               </div>
             </div>
@@ -178,12 +184,12 @@
                   <p className="dl-lbl dl-subtle">Mode</p>
                   <h2 className="dl-mode-title">{md.title}</h2>
                 </div>
-                <LungGlyph />
+                <HexapodGlyph />
               </div>
               <p className="dl-subtle" style={{ fontSize: '14px', lineHeight: '1.65' }}>{md.desc}</p>
               <div className="dl-mode-toggle">
-                <button className={`dl-mode-btn${mode === 'ventilation' ? ' active' : ''}`} onClick={() => setMode('ventilation')}>Ventilation</button>
-                <button className={`dl-mode-btn${mode === 'monitoring'  ? ' active' : ''}`} onClick={() => setMode('monitoring')}>Monitoring</button>
+                <button className={`dl-mode-btn${mode === 'locomotion'  ? ' active' : ''}`} onClick={() => setMode('locomotion')}>Locomotion</button>
+                <button className={`dl-mode-btn${mode === 'electronics' ? ' active' : ''}`} onClick={() => setMode('electronics')}>Electronics</button>
               </div>
               <ul className="dl-mode-items">
                 {md.items.map((item, i) => (
@@ -203,7 +209,7 @@
                 <span className="dl-lbl dl-subtle">v1.0</span>
               </div>
               <p className="dl-subtle" style={{ fontSize: '14px', lineHeight: '1.65' }}>
-                Turbine blower with PID flow control and LabVIEW FPGA closed-loop sensing. Breath-by-breath adaptive triggering validated on ASL 5000 lung simulator.
+                Arduino UNO R4 commanding 18 servos via a PCA9685 16-channel PWM driver. Buck-converted LiPo power for the servo rail, full CAD assembly in Onshape.
               </p>
               <div className="dl-stack-items">
                 {STACK.map((item, i) => (
@@ -215,14 +221,14 @@
             <figure className="dl-img-figure">
               <div className="dl-img-wrap">
                 <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <LungGlyph />
+                  <HexapodGlyph />
                 </div>
                 <span className="dl-ring1"></span>
                 <span className="dl-ring2"></span>
               </div>
               <figcaption className="dl-figcaption">
                 <span>Assembly diagram</span>
-                <span className="dl-fig-line"><span className="dl-fig-dash"></span>Mechanical system</span>
+                <span className="dl-fig-line"><span className="dl-fig-dash"></span>Leg kinematics</span>
               </figcaption>
             </figure>
 
@@ -269,5 +275,5 @@
     );
   }
 
-  window.RespiratoryCaseStudy = RespiratoryCaseStudy;
+  window.HexapodCaseStudy = HexapodCaseStudy;
 })();

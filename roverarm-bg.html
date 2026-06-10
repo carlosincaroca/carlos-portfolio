@@ -25,13 +25,16 @@
         linear-gradient(90deg, rgba(0, 200, 255, 0.04) 1px, transparent 1px),
         #07090f;
     }
-    /* Light mode — bright blueprint studio, same ambiance */
+    /* Light mode — bright blueprint studio, same ambiance, with a warm
+       sunlit corner echoing the dark stage's top-left glow */
     #stage.light {
       background:
         radial-gradient(ellipse 80% 80% at 50% 50%, transparent 45%, #DBE2EA 100%),
+        radial-gradient(ellipse 55% 45% at 10% 6%, rgba(255, 176, 102, 0.30), transparent 70%),
         linear-gradient(rgba(46, 92, 154, 0.05) 1px, transparent 1px),
         linear-gradient(90deg, rgba(46, 92, 154, 0.05) 1px, transparent 1px),
         #F4F0E8;
+      background-size: 100% 100%, 100% 100%, 60px 60px, 60px 60px, 100% 100%;
     }
 
     #loader {
@@ -191,6 +194,13 @@
       const dark  = isDark();
       groundMat.color.setHex(dark ? GROUND_DARK : GROUND_LIGHT);
       if (scene.fog) scene.fog.color.setHex(dark ? FOG_DARK : FOG_LIGHT);
+      /* Theme the lights too: dark = cool key + warm rim (the corner glow);
+         light = golden-hour key with the warm fill turned up, so the warmth
+         carries over instead of washing out against the bright ground. */
+      keyLight.color.setHex(dark ? 0xd0eeff : 0xF5F1E8);  // light = the page's paper tone
+      keyLight.intensity = dark ? 2.4 : 2.1;
+      fillLight.color.setHex(dark ? 0xff8844 : 0xffa055);
+      fillLight.intensity = dark ? 0.7 : 0.7;
       const stage = document.getElementById('stage');
       if (stage) { stage.classList.toggle('dark', dark); stage.classList.toggle('light', !dark); }
       const hint = document.getElementById('hint');
