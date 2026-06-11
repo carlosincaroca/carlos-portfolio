@@ -6,7 +6,7 @@
       <div className={lit ? 'cs-bg-3d lit' : 'cs-bg-3d'} style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: lit ? 'auto' : 'none' }}>
         <iframe
           ref={iframeRef}
-          src="./byumarsrover-bg.html?v=128"
+          src="./byumarsrover-bg.html?v=138"
           style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', border: 'none', opacity: lit ? 1 : 0.92, transition: 'opacity 0.5s ease' }}
         />
       </div>
