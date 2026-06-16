@@ -32,6 +32,7 @@
   <script type="text/babel" src="case-study-mars.jsx?v=138"></script>
   <script type="text/babel" src="case-study-rover-arm.jsx?v=132"></script>
   <script type="text/babel" src="case-study-hexapod.jsx?v=131"></script>
+  <script type="text/babel" src="case-study-structural-dynamics.jsx?v=4"></script>
   <script type="text/babel" src="app2.jsx?v=127"></script>
   <script type="text/babel" data-presets="env,react">
     class ErrorBoundary extends React.Component {
@@ -49,7 +50,7 @@
     }
     let _mountAttempts = 0;
     function tryMount() {
-      if (window.App && window.Navigation && window.ProjectIndex && window.CaseStudy && window.DeepLearningCaseStudy && window.MarsRoverCaseStudy && window.SpineExoskeletonCaseStudy && window.RespiratoryCaseStudy && window.HexapodCaseStudy && window.Reveal && window.HandsModel && window.IntroSection && window.AboutSection && window.SpecializationsSection && window.FloatingPillNav && window.CONTENT && window.LanguageSelector) {
+      if (window.App && window.Navigation && window.ProjectIndex && window.CaseStudy && window.DeepLearningCaseStudy && window.MarsRoverCaseStudy && window.SpineExoskeletonCaseStudy && window.RespiratoryCaseStudy && window.HexapodCaseStudy && window.StructuralDynamicsCaseStudy && window.Reveal && window.HandsModel && window.IntroSection && window.AboutSection && window.SpecializationsSection && window.FloatingPillNav && window.CONTENT && window.LanguageSelector) {
         document.getElementById('mount-fallback')?.remove();
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<ErrorBoundary><window.App /></ErrorBoundary>);

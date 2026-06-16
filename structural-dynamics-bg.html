@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Structural Dynamics — Viewer</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@300;400;600&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      /* Control-panel accent — the portfolio red, shared by both themes.
+         Single swap point: change --accent / --accent-rgb here to retheme the
+         whole HUD (e.g. back to cyan #00e5ff / 0, 229, 255). */
+      --accent: #C4364D;
+      --accent-rgb: 196, 54, 77;
+      --text: #c8d4e0;
+      --title: #e8f4ff;
+      --dim: rgba(200, 212, 224, 0.35);
+      --panel: rgba(0, 20, 40, 0.55);
+      --loader-bg: #07090f;
+    }
+    /* Light theme — ink-on-cream chrome; accent stays the shared red. */
+    body.light {
+      --text: #1F2937;
+      --title: #16233a;
+      --dim: rgba(31, 41, 55, 0.5);
+      --panel: rgba(245, 241, 232, 0.72);
+      --loader-bg: #F5F1E8;
+    }
+
+    html, body {
+      width: 100%; height: 100%;
+      background: transparent;
+      overflow: hidden;
+      font-family: 'Chakra Petch', monospace;
+      color: var(--text);
+    }
+
+    #canvas { display: block; width: 100vw; height: 100vh; position: relative; z-index: 1; }
+
+    /* ── Stage backdrop — faded in only during Model-View (matches the rover
+       viewers): ambient = transparent float on the portfolio page. ── */
+    #stage {
+      position: fixed; inset: 0; z-index: 0;
+      opacity: 0; transition: opacity 0.6s ease;
+      pointer-events: none;
+      background-size: 100% 100%, 60px 60px, 60px 60px, 100% 100%;
+    }
+    #stage.active { opacity: 1; }
+    /* Dark — moody sci-fi stage */
+    #stage.dark {
+      background:
+        radial-gradient(ellipse 80% 80% at 50% 50%, transparent 40%, #07090f 100%),
+        linear-gradient(rgba(0, 200, 255, 0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 200, 255, 0.04) 1px, transparent 1px),
+        #07090f;
+    }
+    /* Light — bright blueprint studio with a warm sunlit corner */
+    #stage.light {
+      background:
+        radial-gradient(ellipse 80% 80% at 50% 50%, transparent 45%, #DBE2EA 100%),
+        radial-gradient(ellipse 55% 45% at 10% 6%, rgba(255, 176, 102, 0.30), transparent 70%),
+        linear-gradient(rgba(46, 92, 154, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(46, 92, 154, 0.05) 1px, transparent 1px),
+        #F4F0E8;
+      background-size: 100% 100%, 100% 100%, 60px 60px, 60px 60px, 100% 100%;
+    }
+
+    #hud {
+      position: fixed; inset: 0;
+      pointer-events: none;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 28px 36px;
+    }
+
+    .hud-bottom { display: flex; justify-content: flex-end; align-items: flex-end; }
+
+    .controls-cluster {
+      display: flex; flex-direction: column; align-items: flex-end; gap: 10px;
+    }
+
+    /* Model-View gate: HUD hidden in ambient (behind the case-study text),
+       revealed when the portfolio shell calls setModelView(true). */
+    #hud { transition: opacity 0.35s ease; }
+    body:not(.modelview) #hud { opacity: 0; }
+    body:not(.modelview) .controls-cluster { pointer-events: none; }
+
+    /* Specimen switch */
+    #specimen-tabs {
+      display: flex; gap: 0; pointer-events: all;
+      border: 1px solid rgba(var(--accent-rgb), 0.30); border-radius: 3px; overflow: hidden;
+    }
+    #specimen-tabs button {
+      background: transparent; border: 0;
+      border-right: 1px solid rgba(var(--accent-rgb), 0.20);
+      color: var(--accent);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase;
+      padding: 7px 16px; cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+    }
+    #specimen-tabs button:last-child { border-right: 0; }
+    #specimen-tabs button:hover { background: rgba(var(--accent-rgb), 0.08); }
+    #specimen-tabs button.active {
+      background: rgba(var(--accent-rgb), 0.16); color: var(--title);
+      box-shadow: inset 0 0 12px rgba(var(--accent-rgb), 0.25);
+    }
+
+    #mode-readout {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--accent); text-shadow: 0 0 14px rgba(var(--accent-rgb), 0.35);
+    }
+
+    #mode-grid {
+      display: grid; grid-template-columns: repeat(7, 30px); gap: 6px; pointer-events: all;
+    }
+    .mode-btn {
+      width: 30px; height: 26px; cursor: pointer;
+      background: transparent; border: 1px solid rgba(var(--accent-rgb), 0.30);
+      color: var(--accent);
+      font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 400;
+      border-radius: 2px;
+      transition: border-color 0.15s, color 0.15s, background 0.15s, box-shadow 0.15s;
+    }
+    .mode-btn:hover { border-color: var(--accent); box-shadow: 0 0 12px rgba(var(--accent-rgb), 0.25); }
+    .mode-btn.active {
+      background: rgba(var(--accent-rgb), 0.16); border-color: var(--accent); color: var(--title);
+      box-shadow: 0 0 14px rgba(var(--accent-rgb), 0.35);
+    }
+
+    .btn-row { display: flex; gap: 10px; }
+    #btn-contour, #btn-rotate {
+      pointer-events: all; cursor: pointer;
+      background: transparent; border: 1px solid rgba(var(--accent-rgb), 0.35);
+      color: var(--accent);
+      font-family: 'Chakra Petch', monospace;
+      font-size: 11px; font-weight: 600; letter-spacing: 0.25em; text-transform: uppercase;
+      padding: 10px 22px; border-radius: 2px;
+      transition: border-color 0.2s, color 0.2s, box-shadow 0.2s;
+    }
+    #btn-contour:hover, #btn-rotate:hover { border-color: var(--accent); box-shadow: 0 0 18px rgba(var(--accent-rgb), 0.25); }
+    #btn-contour.off { border-color: rgba(200, 212, 224, 0.3); color: var(--dim); box-shadow: none; }
+
+    #loader {
+      position: fixed; inset: 0; background: var(--loader-bg); z-index: 100;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px;
+      transition: opacity 0.6s ease, visibility 0.6s ease;
+    }
+    #loader.hidden { opacity: 0; visibility: hidden; }
+    .loader-title { font-size: 13px; font-weight: 300; letter-spacing: 0.35em; text-transform: uppercase; color: var(--accent); }
+    .loader-bar-wrap { width: 220px; height: 2px; background: rgba(var(--accent-rgb), 0.1); border-radius: 2px; overflow: hidden; }
+    .loader-bar { height: 100%; width: 0%; background: linear-gradient(90deg, var(--accent), #e8657d); border-radius: 2px; transition: width 0.2s ease; box-shadow: 0 0 10px var(--accent); }
+    .loader-pct { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--dim); letter-spacing: 0.1em; }
+  </style>
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
+</head>
+<body>
+
+  <div id="loader">
+    <div class="loader-title">Loading Modal Analysis</div>
+    <div class="loader-bar-wrap"><div class="loader-bar" id="loader-bar"></div></div>
+    <div class="loader-pct" id="loader-pct">0%</div>
+  </div>
+
+  <div id="stage"></div>
+  <canvas id="canvas"></canvas>
+
+  <div id="hud">
+    <div class="hud-bottom">
+      <div class="controls-cluster">
+        <div id="specimen-tabs"></div>
+        <div id="mode-readout">MODE — · — Hz</div>
+        <div id="mode-grid"></div>
+        <div class="btn-row">
+          <button id="btn-contour">Contour</button>
+          <button id="btn-rotate">Rotate</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import * as THREE from 'three';
+    import { GLTFLoader }     from 'three/addons/loaders/GLTFLoader.js';
+    import { DRACOLoader }    from 'three/addons/loaders/DRACOLoader.js';
+    import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
+    import { OrbitControls }  from 'three/addons/controls/OrbitControls.js';
+
+    /* ── Renderer — transparent so the portfolio page shows through ── */
+    const canvas   = document.getElementById('canvas');
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setClearColor(0x000000, 0);
+    renderer.toneMapping         = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.1;
+    renderer.shadowMap.enabled   = true;
+    renderer.shadowMap.type      = THREE.PCFSoftShadowMap;
+
+    /* ── Scene ── (transparent background; fog colour follows the theme) */
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.FogExp2(0x07090f, 0.008);
+
+    const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.01, 2000);
+    camera.position.set(0, 1, 5);
+
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.06;
+    controls.minDistance   = 0.3;
+    controls.maxDistance   = 500;
+    controls.enabled       = false;   // ambient = locked turntable; setModelView(true) enables
+
+    const ambient = new THREE.AmbientLight(0x1a2a3a, 1.2);
+    scene.add(ambient);
+    const keyLight = new THREE.DirectionalLight(0xd0eeff, 2.4);
+    keyLight.position.set(4, 6, 3);
+    keyLight.castShadow = true;
+    keyLight.shadow.mapSize.setScalar(2048);
+    scene.add(keyLight);
+    const fillLight = new THREE.DirectionalLight(0xff8844, 0.7);
+    fillLight.position.set(-5, 2, -3);
+    scene.add(fillLight);
+    const bounceLight = new THREE.HemisphereLight(0x002244, 0x001122, 0.6);
+    scene.add(bounceLight);
+
+    /* ── Ground plane (shadow catcher, theme-aware) ── */
+    const GROUND_DARK  = 0x0a0e18;
+    const GROUND_LIGHT = 0xF5F1E8;
+    const FOG_DARK     = 0x07090f;
+    const FOG_LIGHT    = 0xF5F1E8;
+
+    function isDark() {
+      try { return window.parent.document.documentElement.getAttribute('data-theme') === 'dark'; }
+      catch (e) { return false; }
+    }
+
+    const groundGeo = new THREE.PlaneGeometry(200, 200);
+    const groundMat = new THREE.MeshStandardMaterial({ color: GROUND_LIGHT, roughness: 0.9, metalness: 0.1 });
+    const ground = new THREE.Mesh(groundGeo, groundMat);
+    ground.rotation.x = -Math.PI / 2;
+    ground.receiveShadow = true;
+    scene.add(ground);
+
+    /* Sync ground, fog, lights, the HUD theme class, and the stage variant to
+       the parent page's data-theme. Dark = moody black stage; light = a bright
+       blueprint studio. The ground tracks the page paper tone so it disappears
+       into the page in ambient and only reads as a shadow-catcher once the
+       stage fades in. The HUD accent (red) is shared by both themes. */
+    function applyTheme() {
+      const dark = isDark();
+      groundMat.color.setHex(dark ? GROUND_DARK : GROUND_LIGHT);
+      if (scene.fog) scene.fog.color.setHex(dark ? FOG_DARK : FOG_LIGHT);
+      keyLight.color.setHex(dark ? 0xd0eeff : 0xF5F1E8);
+      keyLight.intensity = dark ? 2.4 : 2.1;
+      fillLight.color.setHex(dark ? 0xff8844 : 0xffa055);
+      document.body.classList.toggle('dark', dark);
+      document.body.classList.toggle('light', !dark);
+      const stage = document.getElementById('stage');
+      if (stage) { stage.classList.toggle('dark', dark); stage.classList.toggle('light', !dark); }
+    }
+
+    try {
+      new MutationObserver(applyTheme).observe(window.parent.document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+    } catch (e) {}
+    applyTheme();
+
+    const pivot = new THREE.Group();
+    scene.add(pivot);
+
+    /* ── Modal animation config ── */
+    const AMP_FRACTION = 0.045;
+    const XFADE_S      = 0.6;
+    const VIS_HZ = (i) => 0.85 + 0.02 * i;
+    const MAT_COLOR = 0x9aa4ae, MAT_ROUGHNESS = 0.3, MAT_METALNESS = 0.5;
+
+    /* ── Specimen registry ── */
+    const ASSET_BASE = 'https://it4hsyd2kjmsott7.public.blob.vercel-storage.com/';   // Vercel Blob (same store as the rover GLBs); use 'glb/' for local dev
+    const SPECIMENS = {
+      beam: { url: ASSET_BASE + 'beam-modes.glb',
+              label: 'FEA Modal Analysis · Free-Free Beam', title: 'Uniform Beam',
+              defaultMode: 7, orient: 'beam', cam: { zoom: 1.0, elev: 18, azi: 25 } },
+      fork: { url: ASSET_BASE + 'tuning-fork-modes.glb',
+              label: 'FEA Modal Analysis · Tuning Fork', title: 'Tuning Fork',
+              defaultMode: 7, orient: '', rot: { x: Math.PI / 2 }, cam: { zoom: 0.9, elev: 12, azi: 28 } },
+      gear: { url: ASSET_BASE + 'gear-modes.glb',
+              label: 'FEA Modal Analysis · LPBF Damping Gear', title: 'Damping Gear',
+              defaultMode: 9, orient: '', cam: { zoom: 0.85, elev: 26, azi: 32 } },
+    };
+    const SPECIMEN_ORDER = ['beam', 'fork', 'gear'];
+    let activeSpecimen = 'beam';
+
+    /* ── Modal state (active specimen) ── */
+    const LOADED = {};            // name -> { model, MODES, meshes, maxDim, magScale }
+    let MODES = [];
+    let modalMeshes = [];
+    let modeA = 6, modeB = -1, blend = 1.0;
+    let AMP = 1.0;
+    const phases = new Float32Array(32);   // >= max mode count
+
+    /* ── Contour shader uniforms ── */
+    const contourUniforms = {
+      uModeA:   { value: modeA },
+      uModeB:   { value: -1 },
+      uWA:      { value: 1.0 },
+      uContour: { value: 1.0 },
+      uMagScale:{ value: 1.0 },
+      uRamp:    { value: [
+        new THREE.Color('#141d28'),
+        new THREE.Color('#0f6f8c'),
+        new THREE.Color('#00e5ff'),
+        new THREE.Color('#ff6b2b'),
+      ] },
+    };
+
+    const specimenMaterial = new THREE.MeshStandardMaterial({
+      color: MAT_COLOR, metalness: MAT_METALNESS, roughness: MAT_ROUGHNESS,
+    });
+    specimenMaterial.onBeforeCompile = (s) => {
+      Object.assign(s.uniforms, contourUniforms);
+      s.vertexShader = s.vertexShader
+        .replace('#include <common>',
+          '#include <common>\nuniform int uModeA;\nuniform int uModeB;\nuniform float uWA;\nuniform float uMagScale;\nvarying float vMag;')
+        .replace('#include <morphtarget_vertex>', `#include <morphtarget_vertex>
+#ifdef MORPHTARGETS_TEXTURE
+  float sdMagA = uModeA >= 0 ? length(getMorph(gl_VertexID, uModeA, 0).xyz) : 0.0;
+  float sdMagB = uModeB >= 0 ? length(getMorph(gl_VertexID, uModeB, 0).xyz) : 0.0;
+  vMag = (uWA * sdMagA + (1.0 - uWA) * sdMagB) * uMagScale;
+#else
+  vMag = 0.0;
+#endif`);
+      s.fragmentShader = s.fragmentShader
+        .replace('#include <common>',
+          '#include <common>\nuniform float uContour;\nuniform vec3 uRamp[4];\nvarying float vMag;')
+        .replace('#include <color_fragment>', `#include <color_fragment>
+  {
+    float t = clamp(vMag, 0.0, 1.0);
+    vec3 cc = t < 0.3333 ? mix(uRamp[0], uRamp[1], t / 0.3333)
+            : t < 0.6666 ? mix(uRamp[1], uRamp[2], (t - 0.3333) / 0.3333)
+            : mix(uRamp[2], uRamp[3], (t - 0.6666) / 0.3334);
+    diffuseColor.rgb = mix(diffuseColor.rgb, cc, uContour);
+  }`);
+    };
+
+    /* ── Loaders ── */
+    const loaderEl = document.getElementById('loader');
+    const barEl    = document.getElementById('loader-bar');
+    const pctEl    = document.getElementById('loader-pct');
+
+    const dracoLoader = new DRACOLoader();
+    dracoLoader.setDecoderPath('https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/libs/draco/');
+    const loader = new GLTFLoader();
+    loader.setDRACOLoader(dracoLoader);
+    loader.setMeshoptDecoder(MeshoptDecoder);
+
+    function ingest(name, gltf) {
+      const model = gltf.scene;
+      const modes = (model.userData && model.userData.modes) || [];
+      const meshes = [];
+      model.traverse((obj) => {
+        if (obj.isMesh) {
+          obj.castShadow = true; obj.receiveShadow = true;
+          obj.material = specimenMaterial;
+          if (obj.morphTargetInfluences) meshes.push(obj);
+        }
+      });
+
+      // KHR_mesh_quantization dequant scale — capture BEFORE the fit scale below
+      // so the contour magnitude (morph |Δ|, baked to max 1) rescales correctly.
+      let magScale = 1.0;
+      if (meshes.length) {
+        const ws = new THREE.Vector3();
+        meshes[0].updateWorldMatrix(true, false);
+        meshes[0].getWorldScale(ws);
+        magScale = ws.x;
+      }
+
+      // Orientation (beam: long axis -> horizontal X)
+      if (SPECIMENS[name].orient === 'beam') {
+        const pre = new THREE.Box3().setFromObject(model);
+        const s = pre.getSize(new THREE.Vector3());
+        if (s.y >= s.x && s.y >= s.z) model.rotation.z = -Math.PI / 2;
+        else if (s.z >= s.x && s.z >= s.y) model.rotation.y = Math.PI / 2;
+      } else if (SPECIMENS[name].rot) {
+        const r = SPECIMENS[name].rot;
+        if (r.x) model.rotation.x = r.x;
+        if (r.y) model.rotation.y = r.y;
+        if (r.z) model.rotation.z = r.z;
+      }
+      // Center + fit to a 3-unit box
+      const box = new THREE.Box3().setFromObject(model);
+      const center = box.getCenter(new THREE.Vector3());
+      const size = box.getSize(new THREE.Vector3());
+      const maxDim = Math.max(size.x, size.y, size.z);
+      const scale = 3 / maxDim;
+      model.position.sub(center.multiplyScalar(scale));
+      model.scale.setScalar(scale);
+      LOADED[name] = { model, MODES: modes, meshes, maxDim, magScale };
+    }
+
+    function loadSpecimen(name) {
+      return new Promise((resolve, reject) =>
+        loader.load(SPECIMENS[name].url, (g) => { ingest(name, g); resolve(); },
+          (xhr) => {
+            if (xhr.total) { const p = Math.round(xhr.loaded / xhr.total * 100); barEl.style.width = p + '%'; pctEl.textContent = p + '%'; }
+          }, reject));
+    }
+
+    function applySpecimenCamera(name) {
+      const S = LOADED[name], c = SPECIMENS[name].cam;
+      const fitDist = (3 * c.zoom) / Math.tan((camera.fov * Math.PI) / 360);
+      const elev = c.elev * Math.PI / 180, azi = c.azi * Math.PI / 180;
+      camera.position.set(
+        fitDist * Math.sin(azi) * Math.cos(elev),
+        fitDist * Math.sin(elev),
+        fitDist * Math.cos(azi) * Math.cos(elev));
+      controls.target.set(0, 0, 0);
+      controls.update();
+    }
+
+    function activateSpecimen(name) {
+      const prev = LOADED[activeSpecimen];
+      if (prev && prev.model.parent) pivot.remove(prev.model);
+      activeSpecimen = name;
+      const S = LOADED[name];
+      pivot.add(S.model);
+
+      MODES = S.MODES;
+      modalMeshes = S.meshes;
+      AMP = S.maxDim * AMP_FRACTION;
+      modeA = SPECIMENS[name].defaultMode - 1;
+      modeB = -1; blend = 1.0;
+      phases.fill(0);
+
+      contourUniforms.uMagScale.value = S.magScale;
+
+      const sb = new THREE.Box3().setFromObject(pivot);
+      ground.position.y = sb.min.y - 0.01;
+
+      applySpecimenCamera(name);
+      buildModePanel();
+      updateModeHud();
+      updateSpecimenTabs();
+      // Notify the portfolio shell so its own specimen toggle stays in sync
+      // when the switch is driven from inside the iframe (the bottom tabs).
+      try { window.parent.postMessage({ type: 'sd-specimen', name }, '*'); } catch (e) {}
+    }
+
+    // Default specimen blocks first paint; the rest stream in behind.
+    loadSpecimen('beam')
+      .then(() => { activateSpecimen('beam'); loaderEl.classList.add('hidden'); })
+      .then(() => Promise.all([loadSpecimen('fork'), loadSpecimen('gear')]))
+      .then(() => updateSpecimenTabs())
+      .catch((err) => {
+        console.error('GLB load error:', err);
+        pctEl.textContent = 'Error: ' + (err && (err.message || err.type) || err);
+        pctEl.style.maxWidth = '80vw'; pctEl.style.textAlign = 'center';
+        barEl.style.background = '#ff4444';
+      });
+
+    /* ── Mode switching ── */
+    function setMode(i) {
+      if (i === modeA && modeB === -1) return;
+      if (i === modeB) return;
+      modeB = i; blend = 0; phases[i] = 0;
+      updateModeHud();
+    }
+
+    function buildModePanel() {
+      const grid = document.getElementById('mode-grid');
+      grid.innerHTML = '';
+      MODES.forEach((m, i) => {
+        if (m.hz < 1) return;                  // skip rigid body modes (1–6)
+        const b = document.createElement('button');
+        b.textContent = m.n;
+        b.className = 'mode-btn';
+        b.dataset.idx = i;
+        b.title = m.hz >= 1 ? m.hz.toFixed(1) + ' Hz' : 'rigid body mode';
+        b.addEventListener('click', () => setMode(i));
+        grid.appendChild(b);
+      });
+    }
+
+    function updateModeHud() {
+      if (!MODES.length) return;
+      const i = (modeB >= 0) ? modeB : modeA;
+      const m = MODES[i];
+      const hz = (m.abqHz || m.hz);
+      const hzText = hz >= 1 ? hz.toFixed(1) + ' Hz' : 'RIGID BODY';
+      document.getElementById('mode-readout').textContent = `MODE ${m.n} — ${hzText}`;
+      document.querySelectorAll('.mode-btn').forEach((b) =>
+        b.classList.toggle('active', +b.dataset.idx === i));
+    }
+
+    /* ── Specimen tabs ── */
+    function buildSpecimenTabs() {
+      const wrap = document.getElementById('specimen-tabs');
+      wrap.innerHTML = '';
+      SPECIMEN_ORDER.forEach((name) => {
+        const b = document.createElement('button');
+        b.textContent = name;
+        b.dataset.name = name;
+        b.addEventListener('click', () => window.setSpecimen(name));
+        wrap.appendChild(b);
+      });
+    }
+    function updateSpecimenTabs() {
+      document.querySelectorAll('#specimen-tabs button').forEach((b) =>
+        b.classList.toggle('active', b.dataset.name === activeSpecimen));
+    }
+    buildSpecimenTabs();
+
+    /* ── Window API (for the portfolio shell) ── */
+    window.setSpecimen = (name) => {
+      if (!SPECIMENS[name] || !LOADED[name] || name === activeSpecimen) return activeSpecimen;
+      activateSpecimen(name);
+      return activeSpecimen;
+    };
+    window.getSpecimens = () => SPECIMEN_ORDER.slice();
+    window.getActiveSpecimen = () => activeSpecimen;
+
+    /* Ambient <-> interactive, driven by the portfolio shell's Model View toggle. */
+    let modelViewActive = false;
+    window.setModelView = (on /*, touch */) => {
+      modelViewActive = !!on;
+      document.body.classList.toggle('modelview', modelViewActive);
+      const stage = document.getElementById('stage');
+      if (stage) stage.classList.toggle('active', modelViewActive);
+      applyTheme();   // ground / fog / stage variant follow the page theme
+      controls.enabled = modelViewActive;
+      if (!modelViewActive && LOADED[activeSpecimen]) applySpecimenCamera(activeSpecimen); // snap home on exit
+      return modelViewActive;
+    };
+
+    /* ── Contour toggle ── */
+    const btnContour = document.getElementById('btn-contour');
+    btnContour.addEventListener('click', () => {
+      const on = contourUniforms.uContour.value > 0.5;
+      contourUniforms.uContour.value = on ? 0.0 : 1.0;
+      btnContour.classList.toggle('off', on);
+    });
+
+    /* ── Auto-rotate (turntable) — matches the rover viewers: spins in ambient,
+       eases to a stop in Model View so the mode shape and its shadow read
+       cleanly (you orbit by hand there). The button opts back into spinning. ── */
+    const ROTATION_SPEED = 0.18;   // rad/sec turntable speed
+    const SPIN_DAMP      = 2.0;    // how fast the spin eases to/from a stop
+    let   rotSpeed       = ROTATION_SPEED;   // current eased angular speed
+    let   spinInView     = false;            // keep spinning while in Model View?
+
+    const btnRotate = document.getElementById('btn-rotate');
+    btnRotate.textContent = 'Rotate';
+    btnRotate.addEventListener('click', () => {
+      spinInView = !spinInView;
+      btnRotate.textContent = spinInView ? 'Pause' : 'Rotate';
+    });
+
+    /* ── Animation loop ── */
+    let lastTime = performance.now();
+    function animate() {
+      requestAnimationFrame(animate);
+      const now = performance.now();
+      const delta = (now - lastTime) / 1000;
+      lastTime = now;
+
+      if (modeB >= 0) {
+        blend = Math.min(1, blend + delta / XFADE_S);
+        if (blend >= 1) { modeA = modeB; modeB = -1; blend = 1; updateModeHud(); }
+      }
+      const wA = (modeB >= 0) ? 1 - blend : 1;
+      const wB = (modeB >= 0) ? blend : 0;
+
+      phases[modeA] += delta * 2 * Math.PI * VIS_HZ(modeA);
+      if (modeB >= 0) phases[modeB] += delta * 2 * Math.PI * VIS_HZ(modeB);
+
+      for (const mesh of modalMeshes) {
+        const inf = mesh.morphTargetInfluences;
+        if (!inf) continue;
+        inf.fill(0);
+        inf[modeA] = Math.sin(phases[modeA]) * AMP * wA;
+        if (modeB >= 0) inf[modeB] = Math.sin(phases[modeB]) * AMP * wB;
+      }
+
+      contourUniforms.uModeA.value = modeA;
+      contourUniforms.uModeB.value = modeB;
+      contourUniforms.uWA.value    = wA;
+
+      const targetSpin = (!modelViewActive || spinInView) ? ROTATION_SPEED : 0;
+      rotSpeed += (targetSpin - rotSpeed) * (1 - Math.exp(-SPIN_DAMP * delta));
+      pivot.rotation.y += rotSpeed * delta;
+      controls.update();
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+  </script>
+
+</body>
+</html>

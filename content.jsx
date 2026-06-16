@@ -45,6 +45,7 @@ window.CONTENT = {
       { category: 'ROBOTICS', title: 'HEXAPOD ROBOT', flow: '18 DOF' },
       { category: 'ROBOTICS', title: 'AUTONOMOUS ROBOT', flow: '15 L/MIN' },
       { category: 'CARDIOLOGY', title: 'VASCULAR STENT', flow: 'Ø 3.5MM' },
+      { category: 'STRUCTURAL DYNAMICS', title: 'MODAL ANALYSIS', flow: '20 MODES' },
     ],
   },
 
@@ -87,6 +88,7 @@ window.CONTENT = {
       { category: 'ロボティクス', title: 'ヘキサポッドロボット', flow: '18自由度' },
       { category: 'ロボティクス', title: '自律ロボット', flow: '15 L/分' },
       { category: '循環器', title: '血管ステント', flow: 'Ø 3.5MM' },
+      { category: '構造力学', title: 'モード解析', flow: '20モード' },
     ],
   },
 
@@ -129,6 +131,7 @@ window.CONTENT = {
       { category: 'ROBOTIK', title: 'HEXAPOD-ROBOTER', flow: '18 FREIHEITSGRADE' },
       { category: 'ROBOTIK', title: 'AUTONOMER ROBOTER', flow: '15 L/MIN' },
       { category: 'KARDIOLOGIE', title: 'GEFÄSSSTENT', flow: 'Ø 3,5MM' },
+      { category: 'STRUKTURDYNAMIK', title: 'MODALANALYSE', flow: '20 MODEN' },
     ],
   },
 
@@ -171,6 +174,7 @@ window.CONTENT = {
       { category: 'ROBOTIQUE', title: 'ROBOT HEXAPODE', flow: '18 DDL' },
       { category: 'ROBOTIQUE', title: 'ROBOT AUTONOME', flow: '15 L/MIN' },
       { category: 'CARDIOLOGIE', title: 'STENT VASCULAIRE', flow: 'Ø 3,5MM' },
+      { category: 'DYNAMIQUE STRUCTURELLE', title: 'ANALYSE MODALE', flow: '20 MODES' },
     ],
   },
 
@@ -213,6 +217,7 @@ window.CONTENT = {
       { category: '로보틱스', title: '헥사포드 로봇', flow: '18 자유도' },
       { category: '로보틱스', title: '자율 로봇', flow: '15 L/분' },
       { category: '심장학', title: '혈관 스텐트', flow: 'Ø 3.5MM' },
+      { category: '구조 동역학', title: '모드 해석', flow: '20개 모드' },
     ],
   },
 
@@ -255,6 +260,7 @@ window.CONTENT = {
       { category: 'ROBÓTICA', title: 'ROBOT HEXÁPODO', flow: '18 GDL' },
       { category: 'ROBÓTICA', title: 'ROBOT AUTÓNOMO', flow: '15 L/MIN' },
       { category: 'CARDIOLOGÍA', title: 'ESTENT VASCULAR', flow: 'Ø 3,5MM' },
+      { category: 'DINÁMICA ESTRUCTURAL', title: 'ANÁLISIS MODAL', flow: '20 MODOS' },
     ],
   },
 };

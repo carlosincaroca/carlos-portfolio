@@ -15,3 +15,6 @@ assets-src/
 .claude/skills/
 skills-lock.json
 docs/superpowers/
+
+# dev-only modal GLBs (served from Vercel Blob in prod)
+glb/

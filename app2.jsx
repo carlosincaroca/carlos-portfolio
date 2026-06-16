@@ -87,6 +87,13 @@ const projects = [
       ],
     },
   },
+  {
+    id: 7,
+    title: 'MODAL ANALYSIS',
+    category: 'STRUCTURAL DYNAMICS',
+    flow: '20 MODES',
+    specs: { specimens: '3', modes: '20', solver: 'CalculiX', maxFreq: '31kHz' },
+  },
 ];
 
 function RevealTitle({ text }) {
@@ -194,6 +201,8 @@ function App() {
           ? <window.HexapodCaseStudy project={project} onBack={goToIndex} />
           : selectedId === 5
           ? <window.RespiratoryCaseStudy project={project} onBack={goToIndex} />
+          : selectedId === 7
+          ? <window.StructuralDynamicsCaseStudy project={project} onBack={goToIndex} />
           : <CaseStudy project={project} onBack={goToIndex} />
         }
         {has3dBg && (
