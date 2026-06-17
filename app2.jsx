@@ -123,7 +123,6 @@ function StatTile({ value, suffix, label, delay }) {
 
 function App() {
   const [selectedId, setSelectedId] = React.useState(null);
-  const [armOpen, setArmOpen] = React.useState(false); // Mars sub-page: rover-arm viewer
   const [rotationProgress, setRotationProgress] = React.useState(0);
   const [heroTranslate, setHeroTranslate] = React.useState(0);
   const [modelLit, setModelLit] = React.useState(false);
@@ -174,7 +173,6 @@ function App() {
   React.useEffect(() => {
     if (selectedId !== null) window.scrollTo({ top: 0, behavior: 'instant' });
     setModelLit(false); // reset 3D dim whenever the open project changes
-    setArmOpen(false);  // leaving Mars closes the rover-arm sub-page
   }, [selectedId]);
 
   const goToIndex = () => {
@@ -194,9 +192,7 @@ function App() {
           : selectedId === 2
           ? <window.SpineExoskeletonCaseStudy project={project} onBack={goToIndex} />
           : selectedId === 3
-          ? (armOpen
-              ? <window.RoverArmCaseStudy onBack={() => setArmOpen(false)} />
-              : <window.MarsRoverCaseStudy project={project} onBack={goToIndex} onOpenArm={() => setArmOpen(true)} />)
+          ? <window.MarsRoverCaseStudy project={project} onBack={goToIndex} />
           : selectedId === 4
           ? <window.HexapodCaseStudy project={project} onBack={goToIndex} />
           : selectedId === 5

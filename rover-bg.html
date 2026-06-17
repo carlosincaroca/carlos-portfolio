@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { width: 100%; height: 100%; overflow: hidden; background: transparent; }
+    #canvas { display: block; width: 100vw; height: 100vh; position: relative; z-index: 1; }
+
+    /* ── Dramatic dark stage — faded in only during Model View ── */
+    #stage {
+      position: fixed; inset: 0; z-index: 0;
+      opacity: 0;
+      transition: opacity 0.6s ease;
+      pointer-events: none;
+      background-size: 100% 100%, 60px 60px, 60px 60px, 100% 100%;
+    }
+    #stage.active { opacity: 1; }
+    /* Dark mode — moody sci-fi stage */
+    #stage.dark {
+      background:
+        radial-gradient(ellipse 80% 80% at 50% 50%, transparent 40%, #07090f 100%),
+        linear-gradient(rgba(0, 200, 255, 0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 200, 255, 0.04) 1px, transparent 1px),
+        #07090f;
+    }
+    /* Light mode — bright blueprint studio, same ambiance, with a warm
+       sunlit corner echoing the dark stage's top-left glow */
+    #stage.light {
+      background:
+        radial-gradient(ellipse 80% 80% at 50% 50%, transparent 45%, #DBE2EA 100%),
+        radial-gradient(ellipse 55% 45% at 10% 6%, rgba(255, 176, 102, 0.30), transparent 70%),
+        linear-gradient(rgba(46, 92, 154, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(46, 92, 154, 0.05) 1px, transparent 1px),
+        #F4F0E8;
+      background-size: 100% 100%, 100% 100%, 60px 60px, 60px 60px, 100% 100%;
+    }
+
+    #loader {
+      position: fixed; inset: 0;
+      background: rgba(7,9,15,0.92);
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      transition: opacity 0.6s ease, visibility 0.6s ease;
+      font-family: 'JetBrains Mono', monospace;
+      color: #00e5ff;
+    }
+    #loader.hidden { opacity: 0; visibility: hidden; }
+    .loader-title { font-size: 11px; letter-spacing: 0.3em; text-transform: uppercase; }
+    .loader-bar-wrap { width: 180px; height: 2px; background: rgba(0,229,255,0.1); border-radius: 2px; overflow: hidden; }
+    .loader-bar { height: 100%; width: 0%; background: #00e5ff; border-radius: 2px; transition: width 0.2s ease; }
+    .loader-pct { font-size: 10px; color: rgba(200,212,224,0.5); }
+
+    /* ── Interaction hint (Model View) — fades out on first drag/zoom ── */
+    #hint {
+      position: fixed;
+      left: 50%; bottom: 2.5rem;
+      transform: translateX(-50%) translateY(10px);
+      z-index: 60;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 9px 18px;
+      border: 1px solid rgba(196,54,77,0.55);
+      border-radius: 100px;
+      color: #C4364D;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      white-space: nowrap;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.22,1,0.36,1), visibility 0.5s;
+      pointer-events: none;
+    }
+    #hint.show { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0); }
+    #hint .hint-item { display: inline-flex; align-items: center; gap: 7px; }
+    #hint svg { width: 15px; height: 15px; opacity: 0.85; }
+    #hint .hint-sep { opacity: 0.4; }
+    #hint.dark  { background: rgba(10,14,24,0.7); }
+    #hint:not(.dark) { background: rgba(245,241,232,0.82); }
+  </style>
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
+</head>
+<body>
+
+  <div id="loader">
+    <div class="loader-title" id="loader-title">Loading Rover</div>
+    <div class="loader-bar-wrap"><div class="loader-bar" id="loader-bar"></div></div>
+    <div class="loader-pct" id="loader-pct">0%</div>
+  </div>
+
+  <div id="stage"></div>
+  <canvas id="canvas"></canvas>
+
+  <div id="hint" aria-hidden="true">
+    <span class="hint-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><polyline points="21 3 21 9 15 9"/></svg>
+      <span id="hint-rotate">Drag to rotate</span>
+    </span>
+    <span class="hint-sep">·</span>
+    <span class="hint-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/></svg>
+      <span id="hint-zoom">Scroll to zoom</span>
+    </span>
+  </div>
+
+  <script type="module">
+    import * as THREE from 'three';
+    import { GLTFLoader }     from 'three/addons/loaders/GLTFLoader.js';
+    import { DRACOLoader }    from 'three/addons/loaders/DRACOLoader.js';
+    import { OrbitControls }  from 'three/addons/controls/OrbitControls.js';
+    import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
+
+    /* ════════════════════════════════════════════════════════════════
+       MERGED VIEWER — one scene hosting the full rover and the rover-arm,
+       toggled by window.setModel(). Only the active model lives in the
+       scene; the other is preloaded off-scene for an instant swap. Each
+       model keeps its OWN explode setup and camera framing; the explode
+       application, camera ease-back, Model-View gate and turntable are
+       shared. (Built from byumarsrover-bg.html + roverarm-bg.html.)
+       ════════════════════════════════════════════════════════════════ */
+
+    const BLOB = 'https://it4hsyd2kjmsott7.public.blob.vercel-storage.com/';
+
+    /* ── Renderer — transparent so the portfolio bg shows through ── */
+    const canvas   = document.getElementById('canvas');
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setClearColor(0x000000, 0);
+    renderer.toneMapping         = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.1;
+    renderer.shadowMap.enabled   = true;
+    renderer.shadowMap.type      = THREE.PCFSoftShadowMap;
+
+    /* ── Scene ── (transparent background; fog follows the theme) */
+    const scene  = new THREE.Scene();
+    scene.fog    = new THREE.FogExp2(0x07090f, 0.008);
+    const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.01, 2000);
+    camera.position.set(0, 1, 5);
+
+    /* ── Controls — present but gated on Model View (see setModelView) ── */
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.06;
+    controls.enablePan     = false;   // keep the model centred
+    controls.enabled       = false;   // off until Model View is entered
+
+    let modelViewActive = false;
+
+    /* ── Lights ── */
+    scene.add(new THREE.AmbientLight(0x1a2a3a, 1.2));
+    const keyLight = new THREE.DirectionalLight(0xd0eeff, 2.4);
+    keyLight.position.set(4, 6, 3);
+    keyLight.castShadow = true;
+    keyLight.shadow.mapSize.setScalar(2048);
+    scene.add(keyLight);
+    const fillLight = new THREE.DirectionalLight(0xff8844, 0.7);
+    fillLight.position.set(-5, 2, -3);
+    scene.add(fillLight);
+    scene.add(new THREE.HemisphereLight(0x002244, 0x001122, 0.6));
+
+    /* ── Ground plane (shadow catcher, theme-aware) ── */
+    const GROUND_DARK  = 0x0a0e18;
+    const GROUND_LIGHT = 0xF5F1E8;
+    const FOG_DARK     = 0x07090f;
+    const FOG_LIGHT    = 0xF5F1E8;
+
+    function isDark() {
+      try { return window.parent.document.documentElement.getAttribute('data-theme') === 'dark'; }
+      catch(e) { return false; }
+    }
+
+    const groundMat = new THREE.MeshStandardMaterial({ color: GROUND_LIGHT, roughness: 0.9, metalness: 0.1 });
+    const ground = new THREE.Mesh(new THREE.PlaneGeometry(200, 200), groundMat);
+    ground.rotation.x = -Math.PI / 2;
+    ground.receiveShadow = true;
+    scene.add(ground);
+
+    function applyTheme() {
+      const dark = isDark();
+      groundMat.color.setHex(dark ? GROUND_DARK : GROUND_LIGHT);
+      if (scene.fog) scene.fog.color.setHex(dark ? FOG_DARK : FOG_LIGHT);
+      keyLight.color.setHex(dark ? 0xd0eeff : 0xF5F1E8);
+      keyLight.intensity = dark ? 2.4 : 2.1;
+      fillLight.color.setHex(dark ? 0xff8844 : 0xffa055);
+      fillLight.intensity = 0.7;
+      const stage = document.getElementById('stage');
+      if (stage) { stage.classList.toggle('dark', dark); stage.classList.toggle('light', !dark); }
+      const hint = document.getElementById('hint');
+      if (hint) hint.classList.toggle('dark', dark);
+    }
+    try {
+      new MutationObserver(applyTheme).observe(window.parent.document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+    } catch(e) {}
+    applyTheme();
+
+    /* ── Shared explode / camera-phase / turntable constants ── */
+    const START_ROT_Y    = Math.PI - Math.PI / 3;  // turntable start angle
+    const EXPLODED_ZOOM  = 0.85;   // camera zoom while exploded
+    const EXPLODED_ELEV  = 15;     // camera elevation while exploded
+    const EXPLODE_SPEED  = 1.8;    // seconds to fully explode / implode
+    const CAM_SPEED      = 0.9;    // seconds for the camera phase (runs first)
+    const CAM_RESET_TIME = 0.6;    // seconds for the Model-View ease-back
+    const ROTATION_SPEED = 0.18;   // rad/sec turntable speed
+    const SPIN_DAMP      = 2.0;    // how fast the spin eases to/from a stop
+
+    /* ════ Shared geometry helper: fuse a node's descendant meshes into
+       one mesh per material, baked into that node's local frame. The node
+       stays a separate movable object (explode still works); draw calls drop. */
+    const cleanGeo = (src, relMatrix) => {
+      const g = src.index ? src.toNonIndexed() : src.clone();
+      g.applyMatrix4(relMatrix);
+      if (!g.attributes.normal) g.computeVertexNormals();
+      const out = new THREE.BufferGeometry();
+      out.setAttribute('position', g.attributes.position);
+      out.setAttribute('normal',   g.attributes.normal);
+      return out;
+    };
+    function mergeNodeMeshes(node) {
+      node.updateWorldMatrix(true, true);
+      const nodeInv = node.matrixWorld.clone().invert();
+      const groups  = new Map(); // material -> { geos:[], olds:[] }
+      node.traverse((o) => {
+        if (o.isMesh && o.geometry) {
+          o.updateWorldMatrix(true, false);
+          const rel = nodeInv.clone().multiply(o.matrixWorld);
+          const mat = Array.isArray(o.material) ? o.material[0] : o.material;
+          if (!groups.has(mat)) groups.set(mat, { geos: [], olds: [] });
+          const grp = groups.get(mat);
+          grp.geos.push(cleanGeo(o.geometry, rel));
+          grp.olds.push(o);
+        }
+      });
+      groups.forEach(({ geos, olds }, mat) => {
+        const merged = mergeGeometries(geos, false);
+        if (!merged) return; // leave originals in place on failure
+        olds.forEach((o) => { o.parent && o.parent.remove(o); o.geometry.dispose(); });
+        const mesh = new THREE.Mesh(merged, mat);
+        mesh.castShadow = true; mesh.receiveShadow = true;
+        node.add(mesh);
+      });
+    }
+
+    const origName = (o) => (o.userData && o.userData.name) || o.name || '';
+
+    /* ════ Per-model explode setups → return parts[] of {mesh, originalPos,
+       localDelta}, applied uniformly as pos = originalPos + localDelta·factor. */
+
+    /* ROVER — named-part anchoring: chassis + Part 1 stay fixed, wheels and
+       gripper spread further, everything else flies radially from centre. */
+    function setupRoverExplode(model, pivot) {
+      const EXPLODE_AMOUNT = 0.35, WHEEL_SPREAD = 1.6, GRIPPER_SPREAD = 1.7;
+      const assemblyRoot  = model.children[0];
+      const assemblyParts = assemblyRoot ? assemblyRoot.children : model.children;
+
+      const isWheelNode   = (o) => origName(o).includes('6 Spoke Assembly');
+      const isGripperNode = (o) => origName(o).includes('Gripper Assembly');
+      const isArmNode     = (o) => origName(o).includes('New Arm Assembly');
+      const isCouplerNode = (o) => /JCC26-36|Ruland/.test(origName(o));
+      const isAnchorNode  = (o) => origName(o).includes('Chassis 2026') ||
+                                   origName(o).includes('occurrence of Part 1');
+
+      // Promote the 6 wheels out of the chassis (the anchor) so each can move.
+      const chassisNode = assemblyParts.find((c) => origName(c).includes('Chassis 2026'));
+      if (chassisNode) chassisNode.children.filter(isWheelNode).forEach((w) => assemblyRoot.attach(w));
+      // Fuse the JCC/Ruland couplers into the arm so they ride with it.
+      const armNode = assemblyParts.find(isArmNode);
+      if (armNode) assemblyParts.filter(isCouplerNode).forEach((c) => armNode.attach(c));
+
+      assemblyParts.forEach(mergeNodeMeshes);
+
+      const modelWorldCenter = new THREE.Vector3();
+      new THREE.Box3().setFromObject(pivot).getCenter(modelWorldCenter);
+
+      const parts = [];
+      assemblyParts.forEach((part) => {
+        const partBox = new THREE.Box3().setFromObject(part);
+        if (partBox.isEmpty()) return;
+        if (isAnchorNode(part)) return;        // chassis + Part 1 stay fixed
+
+        const partWorldCenter = partBox.getCenter(new THREE.Vector3());
+        const worldDir = partWorldCenter.clone().sub(modelWorldCenter);
+        if (worldDir.length() < 0.001) worldDir.set(Math.random() - 0.5, 0.3, Math.random() - 0.5);
+        worldDir.y = Math.max(worldDir.y, 0);
+        if (worldDir.length() < 0.001) worldDir.set(Math.random() - 0.5, 0.3, Math.random() - 0.5);
+        worldDir.normalize();
+
+        const parentQuat = new THREE.Quaternion();
+        part.parent.getWorldQuaternion(parentQuat);
+        const localDir = worldDir.clone().applyQuaternion(parentQuat.invert());
+        const spread = isWheelNode(part) ? WHEEL_SPREAD : isGripperNode(part) ? GRIPPER_SPREAD : 1.0;
+
+        parts.push({
+          mesh: part,
+          originalPos: part.position.clone(),
+          localDelta: localDir.multiplyScalar(EXPLODE_AMOUNT * spread),
+        });
+      });
+      return parts;
+    }
+
+    /* ARM — full per-part, two-level proportional homothety: each assembly
+       separates from the arm centre ∝ distance (GLOBAL); each part blooms
+       from its own assembly's centre ∝ distance (LOCAL). No anchor. */
+    function setupArmExplode(model, pivot) {
+      const EXPLODE_GLOBAL = 1.0, EXPLODE_LOCAL = 1.6;
+      pivot.updateMatrixWorld(true);
+      const modelWorldCenter = new THREE.Vector3();
+      new THREE.Box3().setFromObject(pivot).getCenter(modelWorldCenter);
+
+      const assemblyRoot = model.children[0]; // "New Arm Assembly"
+      const asmCenter = new Map();
+      if (assemblyRoot) {
+        assemblyRoot.children.forEach((a) => {
+          const b = new THREE.Box3().setFromObject(a);
+          if (!b.isEmpty()) asmCenter.set(a, b.getCenter(new THREE.Vector3()));
+        });
+      }
+      const topAssemblyOf = (o) => { let p = o; while (p && p.parent !== assemblyRoot) p = p.parent; return p; };
+
+      const partNodes = [];
+      model.traverse((o) => { if (origName(o).startsWith('occurrence of')) partNodes.push(o); });
+
+      partNodes.forEach(mergeNodeMeshes);
+
+      const parts = [];
+      const _wp = new THREE.Vector3();
+      partNodes.forEach((part) => {
+        const partBox = new THREE.Box3().setFromObject(part);
+        if (partBox.isEmpty()) return;
+        const Pc  = partBox.getCenter(new THREE.Vector3());
+        const top = topAssemblyOf(part);
+        const Ac  = (top && asmCenter.get(top)) || Pc;
+
+        const deltaW = Ac.clone().sub(modelWorldCenter).multiplyScalar(EXPLODE_GLOBAL)
+                  .add(Pc.clone().sub(Ac).multiplyScalar(EXPLODE_LOCAL));
+
+        part.getWorldPosition(_wp);
+        const targetLocal = part.parent.worldToLocal(_wp.add(deltaW));
+        const localDelta  = targetLocal.clone().sub(part.position);
+        parts.push({ mesh: part, originalPos: part.position.clone(), localDelta });
+      });
+      return parts;
+    }
+
+    /* ════ Model registry ════ */
+    const MODELS = {
+      rover: { url: BLOB + 'byumarsrover.glb', title: 'Rover', modelY: -0.5, lift: 0,
+               cam: { zoom: 0.69, elev: 24, azimuth: 160, panY: 0.25 }, setup: setupRoverExplode },
+      arm:   { url: BLOB + 'roverarm.glb',     title: 'Arm',   modelY: -0.4, lift: 1.0,
+               cam: { zoom: 0.60, elev: 25, azimuth: 180, panY: -0.35 }, setup: setupArmExplode },
+    };
+    const MODEL_ORDER = ['rover', 'arm'];
+    const LOADED = {};       // name -> record (below)
+    let active = 'rover';
+    let A = null;            // active record; everything below reads from it
+
+    /* ── Explode + camera-phase state (shared; reset on model switch) ── */
+    let explodeTarget = 0;   // 0 = assembled, 1 = exploded
+    let explodeFactor = 0;   // current animated value (parts)
+    let camFactor     = 0;   // current animated value (camera pull-back phase)
+
+    /* ── Model-View ease-back state ── */
+    let camTween = null;     // { fromPos, fromTarget, t }
+    const easeInOutCubic = (t) => t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t + 2, 3) / 2;
+
+    /* Default camera pose for the ACTIVE model at explode factor f. */
+    function defaultPose(f, out) {
+      const zoom = A.camZoomIn + (EXPLODED_ZOOM - A.camZoomIn) * f;
+      const elev = (A.camElevIn + (EXPLODED_ELEV - A.camElevIn) * f) * Math.PI / 180;
+      const dist = A.camBaseDist * zoom;
+      return (out || new THREE.Vector3()).set(
+        A.defaultTarget.x + dist * Math.sin(A.camAzimuth) * Math.cos(elev),
+        A.defaultTarget.y + dist * Math.sin(elev),
+        A.defaultTarget.z + dist * Math.cos(A.camAzimuth) * Math.cos(elev)
+      );
+    }
+
+    /* ── Interaction hint ── */
+    const hintEl = document.getElementById('hint');
+    function showHint() { if (hintEl) hintEl.classList.add('show'); }
+    function hideHint() { if (hintEl) hintEl.classList.remove('show'); }
+    function applyHintWording(touch) {
+      const r = document.getElementById('hint-rotate');
+      const z = document.getElementById('hint-zoom');
+      if (r) r.textContent = touch ? 'Swipe to rotate' : 'Drag to rotate';
+      if (z) z.textContent = touch ? 'Pinch to zoom'  : 'Scroll to zoom';
+    }
+    applyHintWording(window.matchMedia('(pointer: coarse)').matches || 'ontouchstart' in window);
+    renderer.domElement.addEventListener('pointerdown', (e) => applyHintWording(e.pointerType === 'touch'));
+    controls.addEventListener('start', hideHint);
+
+    /* ── Loaders ── */
+    const loaderEl  = document.getElementById('loader');
+    const loaderTtl = document.getElementById('loader-title');
+    const barEl     = document.getElementById('loader-bar');
+    const pctEl     = document.getElementById('loader-pct');
+
+    const dracoLoader = new DRACOLoader();
+    dracoLoader.setDecoderPath('https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/libs/draco/');
+    const loader = new GLTFLoader();
+    loader.setDRACOLoader(dracoLoader);
+
+    /* Load + frame + explode-setup a model; store its record (off-scene). */
+    function loadModel(name, withLoaderBar) {
+      const cfg = MODELS[name];
+      return new Promise((resolve, reject) => {
+        loader.load(cfg.url, (gltf) => {
+          const model = gltf.scene;
+          model.traverse((o) => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
+
+          // Centre + fit (Onshape export is Z-up → rotate −90° X to stand upright)
+          const box    = new THREE.Box3().setFromObject(model);
+          const center = box.getCenter(new THREE.Vector3());
+          const size   = box.getSize(new THREE.Vector3());
+          const maxDim = Math.max(size.x, size.y, size.z);
+          const scale  = 3 / maxDim;
+          model.position.sub(center.multiplyScalar(scale));
+          model.scale.setScalar(scale);
+          model.rotation.x = -Math.PI / 2;
+
+          const pivot = new THREE.Group();
+          pivot.rotation.y = START_ROT_Y;
+          pivot.position.y = cfg.modelY;          // pre-lift; lift applied after setup
+          pivot.add(model);
+
+          // Framing params (from the fit box, before any merge).
+          const panY        = cfg.cam.panY * maxDim * scale;
+          const camBaseDist = (maxDim * scale) / Math.tan((camera.fov * Math.PI) / 360);
+          const camAzimuth  = cfg.cam.azimuth * Math.PI / 180;
+
+          // Per-model explode setup (mutates the model tree, returns parts[]).
+          const parts = cfg.setup(model, pivot);
+
+          // Seat the ground at the settled resting bottom, then lift clear.
+          const restBox = new THREE.Box3().setFromObject(pivot);
+          const groundY = restBox.min.y - 0.01;
+          pivot.position.y = cfg.modelY + cfg.lift;
+
+          LOADED[name] = {
+            name, pivot, parts, groundY,
+            camBaseDist, camZoomIn: cfg.cam.zoom, camElevIn: cfg.cam.elev, camAzimuth,
+            defaultTarget: new THREE.Vector3(0, cfg.modelY + panY + cfg.lift, 0),
+            ready: true,
+          };
+          resolve(LOADED[name]);
+        },
+        (xhr) => {
+          if (!withLoaderBar) return;
+          if (xhr.total) { const p = Math.round(xhr.loaded / xhr.total * 100); barEl.style.width = p + '%'; pctEl.textContent = p + '%'; }
+          else pctEl.textContent = (xhr.loaded / 1048576).toFixed(0) + ' MB';
+        },
+        (err) => { console.error('GLB load error (' + name + '):', err); if (withLoaderBar) pctEl.textContent = 'Error loading model'; reject(err); });
+      });
+    }
+
+    /* Make a loaded model the active one: swap it into the scene, reset the
+       explode to assembled, reseat the ground, snap the camera to its pose. */
+    function activate(name, first) {
+      const rec = LOADED[name];
+      if (!rec) return active;
+      if (!first && LOADED[active]) scene.remove(LOADED[active].pivot);
+      active = name; A = rec;
+      scene.add(rec.pivot);
+
+      explodeTarget = 0; explodeFactor = 0; camFactor = 0;
+      rec.parts.forEach((p) => p.mesh.position.copy(p.originalPos));
+
+      ground.position.y = rec.groundY;
+      camTween = null;
+      camera.position.copy(defaultPose(0));
+      controls.target.copy(rec.defaultTarget);
+      controls.minDistance   = rec.camBaseDist * rec.camZoomIn * 0.45;
+      controls.maxDistance   = rec.camBaseDist * rec.camZoomIn * 2.5;
+      controls.maxPolarAngle = Math.PI / 2 - 0.05;
+      controls.update();
+      postModel();
+      return active;
+    }
+
+    function postModel() {
+      try { window.parent.postMessage({ type: 'rover-model', name: active, exploded: false }, '*'); } catch(e) {}
+    }
+
+    /* ── Boot: rover first (paints fast), arm streams in behind ── */
+    loadModel('rover', true)
+      .then(() => { activate('rover', true); loaderEl.classList.add('hidden'); })
+      .then(() => loadModel('arm', false))
+      .catch((err) => { console.error(err); pctEl.textContent = 'Error: ' + (err && (err.message || err.type) || err); });
+
+    /* ════ Window API (parent page, same-origin) ════ */
+    window.setModel = (name) => {
+      if (!MODELS[name] || name === active) return active;
+      if (!LOADED[name]) return active;           // not streamed in yet — no-op
+      return activate(name, false);
+    };
+    window.getModels = () => MODEL_ORDER.slice();
+    window.getModel  = () => active;
+
+    window.toggleExplode = () => {
+      explodeTarget = explodeTarget === 0 ? 1 : 0;
+      return explodeTarget; // 1 = exploded, 0 = assembled
+    };
+
+    window.setModelView = (on, touch) => {
+      modelViewActive = !!on;
+      if (typeof touch === 'boolean') applyHintWording(touch);
+      const stage = document.getElementById('stage');
+      if (stage) stage.classList.toggle('active', modelViewActive);
+      applyTheme();
+      if (modelViewActive) {
+        camTween = null;
+        controls.enabled = true;
+        showHint();
+      } else {
+        controls.enabled = false;
+        hideHint();
+        if (A) camTween = { fromPos: camera.position.clone(), fromTarget: controls.target.clone(), t: 0 };
+      }
+      return modelViewActive;
+    };
+
+    /* ── Animation loop ── */
+    let rotSpeed = ROTATION_SPEED;
+    let lastTime = performance.now();
+    function animate() {
+      requestAnimationFrame(animate);
+      const now = performance.now();
+      const delta = (now - lastTime) / 1000;
+      lastTime = now;
+
+      if (A) {
+        /* Two-phase explode: exploding pulls the camera back first, then parts
+           fly; assembling returns parts first, then the camera pushes in. */
+        const step = delta / EXPLODE_SPEED, camStep = delta / CAM_SPEED, prevCam = camFactor;
+        if (explodeTarget === 1) {
+          if (camFactor < 1)          camFactor     = Math.min(camFactor + camStep, 1);
+          else if (explodeFactor < 1) explodeFactor = Math.min(explodeFactor + step, 1);
+        } else {
+          if (explodeFactor > 0)      explodeFactor = Math.max(explodeFactor - step, 0);
+          else if (camFactor > 0)     camFactor     = Math.max(camFactor - camStep, 0);
+        }
+
+        // Drive camera distance/elevation only while its phase animates, keeping azimuth.
+        if (camFactor !== prevCam && !camTween) {
+          const dist = A.camBaseDist * (A.camZoomIn + (EXPLODED_ZOOM - A.camZoomIn) * camFactor);
+          const elev = (A.camElevIn + (EXPLODED_ELEV - A.camElevIn) * camFactor) * Math.PI / 180;
+          const v = camera.position.clone().sub(controls.target);
+          const azi = Math.atan2(v.x, v.z);
+          camera.position.set(
+            controls.target.x + dist * Math.sin(azi) * Math.cos(elev),
+            controls.target.y + dist * Math.sin(elev),
+            controls.target.z + dist * Math.cos(azi) * Math.cos(elev)
+          );
+        }
+
+        for (const p of A.parts) p.mesh.position.copy(p.originalPos).addScaledVector(p.localDelta, explodeFactor);
+
+        if (camTween) {
+          camTween.t = Math.min(camTween.t + delta / CAM_RESET_TIME, 1);
+          const e = easeInOutCubic(camTween.t);
+          camera.position.lerpVectors(camTween.fromPos, defaultPose(camFactor), e);
+          controls.target.lerpVectors(camTween.fromTarget, A.defaultTarget, e);
+          camera.lookAt(controls.target);
+          if (camTween.t >= 1) camTween = null;
+        } else {
+          controls.update();
+        }
+
+        // Auto-rotate — eases to a stop in Model View, spins back up on exit.
+        const targetSpin = modelViewActive ? 0 : ROTATION_SPEED;
+        rotSpeed += (targetSpin - rotSpeed) * (1 - Math.exp(-SPIN_DAMP * delta));
+        A.pivot.rotation.y += rotSpeed * delta;
+      } else {
+        controls.update();
+      }
+
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+  </script>
+</body>
+</html>
