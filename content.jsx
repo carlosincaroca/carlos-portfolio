@@ -15,8 +15,8 @@ window.CONTENT = {
     hero: { title: 'ENGINEERING PORTFOLIO', tagline: 'MECHANICAL ENGINEERING • ROBOTICS • NEUROMECHANICS • PHYSICS-INFORMED DEEP LEARNING', scroll: 'SCROLL TO EXPLORE PROJECTS' },
     intro: {
       eyebrow: '// INTRODUCTION',
-      headlineHTML: 'Engineering <em>human-centered</em> solutions where <em>robotics</em> meets biological complexity.',
-      body: 'I build robots, model the human body with the tools of robotics, and train neural networks that obey physics. All of it starts with one question: how will this help real people?',
+      headlineHTML: '<em>Dynamics</em>, <em>simulation</em>, and <em>robotics</em>, from the lab to the field.',
+      body: "I'm a mechanical engineer working on robotics, finite element analysis of mechanical vibrations, human body dynamics, and neural networks that obey physics.",
     },
     about: {
       eyebrow: '// PROFILE',
@@ -58,8 +58,8 @@ window.CONTENT = {
     hero: { title: 'エンジニアリング ポートフォリオ', tagline: '機械工学 • ロボティクス • ニューロメカニクス • 物理情報深層学習', scroll: 'スクロールしてプロジェクトを見る' },
     intro: {
       eyebrow: '// イントロダクション',
-      headlineHTML: '<em>ロボティクス</em>と生物学的な複雑さが出会う場所で、<em>人間中心</em>のソリューションを設計する。',
-      body: 'ロボットを作り、ロボティクスの手法で人体をモデル化し、物理法則に従うニューラルネットワークを訓練しています。すべては一つの問いから始まります。これは実際の人々をどう助けるのか？',
+      headlineHTML: '<em>ダイナミクス</em>、<em>シミュレーション</em>、<em>ロボティクス</em>。研究室から現場まで。',
+      body: 'ロボティクス、機械振動の有限要素解析、人体の動力学、そして物理法則に従うニューラルネットワークに取り組む機械エンジニアです。',
     },
     about: {
       eyebrow: '// プロフィール',
@@ -101,8 +101,8 @@ window.CONTENT = {
     hero: { title: 'INGENIEUR- PORTFOLIO', tagline: 'MASCHINENBAU • ROBOTIK • NEUROMECHANIK • PHYSIKINFORMIERTES DEEP LEARNING', scroll: 'SCROLLEN, UM PROJEKTE ZU ENTDECKEN' },
     intro: {
       eyebrow: '// EINFÜHRUNG',
-      headlineHTML: '<em>Menschzentrierte</em> Lösungen entwickeln, wo <em>Robotik</em> auf biologische Komplexität trifft.',
-      body: 'Ich baue Roboter, modelliere den menschlichen Körper mit den Werkzeugen der Robotik und trainiere neuronale Netze, die den Gesetzen der Physik folgen. Alles beginnt mit einer Frage: Wie hilft das echten Menschen?',
+      headlineHTML: '<em>Dynamik</em>, <em>Simulation</em> und <em>Robotik</em>, vom Labor bis ins Feld.',
+      body: 'Ich bin Maschinenbauingenieur und arbeite an Robotik, Finite-Elemente-Analyse mechanischer Schwingungen, der Dynamik des menschlichen Körpers und neuronalen Netzen, die den Gesetzen der Physik folgen.',
     },
     about: {
       eyebrow: '// PROFIL',
@@ -144,8 +144,8 @@ window.CONTENT = {
     hero: { title: "PORTFOLIO D'INGÉNIERIE", tagline: 'GÉNIE MÉCANIQUE • ROBOTIQUE • NEUROMÉCANIQUE • DEEP LEARNING INFORMÉ PAR LA PHYSIQUE', scroll: 'FAITES DÉFILER POUR EXPLORER LES PROJETS' },
     intro: {
       eyebrow: '// INTRODUCTION',
-      headlineHTML: 'Concevoir des solutions <em>centrées sur l’humain</em>, là où la <em>robotique</em> rencontre la complexité biologique.',
-      body: 'Je construis des robots, je modélise le corps humain avec les outils de la robotique et j’entraîne des réseaux de neurones qui respectent la physique. Tout part d’une question : en quoi cela aidera-t-il de vraies personnes ?',
+      headlineHTML: '<em>Dynamique</em>, <em>simulation</em> et <em>robotique</em>, du laboratoire au terrain.',
+      body: "Je suis ingénieur en mécanique et je travaille sur la robotique, l'analyse par éléments finis des vibrations mécaniques, la dynamique du corps humain et des réseaux de neurones qui respectent la physique.",
     },
     about: {
       eyebrow: '// PROFIL',
@@ -187,8 +187,8 @@ window.CONTENT = {
     hero: { title: '엔지니어링 포트폴리오', tagline: '기계공학 • 로보틱스 • 신경역학 • 물리 기반 딥러닝', scroll: '스크롤하여 프로젝트 살펴보기' },
     intro: {
       eyebrow: '// 소개',
-      headlineHTML: '<em>로보틱스</em>가 생물학적 복잡성과 만나는 지점에서 <em>인간 중심</em>의 솔루션을 설계합니다.',
-      body: '저는 로봇을 만들고, 로보틱스의 도구로 인체를 모델링하며, 물리 법칙을 따르는 신경망을 학습시킵니다. 모든 것은 하나의 질문에서 시작합니다: 이것이 실제 사람들에게 어떻게 도움이 될까?',
+      headlineHTML: '<em>동역학</em>, <em>시뮬레이션</em>, <em>로보틱스</em>. 연구실에서 현장까지.',
+      body: '저는 로보틱스, 기계 진동의 유한요소해석, 인체 동역학, 그리고 물리 법칙을 따르는 신경망을 다루는 기계공학 엔지니어입니다.',
     },
     about: {
       eyebrow: '// 프로필',
@@ -230,8 +230,8 @@ window.CONTENT = {
     hero: { title: 'PORTAFOLIO DE INGENIERÍA', tagline: 'INGENIERÍA MECÁNICA • ROBÓTICA • NEUROMECÁNICA • DEEP LEARNING INFORMADO POR LA FÍSICA', scroll: 'DESPLÁZATE PARA EXPLORAR LOS PROYECTOS' },
     intro: {
       eyebrow: '// INTRODUCCIÓN',
-      headlineHTML: 'Diseñar soluciones <em>centradas en las personas</em>, donde la <em>robótica</em> se encuentra con la complejidad biológica.',
-      body: 'Construyo robots, modelo el cuerpo humano con las herramientas de la robótica y entreno redes neuronales que obedecen a la física. Todo empieza con una pregunta: ¿cómo va a ayudar esto a personas reales?',
+      headlineHTML: '<em>Dinámica</em>, <em>simulación</em> y <em>robótica</em>, del laboratorio al campo.',
+      body: 'Soy ingeniero mecánico y trabajo en robótica, análisis por elementos finitos de vibraciones mecánicas, dinámica del cuerpo humano y redes neuronales que obedecen a la física.',
     },
     about: {
       eyebrow: '// PERFIL',
