@@ -12,7 +12,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet" />
   <script>(function(){var t=localStorage.getItem('theme');if(t==='dark')document.documentElement.setAttribute('data-theme','dark');})();</script>
-  <link rel="stylesheet" href="styles.css?v=126" />
+  <link rel="stylesheet" href="styles.css?v=127" />
 </head>
 <body>
   <div id="root"></div>
@@ -28,20 +28,21 @@
   <script src="i18n/ko.js?v=2"></script>
   <script src="i18n/es.js?v=2"></script>
   <script type="text/babel" src="reveal.jsx?v=124"></script>
-  <script type="text/babel" src="content.jsx?v=135"></script>
+  <script type="text/babel" src="content.jsx?v=136"></script>
   <script type="text/babel" src="i18n.jsx?v=124"></script>
   <script type="text/babel" src="navigation.jsx?v=125"></script>
   <script type="text/babel" src="hands.jsx?v=124"></script>
   <script type="text/babel" src="project-index.jsx?v=124"></script>
   <script type="text/babel" src="case-study.jsx?v=126"></script>
   <script type="text/babel" src="case-study-dl.jsx?v=126"></script>
-  <script type="text/babel" src="about-sections.jsx?v=126"></script>
+  <script type="text/babel" src="about-sections.jsx?v=127"></script>
   <script type="text/babel" src="case-study-spine.jsx?v=126"></script>
   <script type="text/babel" src="case-study-respiratory.jsx?v=134"></script>
   <script type="text/babel" src="case-study-mars.jsx?v=142"></script>
   <script type="text/babel" src="case-study-hexapod.jsx?v=133"></script>
   <script type="text/babel" src="case-study-structural-dynamics.jsx?v=6"></script>
-  <script type="text/babel" src="app2.jsx?v=132"></script>
+  <script type="text/babel" src="contact.jsx?v=1"></script>
+  <script type="text/babel" src="app2.jsx?v=133"></script>
   <script type="text/babel" data-presets="env,react">
     class ErrorBoundary extends React.Component {
       constructor(props) { super(props); this.state = { error: null }; }
@@ -58,7 +59,7 @@
     }
     let _mountAttempts = 0;
     function tryMount() {
-      if (window.App && window.Navigation && window.ProjectIndex && window.CaseStudy && window.DeepLearningCaseStudy && window.MarsRoverCaseStudy && window.SpineExoskeletonCaseStudy && window.RespiratoryCaseStudy && window.HexapodCaseStudy && window.StructuralDynamicsCaseStudy && window.Reveal && window.HandsModel && window.IntroSection && window.AboutSection && window.SpecializationsSection && window.FloatingPillNav && window.CONTENT && window.LanguageSelector) {
+      if (window.App && window.Navigation && window.ProjectIndex && window.CaseStudy && window.DeepLearningCaseStudy && window.MarsRoverCaseStudy && window.SpineExoskeletonCaseStudy && window.RespiratoryCaseStudy && window.HexapodCaseStudy && window.StructuralDynamicsCaseStudy && window.Reveal && window.HandsModel && window.IntroSection && window.AboutSection && window.SpecializationsSection && window.FloatingPillNav && window.ContactModal && window.CONTENT && window.LanguageSelector) {
         document.getElementById('mount-fallback')?.remove();
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<ErrorBoundary><window.App /></ErrorBoundary>);

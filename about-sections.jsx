@@ -236,6 +236,7 @@ function AboutSection() {
                       className="as-chip"
                       href={ct.href}
                       aria-label={ct.label}
+                      onClick={ct.id === 'email' ? window.openContact : undefined}
                       {...(ct.ext ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
                     >
                       <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">{ct.icon}</svg>

@@ -180,6 +180,7 @@ function App() {
     <div style={{ background: 'var(--paper)' }}>
       <Navigation projectCount={projects.length} onLogoClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} onIndexClick={() => { const el = document.getElementById('project-index'); if (el) el.scrollIntoView({ behavior: 'smooth' }); }} />
       <window.FloatingPillNav />
+      <window.ContactModal />
       <section id="hero" className="hero">
         <div className="hero-grid"></div>
         <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none' }}>
@@ -264,6 +265,7 @@ function SiteFooter() {
               href={l.href}
               aria-label={l.label}
               title={l.label}
+              onClick={l.id === 'email' ? window.openContact : undefined}
               {...(l.ext ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
             >
               <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">{l.icon}</svg>

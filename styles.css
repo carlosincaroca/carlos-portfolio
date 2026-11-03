@@ -788,3 +788,27 @@ svg { display: block; }
   .model-lit .cs-dim-dock .ctrl-pill { background: rgba(196,54,77,0.14); }
 }
 [data-theme="dark"] .dl-metric:nth-child(n+3) { border-top-color: rgba(255,255,255,0.08); }
+/* ── Contact modal ─────────────────────────────────────────── */
+.cm-overlay { position: fixed; inset: 0; z-index: 1000; background: rgba(14, 17, 24, 0.55); display: flex; align-items: center; justify-content: center; padding: 1.5rem; animation: cm-fade 0.2s ease; }
+.cm-card { position: relative; width: 100%; max-width: 32rem; max-height: calc(100vh - 3rem); overflow-y: auto; background: var(--surface); color: var(--ink); border: 2px solid var(--border); box-shadow: 12px 12px 0 rgba(196, 54, 77, 0.4); padding: 2rem; box-sizing: border-box; animation: cm-pop 0.25s cubic-bezier(0.2, 0.7, 0.2, 1); }
+.cm-title { font-weight: 900; font-size: 2rem; letter-spacing: -0.03em; line-height: 1.05; margin: 0.75rem 0 1.5rem; color: var(--ink); }
+.cm-form { display: flex; flex-direction: column; gap: 1rem; }
+.cm-form label { display: flex; flex-direction: column; gap: 0.4rem; font-family: 'JetBrains Mono', monospace; font-size: 0.6875rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gray-600); }
+.cm-form input, .cm-form textarea { font-family: Inter, system-ui, sans-serif; font-size: 1rem; font-weight: 400; letter-spacing: normal; text-transform: none; color: var(--ink); background: var(--paper); border: 2px solid var(--border); border-radius: 0; padding: 0.7rem 0.8rem; outline: none; resize: vertical; transition: border-color 0.15s; }
+.cm-form input:focus, .cm-form textarea:focus { border-color: var(--red); }
+.cm-hp { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
+.cm-btn { align-self: flex-start; background: var(--red); color: #fff; border: 2px solid var(--red); padding: 0.8rem 1.6rem; font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; cursor: pointer; transition: transform 0.15s, box-shadow 0.15s; }
+.cm-btn:hover { transform: translate(-2px, -2px); box-shadow: 4px 4px 0 var(--border); }
+.cm-btn:disabled { opacity: 0.6; cursor: wait; transform: none; box-shadow: none; }
+.cm-close { position: absolute; top: 0.6rem; right: 0.9rem; background: none; border: 0; padding: 0.25rem; font-size: 1.75rem; line-height: 1; color: var(--ink); cursor: pointer; }
+.cm-close:hover { color: var(--red); }
+.cm-error { margin: 0; font-size: 0.875rem; color: var(--red); }
+.cm-sent p { margin: 0 0 1.5rem; font-size: 1.125rem; line-height: 1.5; }
+.cm-copy { display: block; margin-top: 1.5rem; background: none; border: 0; padding: 0; font-family: 'JetBrains Mono', monospace; font-size: 0.6875rem; letter-spacing: 0.06em; color: var(--gray-600); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; text-align: left; }
+.cm-copy:hover { color: var(--red); }
+@keyframes cm-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes cm-pop { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+@media (max-width: 640px) {
+  .cm-card { padding: 1.5rem; box-shadow: 6px 6px 0 rgba(196, 54, 77, 0.4); }
+  .cm-title { font-size: 1.5rem; }
+}

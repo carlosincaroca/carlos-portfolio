@@ -33,6 +33,7 @@ window.CONTENT = {
       eyebrow: '// AREAS OF SPECIALIZATION', titleHTML: 'CORE<br/>COMPETENCIES', count: '10 DISCIPLINES',
       items: ['Robot Dynamics & Control', 'Inverse Kinematics & Gait Design', 'Neuromechanical Modeling', 'Physics-Informed Deep Learning', 'Dynamic System Simulation', 'Finite Element & Vibration Analysis', 'Mechanical Design & CAD', 'Mechatronics & Embedded Control', 'Agentic AI Systems', 'Technical Team Leadership'],
     },
+    contact: { eyebrow: 'CONTACT', title: 'Send me a message', name: 'Name', email: 'Email', message: 'Message', send: 'Send message', sending: 'Sending…', sent: "Message sent. I'll get back to you soon.", error: 'Something went wrong. Please try again, or copy my email below.', copy: 'Or copy my email', copied: 'Copied ✓', close: 'Close' },
     index: {
       titleHTML: 'INDEX<br/>OF WORKS', projectsWord: 'PROJECTS', systemsWord: 'SYSTEMS', revisionsWord: 'REVISIONS',
       projectWord: 'PROJECT', technicalDiagram: 'TECHNICAL DIAGRAM', viewSpecs: 'VIEW SPECS →', endOfIndex: 'END OF INDEX', lastUpdated: 'LAST UPDATED',
@@ -75,6 +76,7 @@ window.CONTENT = {
       eyebrow: '// 専門分野', titleHTML: 'コア<br/>コンピテンシー', count: '10 分野',
       items: ['ロボット動力学 & 制御', '逆運動学 & 歩容設計', 'ニューロメカニクスモデリング', '物理情報深層学習', '動的システムシミュレーション', '有限要素法 & 振動解析', '機械設計 & CAD', 'メカトロニクス & 組込み制御', 'エージェント型AIシステム', '技術チームリーダーシップ'],
     },
+    contact: { eyebrow: 'お問い合わせ', title: 'メッセージを送る', name: 'お名前', email: 'メールアドレス', message: 'メッセージ', send: '送信する', sending: '送信中…', sent: 'メッセージを送信しました。折り返しご連絡します。', error: 'エラーが発生しました。もう一度お試しいただくか、下のメールアドレスをコピーしてください。', copy: 'メールアドレスをコピー', copied: 'コピーしました ✓', close: '閉じる' },
     index: {
       titleHTML: '作品<br/>インデックス', projectsWord: 'プロジェクト', systemsWord: 'システム', revisionsWord: 'リビジョン',
       projectWord: 'プロジェクト', technicalDiagram: '技術図面', viewSpecs: '仕様を見る →', endOfIndex: 'インデックス終わり', lastUpdated: '最終更新',
@@ -117,6 +119,7 @@ window.CONTENT = {
       eyebrow: '// FACHGEBIETE', titleHTML: 'KERN-<br/>KOMPETENZEN', count: '10 DISZIPLINEN',
       items: ['Roboterdynamik & Regelung', 'Inverse Kinematik & Gangdesign', 'Neuromechanische Modellierung', 'Physikinformiertes Deep Learning', 'Simulation dynamischer Systeme', 'FEM & Schwingungsanalyse', 'Konstruktion & CAD', 'Mechatronik & Embedded-Regelung', 'Agentische KI-Systeme', 'Technische Teamleitung'],
     },
+    contact: { eyebrow: 'KONTAKT', title: 'Schreib mir eine Nachricht', name: 'Name', email: 'E-Mail', message: 'Nachricht', send: 'Nachricht senden', sending: 'Wird gesendet…', sent: 'Nachricht gesendet. Ich melde mich bald.', error: 'Etwas ist schiefgelaufen. Bitte versuch es noch einmal oder kopiere unten meine E-Mail.', copy: 'Oder meine E-Mail kopieren', copied: 'Kopiert ✓', close: 'Schließen' },
     index: {
       titleHTML: 'WERK-<br/>VERZEICHNIS', projectsWord: 'PROJEKTE', systemsWord: 'SYSTEME', revisionsWord: 'REVISIONEN',
       projectWord: 'PROJEKT', technicalDiagram: 'TECHNISCHE ZEICHNUNG', viewSpecs: 'DETAILS ANSEHEN →', endOfIndex: 'ENDE DES VERZEICHNISSES', lastUpdated: 'ZULETZT AKTUALISIERT',
@@ -159,6 +162,7 @@ window.CONTENT = {
       eyebrow: '// DOMAINES DE SPÉCIALISATION', titleHTML: 'COMPÉTENCES<br/>CLÉS', count: '10 DISCIPLINES',
       items: ['Dynamique & commande des robots', 'Cinématique inverse & conception de la marche', 'Modélisation neuromécanique', 'Deep learning informé par la physique', 'Simulation de systèmes dynamiques', 'Éléments finis & analyse vibratoire', 'Conception mécanique & CAO', 'Mécatronique & commande embarquée', "Systèmes d'IA agentique", "Direction d'équipes techniques"],
     },
+    contact: { eyebrow: 'CONTACT', title: 'Envoyez-moi un message', name: 'Nom', email: 'E-mail', message: 'Message', send: 'Envoyer', sending: 'Envoi…', sent: 'Message envoyé. Je vous réponds rapidement.', error: "Une erreur s'est produite. Réessayez, ou copiez mon e-mail ci-dessous.", copy: 'Ou copier mon e-mail', copied: 'Copié ✓', close: 'Fermer' },
     index: {
       titleHTML: 'INDEX DES<br/>TRAVAUX', projectsWord: 'PROJETS', systemsWord: 'SYSTÈMES', revisionsWord: 'RÉVISIONS',
       projectWord: 'PROJET', technicalDiagram: 'SCHÉMA TECHNIQUE', viewSpecs: 'VOIR LES SPÉCS →', endOfIndex: "FIN DE L'INDEX", lastUpdated: 'DERNIÈRE MISE À JOUR',
@@ -201,6 +205,7 @@ window.CONTENT = {
       eyebrow: '// 전문 분야', titleHTML: '핵심<br/>역량', count: '10개 분야',
       items: ['로봇 동역학 & 제어', '역기구학 & 보행 설계', '신경역학 모델링', '물리 기반 딥러닝', '동적 시스템 시뮬레이션', '유한요소 & 진동 해석', '기계 설계 & CAD', '메카트로닉스 & 임베디드 제어', '에이전틱 AI 시스템', '기술 팀 리더십'],
     },
+    contact: { eyebrow: '연락처', title: '메시지 보내기', name: '이름', email: '이메일', message: '메시지', send: '보내기', sending: '보내는 중…', sent: '메시지를 보냈습니다. 곧 답장드리겠습니다.', error: '문제가 발생했습니다. 다시 시도하시거나 아래 이메일을 복사해 주세요.', copy: '또는 이메일 복사', copied: '복사됨 ✓', close: '닫기' },
     index: {
       titleHTML: '작품<br/>색인', projectsWord: '프로젝트', systemsWord: '시스템', revisionsWord: '리비전',
       projectWord: '프로젝트', technicalDiagram: '기술 도면', viewSpecs: '사양 보기 →', endOfIndex: '색인 끝', lastUpdated: '마지막 업데이트',
@@ -243,6 +248,7 @@ window.CONTENT = {
       eyebrow: '// ÁREAS DE ESPECIALIZACIÓN', titleHTML: 'COMPETENCIAS<br/>CLAVE', count: '10 DISCIPLINAS',
       items: ['Dinámica y control de robots', 'Cinemática inversa y diseño de marcha', 'Modelado neuromecánico', 'Deep learning informado por la física', 'Simulación de sistemas dinámicos', 'Elementos finitos y análisis de vibraciones', 'Diseño mecánico y CAD', 'Mecatrónica y control embebido', 'Sistemas de IA agéntica', 'Liderazgo de equipos técnicos'],
     },
+    contact: { eyebrow: 'CONTACTO', title: 'Envíame un mensaje', name: 'Nombre', email: 'Correo', message: 'Mensaje', send: 'Enviar mensaje', sending: 'Enviando…', sent: 'Mensaje enviado. Te responderé pronto.', error: 'Algo salió mal. Inténtalo de nuevo o copia mi correo abajo.', copy: 'O copia mi correo', copied: 'Copiado ✓', close: 'Cerrar' },
     index: {
       titleHTML: 'ÍNDICE DE<br/>TRABAJOS', projectsWord: 'PROYECTOS', systemsWord: 'SISTEMAS', revisionsWord: 'REVISIONES',
       projectWord: 'PROYECTO', technicalDiagram: 'DIAGRAMA TÉCNICO', viewSpecs: 'VER ESPECIF. →', endOfIndex: 'FIN DEL ÍNDICE', lastUpdated: 'ÚLTIMA ACTUALIZACIÓN',
