@@ -1,4 +1,4 @@
-# BIO MECH — Carlos' Portfolio
+# Carlos Inca Roca — Engineering Portfolio
 
 Biomedical Engineering portfolio. Single-file React app (no build step) with:
 - Sticky hero with scroll-driven 3D wireframe robotic hands (Three.js)

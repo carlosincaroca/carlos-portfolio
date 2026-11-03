@@ -141,40 +141,8 @@
     });
   }
 
-  const MODES = {
-    architecture: {
-      title: 'Architecture',
-      desc: 'A dual-stream pipeline combining convolutional feature extraction with LSTM temporal encoding — classifying EMG and kinematic signals with clinical-grade precision.',
-      items: [
-        'Dual-stream CNN feature extractor',
-        'Bi-LSTM temporal encoder with attention',
-        'Domain-adaptive transfer learning',
-      ],
-    },
-    training: {
-      title: 'Training protocol',
-      desc: 'Trained on 50K labeled biomechanical signal segments with augmentation. Mixed-precision on A100 cluster with cosine annealing and gradient checkpointing.',
-      items: [
-        'Mixed precision FP16 + BF16',
-        'Cosine annealing LR schedule',
-        'Augmentation: noise, time-warp, scale',
-      ],
-    },
-  };
 
-  const PROTOCOLS = [
-    { name: 'Data pipeline',     detail: 'Preprocessing 50K EMG segments — normalization, sliding-window extraction at 200 Hz, class-balanced sampling.', status: 'COMPLETE' },
-    { name: 'Model training',    detail: '48 h training run on 8×A100. Best checkpoint at epoch 94 with 94.2 % validation accuracy.', status: 'DEPLOYED' },
-    { name: 'Clinical validation', detail: 'Prospective validation on 120-patient cohort. IRB-approved, results pending publication.', status: 'ACTIVE' },
-  ];
 
-  const STACK = [
-    'PyTorch 2.0 + CUDA 12',
-    'Bi-directional LSTM',
-    'ResNet-18 backbone',
-    'Attention mechanism',
-    'FDA SaMD pathway',
-  ];
 
   /* ── Neural-net canvas ──────────────────────────────── */
   function NeuralNetCanvas() {
@@ -302,7 +270,13 @@
 
   /* ── Main component ─────────────────────────────────── */
   function DeepLearningCaseStudy({ project, onBack }) {
-    const [mode, setMode] = React.useState('architecture');
+    const { lang } = window.useLang();
+    const T = window.caseCopy(lang, 'dl');
+    const U = window.caseUI(lang);
+    const MODES = T.modes;
+    const PROTOCOLS = T.phases;
+    const STACK = T.stack;
+    const [mode, setMode] = React.useState('fluids');
     const md = MODES[mode];
 
     return (
@@ -315,41 +289,32 @@
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" />
             </svg>
-            BACK TO INDEX
+            {U.back}
           </button>
 
           {/* ── Header ── */}
           <header className="dl-header">
             <div className="dl-header-left">
               <div className="dl-badges">
-                <span className="dl-pill"><span className="dl-pill-dot"></span>Deep Learning</span>
-                <span className="dl-pill dl-pill-ghost">BIO MECH / PROJECT 01</span>
+                <span className="dl-pill"><span className="dl-pill-dot"></span>{T.pill}</span>
+                <span className="dl-pill dl-pill-ghost">{U.brand} / {U.project} 01</span>
               </div>
 
               <div>
-                <h1 className="dl-title">
-                  Deep learning for<br />
-                  biomechanical signal<br />
-                  classification.
-                </h1>
-                <p className="dl-lead">
-                  A dual-stream neural architecture combining convolutional feature extraction with temporal LSTM encoding — classifying EMG and kinematic signals with clinical-grade precision across 50K labeled segments.
-                </p>
+                <h1 className="dl-title">{T.title.map((l, i) => <React.Fragment key={i}>{l}{i < T.title.length - 1 && <br />}</React.Fragment>)}</h1>
+                <p className="dl-lead">{T.lead}</p>
               </div>
 
               <div className="dl-metrics-row">
                 <div className="dl-status-pill">
                   <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <span className="dl-pill-dot"></span>Model deployed
+                    <span className="dl-pill-dot"></span>{T.statusLabel}
                   </span>
                   <span style={{ opacity: 0.5 }}>∙</span>
-                  <span>FDA SaMD pathway</span>
+                  <span>{T.statusSub}</span>
                 </div>
                 <div className="dl-metrics-strip">
-                  <div className="dl-metric"><span className="dl-metric-lbl">Accuracy</span><span className="dl-metric-val">94.2%</span></div>
-                  <div className="dl-metric"><span className="dl-metric-lbl">Epochs</span><span className="dl-metric-val">94</span></div>
-                  <div className="dl-metric"><span className="dl-metric-lbl">Dataset</span><span className="dl-metric-val">50K</span></div>
-                  <div className="dl-metric"><span className="dl-metric-lbl">Latency</span><span className="dl-metric-val">12ms</span></div>
+                  {T.metrics.map(([l, v], i) => <div key={i} className="dl-metric"><span className="dl-metric-lbl">{l}</span><span className="dl-metric-val">{v}</span></div>)}
                 </div>
               </div>
             </div>
@@ -358,14 +323,15 @@
             <div className="dl-card">
               <div className="dl-mode-header">
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                  <p className="dl-lbl dl-subtle">Mode</p>
+                  <p className="dl-lbl dl-subtle">{U.mode}</p>
                   <h2 className="dl-mode-title">{md.title}</h2>
                 </div>
               </div>
               <p className="dl-subtle" style={{ fontSize: '14px', lineHeight: '1.65' }}>{md.desc}</p>
               <div className="dl-mode-toggle">
-                <button className={`dl-mode-btn${mode === 'architecture' ? ' active' : ''}`} onClick={() => setMode('architecture')}>Architecture</button>
-                <button className={`dl-mode-btn${mode === 'training'     ? ' active' : ''}`} onClick={() => setMode('training')}>Training</button>
+                <button className={`dl-mode-btn${mode === 'fluids'   ? ' active' : ''}`} onClick={() => setMode('fluids')}>{MODES.fluids.label}</button>
+                <button className={`dl-mode-btn${mode === 'dynamics' ? ' active' : ''}`} onClick={() => setMode('dynamics')}>{MODES.dynamics.label}</button>
+                <button className={`dl-mode-btn${mode === 'tremor'   ? ' active' : ''}`} onClick={() => setMode('tremor')}>{MODES.tremor.label}</button>
               </div>
               <ul className="dl-mode-items">
                 {md.items.map((item, i) => (
@@ -383,11 +349,11 @@
 
             <div className="dl-card dl-control-card">
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <h3 className="dl-lbl">Tech stack</h3>
-                <span className="dl-lbl dl-subtle">v2.0</span>
+                <h3 className="dl-lbl">{U.techStack}</h3>
+                <span className="dl-lbl dl-subtle">v1.0</span>
               </div>
               <p className="dl-subtle" style={{ fontSize: '14px', lineHeight: '1.65' }}>
-                PyTorch-native pipeline with a ResNet-18 CNN backbone feeding into a bidirectional LSTM. Attention gates select clinically relevant temporal windows for final classification.
+                {T.stackText}
               </p>
               <div className="dl-stack-items">
                 {STACK.map((item, i) => <div key={i} className="dl-stack-item">{item}</div>)}
@@ -401,15 +367,15 @@
                 <span className="dl-ring2"></span>
               </div>
               <figcaption className="dl-figcaption">
-                <span>Neural architecture</span>
-                <span className="dl-fig-line"><span className="dl-fig-dash"></span>CNN + Bi-LSTM</span>
+                <span>{T.fig[0]}</span>
+                <span className="dl-fig-line"><span className="dl-fig-dash"></span>{T.fig[1]}</span>
               </figcaption>
             </figure>
 
             <div className="dl-card dl-proto-card">
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <h3 className="dl-lbl">Project phases</h3>
-                <span className="dl-lbl dl-subtle">Indexed</span>
+                <h3 className="dl-lbl">{U.phases}</h3>
+                <span className="dl-lbl dl-subtle">{U.indexed}</span>
               </div>
               <ul className="dl-protocols">
                 {PROTOCOLS.map((p, i) => <ProtocolItem key={i} p={p} />)}

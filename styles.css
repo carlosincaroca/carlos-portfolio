@@ -1,5 +1,5 @@
 /* ============================================================
-   Carlos' Portfolio — BIO MECH
+   Carlos' Portfolio — Engineering Portfolio
    Palette: cream #F5F1E8, red #C4364D, blue #2E5C9A, ink
    ============================================================ */
 
@@ -227,7 +227,7 @@ svg { display: block; }
 
 .hero { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 6rem 0 2rem; position: sticky; top: 0; overflow: hidden; }
 .hero-grid { position: absolute; inset: 0; opacity: 0.1; background-image: linear-gradient(var(--red) 1px, transparent 1px), linear-gradient(90deg, var(--red) 1px, transparent 1px); background-size: 40px 40px; animation: grid-drift 20s linear infinite; }
-.hero-title { font-size: clamp(5rem, 14vw, 12rem); line-height: 0.85; letter-spacing: -0.05em; color: var(--red); margin: 0; }
+.hero-title { font-size: clamp(3.5rem, 8.5vw, 8.5rem); line-height: 0.85; letter-spacing: -0.05em; color: var(--red); margin: 0; }
 .hero-head { max-width: 72rem; margin: 0; margin-bottom: -9rem; padding: 0 2rem; width: 100%; box-sizing: border-box; }
 .reveal-letter { display: inline-block; color: var(--red); transition: color 0.5s cubic-bezier(0.4, 0, 0.2, 1); cursor: default; will-change: color; }
 .reveal-letter:hover { color: var(--ink); }
@@ -284,7 +284,7 @@ svg { display: block; }
 .fade-up.in { opacity: 1; transform: translateY(0); }
 
 
-/* Site footer — IATR */
+/* Site footer — Alpha Tau */
 .site-footer { position: relative; z-index: 20; background: var(--paper); border-top: 1px solid var(--border-soft); padding: clamp(3.25rem, 6vw, 5rem) 2rem clamp(2rem, 3vw, 2.5rem); }
 .sf-inner { max-width: 72rem; margin: 0 auto; display: flex; justify-content: space-between; align-items: flex-end; gap: 2rem; flex-wrap: wrap; }
 .sf-brand-col { display: flex; flex-direction: column; align-items: flex-start; gap: 0.6rem; }
@@ -755,7 +755,7 @@ svg { display: block; }
    ============================================================ */
 @media (max-width: 640px) {
   /* Hero — keep title from clipping, stop the 3D stage overlapping the eyebrow */
-  .hero-title { font-size: clamp(3rem, 15vw, 5rem); }
+  .hero-title { font-size: clamp(2rem, 11vw, 5rem); }
   .hero-head { margin-bottom: -2rem; padding: 0 1.5rem; }
   .hero-eyebrow { font-size: 0.75rem; }
   .hero-blueprint { padding: 1rem; margin-bottom: 1rem; }

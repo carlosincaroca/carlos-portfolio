@@ -62,26 +62,8 @@
   }
 
   /* ── Mode content ──────────────────────────────────────── */
-  const MODES = {
-    mechanical: {
-      title: 'Structural design',
-      desc: 'Ti-6Al-4V lattice framework FEA-optimized for load distribution across 24 vertebral-analog segments with passive compliance joints and fatigue life >10M cycles.',
-      items: ['FEA topology optimization', 'Passive compliance joints', 'Fatigue life > 10M cycles'],
-    },
-    clinical: {
-      title: 'Clinical outcomes',
-      desc: 'Validated on a 40-subject rehabilitation cohort over 6 months. Primary endpoint: axial load reduction ≥30% during occupational tasks.',
-      items: ['40-subject validation cohort', '6-month longitudinal study', 'VAS pain reduction 62%'],
-    },
-  };
 
-  const PROTOCOLS = [
-    { name: 'Structural design',  detail: 'FEA topology optimization for load paths. 12 design iterations, static and cyclic load validation.', status: 'COMPLETE' },
-    { name: 'Prototype testing',  detail: 'Mechanical testing per ASTM F136. Servo-hydraulic fatigue rig, 10M cycle validation.', status: 'VALIDATED' },
-    { name: 'Clinical study',     detail: 'IRB-approved 40-subject trial. Primary endpoint: axial load reduction >30% under occupational tasks.', status: 'ACTIVE' },
-  ];
 
-  const STACK = ['Ti-6Al-4V alloy', 'ANSYS FEA', 'SolidWorks', 'ISO 13485', 'ASTM F136'];
 
   /* ── Spine glyph SVG ───────────────────────────────────── */
   function SpineGlyph() {
@@ -120,6 +102,12 @@
 
   /* ── Main component ────────────────────────────────────── */
   function SpineExoskeletonCaseStudy({ project, onBack }) {
+    const { lang } = window.useLang();
+    const T = window.caseCopy(lang, 'neuro');
+    const U = window.caseUI(lang);
+    const MODES = T.modes;
+    const PROTOCOLS = T.phases;
+    const STACK = T.stack;
     const [mode, setMode] = React.useState('mechanical');
     const md = MODES[mode];
 
@@ -132,40 +120,31 @@
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" />
             </svg>
-            BACK TO INDEX
+            {U.back}
           </button>
 
           <header className="dl-header">
             <div className="dl-header-left">
               <div className="dl-badges">
-                <span className="dl-pill"><span className="dl-pill-dot"></span>Biomechanics / Rehabilitation</span>
-                <span className="dl-pill dl-pill-ghost">BIO MECH / PROJECT 02</span>
+                <span className="dl-pill"><span className="dl-pill-dot"></span>{T.pill}</span>
+                <span className="dl-pill dl-pill-ghost">{U.brand} / {U.project} 02</span>
               </div>
 
               <div>
-                <h1 className="dl-title">
-                  Exoskeleton<br />
-                  spine load<br />
-                  distribution.
-                </h1>
-                <p className="dl-lead">
-                  A titanium-alloy exoskeletal spine distributing axial loads across 24 vertebral-analog segments — engineered for rehabilitation and occupational load-offloading with passive compliance joints.
-                </p>
+                <h1 className="dl-title">{T.title.map((l, i) => <React.Fragment key={i}>{l}{i < T.title.length - 1 && <br />}</React.Fragment>)}</h1>
+                <p className="dl-lead">{T.lead}</p>
               </div>
 
               <div className="dl-metrics-row">
                 <div className="dl-status-pill">
                   <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <span className="dl-pill-dot"></span>Prototype validated
+                    <span className="dl-pill-dot"></span>{T.statusLabel}
                   </span>
                   <span style={{ opacity: 0.5 }}>∙</span>
-                  <span>ISO 13485 compliant</span>
+                  <span>{T.statusSub}</span>
                 </div>
                 <div className="dl-metrics-strip">
-                  <div className="dl-metric"><span className="dl-metric-lbl">Load Cap.</span><span className="dl-metric-val">50kg</span></div>
-                  <div className="dl-metric"><span className="dl-metric-lbl">Flex ROM</span><span className="dl-metric-val">35°</span></div>
-                  <div className="dl-metric"><span className="dl-metric-lbl">Segments</span><span className="dl-metric-val">24</span></div>
-                  <div className="dl-metric"><span className="dl-metric-lbl">Material</span><span className="dl-metric-val">Ti-64</span></div>
+                  {T.metrics.map(([l, v], i) => <div key={i} className="dl-metric"><span className="dl-metric-lbl">{l}</span><span className="dl-metric-val">{v}</span></div>)}
                 </div>
               </div>
             </div>
@@ -173,15 +152,15 @@
             <div className="dl-card">
               <div className="dl-mode-header">
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                  <p className="dl-lbl dl-subtle">Mode</p>
+                  <p className="dl-lbl dl-subtle">{U.mode}</p>
                   <h2 className="dl-mode-title">{md.title}</h2>
                 </div>
                 <SpineGlyph />
               </div>
               <p className="dl-subtle" style={{ fontSize: '14px', lineHeight: '1.65' }}>{md.desc}</p>
               <div className="dl-mode-toggle">
-                <button className={`dl-mode-btn${mode === 'mechanical' ? ' active' : ''}`} onClick={() => setMode('mechanical')}>Mechanical</button>
-                <button className={`dl-mode-btn${mode === 'clinical'   ? ' active' : ''}`} onClick={() => setMode('clinical')}>Clinical</button>
+                <button className={`dl-mode-btn${mode === 'mechanical' ? ' active' : ''}`} onClick={() => setMode('mechanical')}>{MODES.mechanical.label}</button>
+                <button className={`dl-mode-btn${mode === 'clinical'   ? ' active' : ''}`} onClick={() => setMode('clinical')}>{MODES.clinical.label}</button>
               </div>
               <ul className="dl-mode-items">
                 {md.items.map((item, i) => (
@@ -197,11 +176,11 @@
           <div className="dl-middle">
             <div className="dl-card dl-control-card">
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <h3 className="dl-lbl">Tech stack</h3>
+                <h3 className="dl-lbl">{U.techStack}</h3>
                 <span className="dl-lbl dl-subtle">v1.0</span>
               </div>
               <p className="dl-subtle" style={{ fontSize: '14px', lineHeight: '1.65' }}>
-                Titanium lattice chassis with ANSYS FEA-optimized topology. Passive compliance joints fatigue-tested to 10M cycles per ASTM F136.
+                {T.stackText}
               </p>
               <div className="dl-stack-items">
                 {STACK.map((item, i) => (
@@ -219,15 +198,15 @@
                 <span className="dl-ring2"></span>
               </div>
               <figcaption className="dl-figcaption">
-                <span>Vertebral segment diagram</span>
-                <span className="dl-fig-line"><span className="dl-fig-dash"></span>24-segment lattice</span>
+                <span>{T.fig[0]}</span>
+                <span className="dl-fig-line"><span className="dl-fig-dash"></span>{T.fig[1]}</span>
               </figcaption>
             </figure>
 
             <div className="dl-card dl-proto-card">
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <h3 className="dl-lbl">Project phases</h3>
-                <span className="dl-lbl dl-subtle">Indexed</span>
+                <h3 className="dl-lbl">{U.phases}</h3>
+                <span className="dl-lbl dl-subtle">{U.indexed}</span>
               </div>
               <ul className="dl-protocols">
                 {PROTOCOLS.map((p, i) => <ProtocolItem key={i} p={p} />)}

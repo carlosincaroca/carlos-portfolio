@@ -7,102 +7,60 @@ const projects = [
     id: 1,
     title: 'DEEP LEARNING',
     category: 'NEURAL / AI',
-    flow: '94.2% ACC',
-    specs: { accuracy: '94.2%', dataset: '50K', latency: '12ms', epochs: '94' },
+    flow: '9 ARCHITECTURES',
+    specs: { architectures: '9', reduction: '85%', postures: '7', params: '370K' },
   },
   {
     id: 2,
-    title: 'EXOSKELETON SPINE',
+    title: 'NEUROMECHANICS RESEARCH',
     category: 'BIOMECHANICS',
-    flow: 'LOAD DISTRIBUTION',
-    specs: { loadCapacity: '50kg', flexibility: '35°', segments: '24', material: 'Ti-6Al-4V' },
-    detail: {
-      statusLabel: 'Prototype validated',
-      statusSub: 'ISO 13485 compliant',
-      lead: 'A titanium-alloy exoskeletal spine distributing axial loads across 24 vertebral-analog segments — engineered for rehabilitation and occupational load-offloading with passive compliance joints.',
-      metrics: [{ lbl: 'Load Cap.', val: '50kg' }, { lbl: 'Flex ROM', val: '35°' }, { lbl: 'Segments', val: '24' }, { lbl: 'Material', val: 'Ti-64' }],
-      modeA: { label: 'Mechanical', title: 'Structural design', desc: 'Ti-6Al-4V lattice framework FEA-optimized for load distribution across 24 vertebral-analog segments with passive compliance joints and fatigue life >10M cycles.', items: ['FEA topology optimization', 'Passive compliance joints', 'Fatigue life > 10M cycles'] },
-      modeB: { label: 'Clinical', title: 'Clinical outcomes', desc: 'Validated on a 40-subject rehabilitation cohort over 6 months. Primary endpoint: axial load reduction ≥30% during occupational tasks.', items: ['40-subject validation cohort', '6-month longitudinal study', 'VAS pain reduction 62%'] },
-      stack: ['Ti-6Al-4V alloy', 'ANSYS FEA', 'SolidWorks', 'ISO 13485', 'ASTM F136'],
-      protocols: [
-        { name: 'Structural design', detail: 'FEA topology optimization for load paths. 12 design iterations, static and cyclic load validation.', status: 'COMPLETE' },
-        { name: 'Prototype testing', detail: 'Mechanical testing per ASTM F136. Servo-hydraulic fatigue rig, 10M cycle validation.', status: 'VALIDATED' },
-        { name: 'Clinical study', detail: 'IRB-approved 40-subject trial. Primary endpoint: axial load reduction >30% under occupational tasks.', status: 'ACTIVE' },
-      ],
-    },
+    flow: '50-MUSCLE ARM MODEL',
+    specs: { muscles: '50', joints: '7', speedup: '85×', simData: '3×' },
   },
   {
     id: 3,
     title: 'MARS ROVER',
     category: 'AEROSPACE',
-    flow: '25KM RANGE',
-    specs: { range: '25km', mass: '320kg', power: 'RTG', speed: '0.12m/s' },
+    flow: '4TH OF 114 TEAMS',
+    specs: { place: '4th', teams: '114', countries: '15', year: '2025' },
   },
   {
     id: 4,
     title: 'HEXAPOD ROBOT',
     category: 'ROBOTICS',
     flow: '18 DOF',
-    specs: { legs: '6', dof: '18', servos: '18', gait: 'TRIPOD' },
+    specs: { legs: '6', motors: '18', parts: '38', prototypes: '5' },
   },
   {
     id: 5,
     title: 'AUTONOMOUS ROBOT',
     category: 'ROBOTICS',
-    flow: '15 L/MIN',
-    specs: { flow: '15L/min', pressure: '25cmH2O', fio2: '21–100%', compliance: 'AUTO' },
-    detail: {
-      statusLabel: 'FDA review',
-      statusSub: '510(k) submission filed',
-      lead: 'A portable ventilatory assist device delivering up to 15 L/min at 25 cmH₂O with auto-compliance sensing — designed for step-down care and home ventilation in COPD and post-surgical patients.',
-      metrics: [{ lbl: 'Flow', val: '15L/min' }, { lbl: 'Pressure', val: '25cmH₂O' }, { lbl: 'FiO₂', val: '21–100%' }, { lbl: 'Compliance', val: 'AUTO' }],
-      modeA: { label: 'Ventilation', title: 'Ventilation modes', desc: 'Pressure-support, volume-control, and CPAP modes with auto-PEEP detection. Breath-by-breath adaptive triggering for patient synchrony.', items: ['PSV / VCV / CPAP modes', 'Auto-PEEP detection', 'Adaptive triggering <5ms'] },
-      modeB: { label: 'Monitoring', title: 'Monitoring system', desc: 'Continuous SpO₂, ETCO₂, and respiratory mechanics tracking. Alarm escalation with cloud telemetry for remote clinician review.', items: ['SpO₂ + ETCO₂ sensing', 'Respiratory mechanics loop', 'Cloud telemetry dashboard'] },
-      stack: ['Turbine blower', 'PID flow control', 'LabVIEW FPGA', 'ISO 80601-2-12', 'FDA 510(k)'],
-      protocols: [
-        { name: 'Bench testing', detail: 'ASL 5000 lung simulator testing across 40 patient conditions. Trigger delay, leak compensation, and alarm validation.', status: 'COMPLETE' },
-        { name: 'Clinical study', detail: '30-patient step-down ICU study. Primary: patient-ventilator synchrony score vs standard of care.', status: 'COMPLETE' },
-        { name: 'FDA submission', detail: '510(k) predicate comparison submitted. Awaiting additional performance data request response.', status: 'ACTIVE' },
-      ],
-    },
+    flow: 'EMBEDDED CONTROL',
+    specs: { iterations: '4', controller: 'PIC', code: 'C', parts: '3D-printed' },
   },
   {
     id: 6,
-    title: 'VASCULAR STENT',
-    category: 'CARDIOLOGY',
-    flow: 'Ø 3.5MM',
-    specs: { diameter: '3.5mm', length: '18mm', expansion: 'BALLOON', coating: 'DRUG-ELUTING' },
-    detail: {
-      statusLabel: 'CE marked',
-      statusSub: 'FDA PMA pending',
-      lead: 'A 3.5 mm drug-eluting coronary stent with sirolimus coating and bioresorbable polymer — engineered for minimal strut thickness, low restenosis rate, and full endothelialisation at 90 days.',
-      metrics: [{ lbl: 'Diameter', val: '3.5mm' }, { lbl: 'Length', val: '18mm' }, { lbl: 'Expansion', val: 'BALLOON' }, { lbl: 'Coating', val: 'DES' }],
-      modeA: { label: 'Material', title: 'Material design', desc: 'L-605 cobalt-chromium alloy struts at 71 µm thickness. Bioresorbable PLGA polymer with sirolimus elution over 90 days.', items: ['L-605 Co-Cr alloy, 71µm struts', 'Bioresorbable PLGA polymer', 'Sirolimus 90-day elution'] },
-      modeB: { label: 'Delivery', title: 'Delivery system', desc: 'Semi-compliant balloon, 6F guide-catheter compatible. Radiopaque markers at stent shoulders. Crossing profile 0.032".', items: ['Semi-compliant balloon system', '6F guide-catheter compatible', 'Crossing profile 0.032"'] },
-      stack: ['Co-Cr L-605', 'Sirolimus / PLGA', 'FEA (Abaqus)', 'ISO 10993', 'ASTM F2129'],
-      protocols: [
-        { name: 'Device design', detail: 'Strut geometry optimisation via Abaqus FEA. Radial strength, foreshortening, and dog-boning characterised.', status: 'COMPLETE' },
-        { name: 'Biocompatibility', detail: 'ISO 10993 cytotoxicity, sensitisation, and haemocompatibility testing. PLGA degradation confirmed at 180 days.', status: 'COMPLETE' },
-        { name: 'Clinical trial', detail: 'COMFORT-II 200-patient RCT. Primary: TLF at 12 months vs. zotarolimus-eluting comparator.', status: 'ACTIVE' },
-      ],
-    },
+    title: 'HYDRATION TRACKER',
+    category: 'PRODUCT',
+    flow: '50+ CUSTOMER INTERVIEWS',
+    specs: { team: '11', interviews: '50+', waitlist: '30+', lois: '2' },
   },
   {
     id: 7,
-    title: 'MODAL ANALYSIS',
+    title: 'POWDER DAMPERS',
     category: 'STRUCTURAL DYNAMICS',
-    flow: '20 MODES',
-    specs: { specimens: '3', modes: '20', solver: 'CalculiX', maxFreq: '31kHz' },
+    flow: 'IMAC PAPER',
+    specs: { specimens: '3', material: '316L', solver: 'Abaqus', partners: 'DE · UK' },
   },
 ];
 
 function RevealTitle({ text }) {
   return (
-    <span style={{ display: 'inline-flex', letterSpacing: '-0.05em' }}>
-      {text.split('').map((char, i) => (
-        char === ' '
-          ? <span key={i} style={{ display: 'inline-block', width: '0.3em' }} />
-          : <span key={i} className="reveal-letter">{char}</span>
+    <span style={{ display: 'inline-flex', flexWrap: 'wrap', columnGap: '0.3em', letterSpacing: '-0.05em' }}>
+      {text.split(' ').map((word, wi) => (
+        <span key={wi} style={{ display: 'inline-flex', whiteSpace: 'nowrap' }}>
+          {word.split('').map((char, i) => <span key={i} className="reveal-letter">{char}</span>)}
+        </span>
       ))}
     </span>
   );
@@ -125,6 +83,7 @@ function App() {
   const [selectedId, setSelectedId] = React.useState(null);
   const [rotationProgress, setRotationProgress] = React.useState(0);
   const [heroTranslate, setHeroTranslate] = React.useState(0);
+  const [titleFade, setTitleFade] = React.useState(0); // 0 = title fully shown, 1 = gone
   const [modelLit, setModelLit] = React.useState(false);
   const [lang, setLang] = React.useState(() => localStorage.getItem('lang') || 'en');
 
@@ -151,6 +110,7 @@ function App() {
     const onScroll = () => {
       const scrollY = window.scrollY;
       setHeroTranslate(-Math.min(scrollY, phase1));
+      setTitleFade(phase1 > 0 ? Math.min(scrollY / phase1, 1) : 0);
       const phase2 = Math.max(0, scrollY - phase1);
       const rotRange = window.innerHeight * 1.2;
       const rp = Math.max(0, Math.min(1, phase2 / rotRange));
@@ -205,7 +165,7 @@ function App() {
           <div className="ctrl-dock cs-dim-dock">
             <div className="ctrl-pill-group">
               <button className="ctrl-pill" onClick={() => setModelLit((v) => !v)} aria-pressed={modelLit}>
-                {modelLit ? 'Dim' : 'View 3D'}
+                {modelLit ? window.caseUI(lang).dim : window.caseUI(lang).view3d}
               </button>
             </div>
           </div>
@@ -229,7 +189,7 @@ function App() {
         </div>
         <div style={{ position: 'relative', zIndex: 1, width: '100%', alignSelf: 'stretch', transform: `translateY(${heroTranslate}px)`, willChange: 'transform' }}>
           <div className="hero-head">
-            <h1 className="hero-title"><RevealTitle text="BIO MECH" /></h1>
+            <h1 className="hero-title" style={{ opacity: Math.max(0, 1 - Math.max(0, titleFade - 0.35) / 0.55), transform: `translateY(${-45 * titleFade}%)`, willChange: 'opacity, transform' }}><RevealTitle text={c.hero.title || 'ENGINEERING PORTFOLIO'} /></h1>
             <div className="hero-eyebrow">
               <div className="bar"></div>
               <p className="uppercase wide" style={{ margin: 0, color: 'var(--ink)' }}>{c.hero.tagline}</p>
@@ -281,7 +241,7 @@ function SiteFooter() {
     { id: 'github', label: 'GitHub', href: 'https://github.com/carlosincaroca?tab=repositories', ext: true, icon: (
       <path d="M12 .5C5.37.5 0 5.78 0 12.29c0 5.2 3.44 9.6 8.21 11.16.6.11.82-.25.82-.56 0-.28-.01-1.02-.02-2-3.34.71-4.04-1.58-4.04-1.58-.55-1.37-1.34-1.74-1.34-1.74-1.09-.73.08-.71.08-.71 1.2.08 1.84 1.21 1.84 1.21 1.07 1.79 2.81 1.27 3.5.97.11-.76.42-1.27.76-1.56-2.67-.3-5.47-1.31-5.47-5.81 0-1.28.47-2.33 1.23-3.15-.12-.3-.53-1.51.12-3.15 0 0 1-.32 3.3 1.2.96-.26 1.98-.39 3-.4 1.02.01 2.04.14 3 .4 2.3-1.52 3.3-1.2 3.3-1.2.65 1.64.24 2.85.12 3.15.77.82 1.23 1.87 1.23 3.15 0 4.51-2.81 5.5-5.49 5.79.43.36.81 1.09.81 2.2 0 1.59-.01 2.87-.01 3.26 0 .31.21.68.83.56C20.57 21.88 24 17.49 24 12.29 24 5.78 18.63.5 12 .5z" />
     ) },
-    { id: 'resume', label: 'Résumé', href: '#', ext: true, icon: (
+    { id: 'resume', label: 'Résumé', href: 'assets/Carlos_Inca_Roca_CV.pdf', ext: true, icon: (
       <React.Fragment>
         <path d="M14 2.5H6.5A1.5 1.5 0 0 0 5 4v16a1.5 1.5 0 0 0 1.5 1.5h11A1.5 1.5 0 0 0 19 20V7.5z" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
         <path d="M14 2.5V7.5H19" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
@@ -293,8 +253,8 @@ function SiteFooter() {
     <footer className="site-footer" role="contentinfo">
       <div className="sf-inner">
         <div className="sf-brand-col">
-          <button className="sf-mark black tight" onClick={toTop} aria-label="Back to top">IατR</button>
-          <div className="sf-sig">IATRA ENGINEERING</div>
+          <button className="sf-mark black tight" onClick={toTop} aria-label="Back to top">ατ</button>
+          <div className="sf-sig">ALPHA TAU ENGINEERING</div>
         </div>
         <div className="sf-social">
           {links.map((l) => (
@@ -312,7 +272,7 @@ function SiteFooter() {
         </div>
       </div>
       <div className="sf-base">
-        <span>© 2026 IATRA Engineering</span>
+        <span>© 2026 Alpha Tau Engineering</span>
         <span>Carlos Inca Roca</span>
       </div>
     </footer>

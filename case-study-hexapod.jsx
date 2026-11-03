@@ -14,26 +14,8 @@
   }
 
   /* ── Mode content ──────────────────────────────────────────── */
-  const MODES = {
-    locomotion: {
-      title: 'Locomotion system',
-      desc: 'Six 3-DOF legs driven by alternating tripod and wave gaits. Per-leg inverse kinematics resolves foot placement; coilover shocks on each leg damp ground impact.',
-      items: ['Tripod / wave gait engine', 'Per-leg inverse kinematics', 'Coilover shock suspension'],
-    },
-    electronics: {
-      title: 'Electronics system',
-      desc: 'Arduino UNO R4 commanding 18 servos through a PCA9685 16-channel PWM driver. Buck-regulated LiPo supplies the servo rail; an isolated 9V keeps logic clean.',
-      items: ['UNO R4 + PCA9685 PWM driver', 'Buck-regulated LiPo servo rail', 'Isolated 9V logic supply'],
-    },
-  };
 
-  const PROTOCOLS = [
-    { name: 'CAD assembly',            detail: 'Full-robot assembly in Onshape: body, 6× three-motor legs, suspension shocks, and electronics bay. Validated for fit and motor clearance.', status: 'COMPLETE' },
-    { name: 'Electronics integration', detail: 'UNO R4, PCA9685 servo driver, buck converter, and dual battery supplies wired and bench-tested across all 18 channels.', status: 'COMPLETE' },
-    { name: 'Gait development',        detail: 'Tripod gait tuning on hardware: stride length, body height, and phase offsets. Wave and ripple gaits in progress.', status: 'ACTIVE' },
-  ];
 
-  const STACK = ['Arduino UNO R4', 'PCA9685 PWM', '18× servo', 'Buck + LiPo', 'Onshape CAD'];
 
   /* ── Hexapod glyph SVG ─────────────────────────────────────── */
   function HexapodGlyph() {
@@ -84,6 +66,12 @@
 
   /* ── Main component ────────────────────────────────────────── */
   function HexapodCaseStudy({ project, onBack }) {
+    const { lang } = window.useLang();
+    const T = window.caseCopy(lang, 'hexapod');
+    const U = window.caseUI(lang);
+    const MODES = T.modes;
+    const PROTOCOLS = T.phases;
+    const STACK = T.stack;
     const [mode, setMode]           = React.useState('locomotion');
     const [exploded, setExploded]   = React.useState(false);
     const [modelView, setModelView] = React.useState(false);
@@ -140,40 +128,31 @@
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" />
             </svg>
-            BACK TO INDEX
+            {U.back}
           </button>
 
           <header className="dl-header" style={{ opacity: modelView ? 0 : 1, transition: 'opacity 0.35s ease', pointerEvents: modelView ? 'none' : undefined, willChange: 'opacity' }}>
             <div className="dl-header-left">
               <div className="dl-badges">
-                <span className="dl-pill"><span className="dl-pill-dot"></span>Robotics / Legged Locomotion</span>
-                <span className="dl-pill dl-pill-ghost">BIO MECH / PROJECT 04</span>
+                <span className="dl-pill"><span className="dl-pill-dot"></span>{T.pill}</span>
+                <span className="dl-pill dl-pill-ghost">{U.brand} / {U.project} 04</span>
               </div>
 
               <div>
-                <h1 className="dl-title">
-                  18-DOF<br />
-                  hexapod<br />
-                  robot.
-                </h1>
-                <p className="dl-lead">
-                  A six-legged walking robot with 3 servo joints per leg — 18 degrees of freedom driven by an Arduino UNO R4 through a PCA9685 PWM driver, with per-leg suspension shocks and tripod-gait locomotion.
-                </p>
+                <h1 className="dl-title">{T.title.map((l, i) => <React.Fragment key={i}>{l}{i < T.title.length - 1 && <br />}</React.Fragment>)}</h1>
+                <p className="dl-lead">{T.lead}</p>
               </div>
 
               <div className="dl-metrics-row">
                 <div className="dl-status-pill">
                   <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <span className="dl-pill-dot"></span>Hardware build
+                    <span className="dl-pill-dot"></span>{T.statusLabel}
                   </span>
                   <span style={{ opacity: 0.5 }}>∙</span>
-                  <span>Gait tuning in progress</span>
+                  <span>{T.statusSub}</span>
                 </div>
                 <div className="dl-metrics-strip">
-                  <div className="dl-metric"><span className="dl-metric-lbl">Legs</span><span className="dl-metric-val">6</span></div>
-                  <div className="dl-metric"><span className="dl-metric-lbl">DOF</span><span className="dl-metric-val">18</span></div>
-                  <div className="dl-metric"><span className="dl-metric-lbl">Servos</span><span className="dl-metric-val">18</span></div>
-                  <div className="dl-metric"><span className="dl-metric-lbl">Gait</span><span className="dl-metric-val">TRIPOD</span></div>
+                  {T.metrics.map(([l, v], i) => <div key={i} className="dl-metric"><span className="dl-metric-lbl">{l}</span><span className="dl-metric-val">{v}</span></div>)}
                 </div>
               </div>
             </div>
@@ -181,15 +160,15 @@
             <div className="dl-card">
               <div className="dl-mode-header">
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                  <p className="dl-lbl dl-subtle">Mode</p>
+                  <p className="dl-lbl dl-subtle">{U.mode}</p>
                   <h2 className="dl-mode-title">{md.title}</h2>
                 </div>
                 <HexapodGlyph />
               </div>
               <p className="dl-subtle" style={{ fontSize: '14px', lineHeight: '1.65' }}>{md.desc}</p>
               <div className="dl-mode-toggle">
-                <button className={`dl-mode-btn${mode === 'locomotion'  ? ' active' : ''}`} onClick={() => setMode('locomotion')}>Locomotion</button>
-                <button className={`dl-mode-btn${mode === 'electronics' ? ' active' : ''}`} onClick={() => setMode('electronics')}>Electronics</button>
+                <button className={`dl-mode-btn${mode === 'locomotion'  ? ' active' : ''}`} onClick={() => setMode('locomotion')}>{MODES.locomotion.label}</button>
+                <button className={`dl-mode-btn${mode === 'electronics' ? ' active' : ''}`} onClick={() => setMode('electronics')}>{MODES.electronics.label}</button>
               </div>
               <ul className="dl-mode-items">
                 {md.items.map((item, i) => (
@@ -205,11 +184,11 @@
           <div className="dl-middle" style={{ opacity: modelView ? 0 : 1, transition: 'opacity 0.35s ease', pointerEvents: modelView ? 'none' : undefined, willChange: 'opacity' }}>
             <div className="dl-card dl-control-card">
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <h3 className="dl-lbl">Tech stack</h3>
+                <h3 className="dl-lbl">{U.techStack}</h3>
                 <span className="dl-lbl dl-subtle">v1.0</span>
               </div>
               <p className="dl-subtle" style={{ fontSize: '14px', lineHeight: '1.65' }}>
-                Arduino UNO R4 commanding 18 servos via a PCA9685 16-channel PWM driver. Buck-converted LiPo power for the servo rail, full CAD assembly in Onshape.
+                {T.stackText}
               </p>
               <div className="dl-stack-items">
                 {STACK.map((item, i) => (
@@ -227,15 +206,15 @@
                 <span className="dl-ring2"></span>
               </div>
               <figcaption className="dl-figcaption">
-                <span>Assembly diagram</span>
-                <span className="dl-fig-line"><span className="dl-fig-dash"></span>Leg kinematics</span>
+                <span>{T.fig[0]}</span>
+                <span className="dl-fig-line"><span className="dl-fig-dash"></span>{T.fig[1]}</span>
               </figcaption>
             </figure>
 
             <div className="dl-card dl-proto-card">
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <h3 className="dl-lbl">Project phases</h3>
-                <span className="dl-lbl dl-subtle">Indexed</span>
+                <h3 className="dl-lbl">{U.phases}</h3>
+                <span className="dl-lbl dl-subtle">{U.indexed}</span>
               </div>
               <ul className="dl-protocols">
                 {PROTOCOLS.map((p, i) => <ProtocolItem key={i} p={p} />)}
@@ -245,7 +224,7 @@
         </div>
 
         <aside className={`ctrl-rail${scrolled && !modelView ? ' is-collapsed' : ''}`} aria-label="Assembly controls">
-          <span className="rail-spine" aria-hidden="true">Assembly · Ctrl</span>
+          <span className="rail-spine" aria-hidden="true">{U.railAssembly}</span>
           <span className="rail-cross" aria-hidden="true">+</span>
 
           <button className={`rail-btn${exploded ? ' is-active' : ''}`} onClick={handleExplode} title="Explode / assemble the model">
@@ -256,7 +235,7 @@
               <path d="M10.5 12H4" /><path d="M6 9.5 3.5 12 6 14.5" />
               <path d="M13.5 12H20" /><path d="M18 9.5 20.5 12 18 14.5" />
             </svg>
-            <span className="rail-label">{exploded ? 'Assemble' : 'Explode'}</span>
+            <span className="rail-label">{exploded ? U.assemble : U.explode}</span>
           </button>
 
           <button className={`rail-btn rail-btn--view${modelView ? ' is-active' : ''}`} onClick={() => setModelView(v => !v)} title="Enter / exit model view">
@@ -266,7 +245,7 @@
               <path d="M4.5 7.3 12 11.6l7.5-4.3" />
               <path d="M12 11.6V21" />
             </svg>
-            <span className="rail-label">{modelView ? 'Exit View' : 'Model View'}</span>
+            <span className="rail-label">{modelView ? U.exitView : U.modelView}</span>
           </button>
 
           <span className="rail-cross" aria-hidden="true">+</span>

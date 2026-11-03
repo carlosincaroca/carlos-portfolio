@@ -41,7 +41,14 @@ function ProtocolItem({ p }) {
 
 /* ── Main case study ──────────────────────────────────── */
 function CaseStudy({ project, onBack }) {
-  const d = project.detail;
+  const { lang } = window.useLang();
+  const U = window.caseUI(lang);
+  const T = project.id === 6 ? window.caseCopy(lang, 'sip') : null;
+  const d = T ? {
+    titleLines: T.title, statusLabel: T.statusLabel, statusSub: T.statusSub, lead: T.lead,
+    metrics: T.metrics.map(([lbl, val]) => ({ lbl, val })),
+    modeA: T.modes.a, modeB: T.modes.b, stackText: T.stackText, stack: T.stack, protocols: T.phases,
+  } : project.detail;
   const [mode, setMode] = React.useState('a');
   const md = d ? (mode === 'a' ? d.modeA : d.modeB) : null;
 
@@ -70,7 +77,7 @@ function CaseStudy({ project, onBack }) {
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" />
           </svg>
-          BACK TO INDEX
+          {U.back}
         </button>
 
         {/* ── Header ── */}
@@ -78,11 +85,11 @@ function CaseStudy({ project, onBack }) {
           <div className="dl-header-left">
             <div className="dl-badges">
               <span className="dl-pill"><span className="dl-pill-dot"></span>{project.category}</span>
-              <span className="dl-pill dl-pill-ghost">BIO MECH / PROJECT {String(project.id).padStart(2, '0')}</span>
+              <span className="dl-pill dl-pill-ghost">{U.brand} / {U.project} {String(project.id).padStart(2, '0')}</span>
             </div>
 
             <div>
-              <h1 className="dl-title">{project.title.split(' ').map((w, i) => <span key={i}>{w}<br /></span>)}</h1>
+              <h1 className="dl-title">{(d && d.titleLines ? d.titleLines : project.title.split(' ')).map((w, i) => <span key={i}>{w}<br /></span>)}</h1>
               <p className="dl-lead">{lead}</p>
             </div>
 
@@ -110,7 +117,7 @@ function CaseStudy({ project, onBack }) {
             <div className="dl-card">
               <div className="dl-mode-header">
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                  <p className="dl-lbl dl-subtle">Mode</p>
+                  <p className="dl-lbl dl-subtle">{U.mode}</p>
                   <h2 className="dl-mode-title">{md.title}</h2>
                 </div>
               </div>
@@ -136,11 +143,11 @@ function CaseStudy({ project, onBack }) {
 
           <div className="dl-card dl-control-card">
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <h3 className="dl-lbl">Tech stack</h3>
+              <h3 className="dl-lbl">{U.techStack}</h3>
               <span className="dl-lbl dl-subtle">v1.0</span>
             </div>
             <p className="dl-subtle" style={{ fontSize: '14px', lineHeight: '1.65' }}>
-              Core materials, tools, and standards underpinning the engineering and regulatory pathway for this device.
+              {d && d.stackText ? d.stackText : 'Core tools and methods behind this project.'}
             </p>
             <div className="dl-stack-items">
               {stack.map((item, i) => <div key={i} className="dl-stack-item">{item}</div>)}
@@ -161,8 +168,8 @@ function CaseStudy({ project, onBack }) {
 
           <div className="dl-card dl-proto-card">
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <h3 className="dl-lbl">Project phases</h3>
-              <span className="dl-lbl dl-subtle">Indexed</span>
+              <h3 className="dl-lbl">{U.phases}</h3>
+              <span className="dl-lbl dl-subtle">{U.indexed}</span>
             </div>
             <ul className="dl-protocols">
               {protocols.map((p, i) => <ProtocolItem key={i} p={p} />)}

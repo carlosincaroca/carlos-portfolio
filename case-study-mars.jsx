@@ -19,26 +19,6 @@
 
   /* ── Content (arm-centric — the real engineering — lightly rover-framed).
      This does NOT change with the model toggle; only the 3D model swaps. ── */
-  const MODES = {
-    manipulation: {
-      title: 'Manipulation system',
-      desc: 'Six harmonic-drive joints give a 1.1 m reach envelope with ±0.1 mm repeatability — closed-loop torque control at each axis for compliant contact during sample handling.',
-      items: [
-        '6× harmonic-drive joints',
-        'Closed-loop torque control',
-        '±0.1 mm repeatability',
-      ],
-    },
-    sampling: {
-      title: 'Sampling system',
-      desc: 'A force-sensing parallel-jaw gripper with interchangeable end-effectors caches rock cores into the hermetic sample bay — jaw force is limited to prevent crush damage to friable specimens.',
-      items: [
-        'Parallel-jaw force sensing',
-        'Interchangeable end-effectors',
-        'Hermetic sample caching',
-      ],
-    },
-  };
 
   /* ── Arm glyph SVG (mode-card corner) ──────────────────── */
   function ArmGlyph() {
@@ -170,20 +150,8 @@
     });
   }
 
-  /* ── Tech-stack + project-phase content (placeholder — fill later) ── */
-  const STACK = [
-    'Rocker-bogie suspension',
-    'RTG power system',
-    'ROS 2 autonomy stack',
-    'Multi-spectral imager',
-    'NASA-JPL heritage design',
-  ];
+  /* ── Tech-stack + project-phase content ── */
 
-  const PROTOCOLS = [
-    { name: 'Mechanical design',  detail: 'Full-system CAD with FEA-validated chassis. Thermal cycling validated at –120 °C to +40 °C simulating Martian diurnal range.', status: 'COMPLETE' },
-    { name: 'Autonomy stack',     detail: 'Visual odometry + terrain-relative navigation. ROS 2 path planner with obstacle avoidance tested on Mars-analogue terrain (Atacama Desert).', status: 'ACTIVE' },
-    { name: 'Sample system',      detail: 'Rock core drill and hermetic sample container. Contamination protocols per COSPAR planetary protection category IVa.', status: 'IN PROGRESS' },
-  ];
 
   /* ── Protocol item (spotlight hover) ──────────────────── */
   function ProtocolItem({ p }) {
@@ -207,6 +175,12 @@
 
   /* ── Main component ────────────────────────────────────── */
   function MarsRoverCaseStudy({ project, onBack }) {
+    const { lang } = window.useLang();
+    const T = window.caseCopy(lang, 'mars');
+    const U = window.caseUI(lang);
+    const MODES = T.modes;
+    const PROTOCOLS = T.phases;
+    const STACK = T.stack;
     const [mode, setMode]               = React.useState('manipulation');
     const [activeModel, setActiveModel] = React.useState('rover');  // 3D model shown (rover leads)
     const [exploded, setExploded]       = React.useState(false);
@@ -276,36 +250,31 @@
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" />
             </svg>
-            BACK TO INDEX
+            {U.back}
           </button>
 
           <header className="dl-header" style={{ opacity: modelView ? 0 : 1, transition: 'opacity 0.35s ease', pointerEvents: modelView ? 'none' : undefined, willChange: 'opacity' }}>
             <div className="dl-header-left">
               <div className="dl-badges">
-                <span className="dl-pill"><span className="dl-pill-dot"></span>Mars Rover · Sampling Arm</span>
-                <span className="dl-pill dl-pill-ghost">BIO MECH / PROJECT 03</span>
+                <span className="dl-pill"><span className="dl-pill-dot"></span>{T.pill}</span>
+                <span className="dl-pill dl-pill-ghost">{U.brand} / {U.project} 03</span>
               </div>
 
               <div>
-                <h1 className="dl-title">Robotic sampling<br />arm.</h1>
-                <p className="dl-lead">
-                  A six-degree-of-freedom manipulator with a force-sensing parallel-jaw gripper and harmonic-drive joints — engineered to collect, cache, and transfer rock-core samples for the BYU Mars Rover's science payload. Toggle the viewer between the full rover platform and the arm itself.
-                </p>
+                <h1 className="dl-title">{T.title.map((l, i) => <React.Fragment key={i}>{l}{i < T.title.length - 1 && <br />}</React.Fragment>)}</h1>
+                <p className="dl-lead">{T.lead}</p>
               </div>
 
               <div className="dl-metrics-row">
                 <div className="dl-status-pill">
                   <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <span className="dl-pill-dot"></span>Design validated
+                    <span className="dl-pill-dot"></span>{T.statusLabel}
                   </span>
                   <span style={{ opacity: 0.5 }}>∙</span>
-                  <span>Rover-integrated</span>
+                  <span>{T.statusSub}</span>
                 </div>
                 <div className="dl-metrics-strip">
-                  <div className="dl-metric"><span className="dl-metric-lbl">Reach</span><span className="dl-metric-val">1.1m</span></div>
-                  <div className="dl-metric"><span className="dl-metric-lbl">Payload</span><span className="dl-metric-val">5kg</span></div>
-                  <div className="dl-metric"><span className="dl-metric-lbl">DOF</span><span className="dl-metric-val">6</span></div>
-                  <div className="dl-metric"><span className="dl-metric-lbl">Repeat</span><span className="dl-metric-val">0.1mm</span></div>
+                  {T.metrics.map(([l, v], i) => <div key={i} className="dl-metric"><span className="dl-metric-lbl">{l}</span><span className="dl-metric-val">{v}</span></div>)}
                 </div>
               </div>
             </div>
@@ -313,15 +282,15 @@
             <div className="dl-card">
               <div className="dl-mode-header">
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                  <p className="dl-lbl dl-subtle">Mode</p>
+                  <p className="dl-lbl dl-subtle">{U.mode}</p>
                   <h2 className="dl-mode-title">{md.title}</h2>
                 </div>
                 <ArmGlyph />
               </div>
               <p className="dl-subtle" style={{ fontSize: '14px', lineHeight: '1.65' }}>{md.desc}</p>
               <div className="dl-mode-toggle">
-                <button className={`dl-mode-btn${mode === 'manipulation' ? ' active' : ''}`} onClick={() => setMode('manipulation')}>Manipulation</button>
-                <button className={`dl-mode-btn${mode === 'sampling'     ? ' active' : ''}`} onClick={() => setMode('sampling')}>Sampling</button>
+                <button className={`dl-mode-btn${mode === 'manipulation' ? ' active' : ''}`} onClick={() => setMode('manipulation')}>{MODES.manipulation.label}</button>
+                <button className={`dl-mode-btn${mode === 'sampling'     ? ' active' : ''}`} onClick={() => setMode('sampling')}>{MODES.sampling.label}</button>
               </div>
               <ul className="dl-mode-items">
                 {md.items.map((item, i) => (
@@ -337,11 +306,11 @@
           <div className="dl-middle" style={{ opacity: modelView ? 0 : 1, transition: 'opacity 0.35s ease', pointerEvents: modelView ? 'none' : undefined, willChange: 'opacity' }}>
             <div className="dl-card dl-control-card">
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <h3 className="dl-lbl">Tech stack</h3>
+                <h3 className="dl-lbl">{U.techStack}</h3>
                 <span className="dl-lbl dl-subtle">v1.0</span>
               </div>
               <p className="dl-subtle" style={{ fontSize: '14px', lineHeight: '1.65' }}>
-                Rocker-bogie suspension with RTG power, ROS 2 navigation, and a multi-spectral imaging + in-situ geochemistry payload. Chassis FEA-validated for Martian thermal and mechanical loads.
+                {T.stackText}
               </p>
               <div className="dl-stack-items">
                 {STACK.map((item, i) => (
@@ -357,15 +326,15 @@
                 <span className="dl-ring2"></span>
               </div>
               <figcaption className="dl-figcaption">
-                <span>Kinematic diagram</span>
-                <span className="dl-fig-line"><span className="dl-fig-dash"></span>6-DOF reach envelope</span>
+                <span>{T.fig[0]}</span>
+                <span className="dl-fig-line"><span className="dl-fig-dash"></span>{T.fig[1]}</span>
               </figcaption>
             </figure>
 
             <div className="dl-card dl-proto-card">
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <h3 className="dl-lbl">Project phases</h3>
-                <span className="dl-lbl dl-subtle">Indexed</span>
+                <h3 className="dl-lbl">{U.phases}</h3>
+                <span className="dl-lbl dl-subtle">{U.indexed}</span>
               </div>
               <ul className="dl-protocols">
                 {PROTOCOLS.map((p, i) => <ProtocolItem key={i} p={p} />)}
@@ -375,14 +344,14 @@
         </div>
 
         <aside className={`ctrl-rail${scrolled && !modelView ? ' is-collapsed' : ''}`} aria-label="Model controls">
-          <span className="rail-spine" aria-hidden="true">Model · Ctrl</span>
+          <span className="rail-spine" aria-hidden="true">{U.railModel}</span>
           <span className="rail-cross" aria-hidden="true">+</span>
 
           {MODEL_ORDER.map((m) => (
-            <button key={m} className={`rail-btn${activeModel === m ? ' is-active' : ''}`} onClick={() => driveModel(m)} title={`Show the ${MODEL_LABEL[m].toLowerCase()}`}>
+            <button key={m} className={`rail-btn${activeModel === m ? ' is-active' : ''}`} onClick={() => driveModel(m)} title={T.models[m]}>
               <span className="rail-leader" aria-hidden="true"></span>
-              <span className="rail-ico" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'monospace', fontSize: '12px', fontWeight: 700 }}>{MODEL_LABEL[m][0]}</span>
-              <span className="rail-label">{MODEL_LABEL[m]}</span>
+              <span className="rail-ico" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'monospace', fontSize: '12px', fontWeight: 700 }}>{T.models[m][0]}</span>
+              <span className="rail-label">{T.models[m]}</span>
             </button>
           ))}
 
@@ -394,7 +363,7 @@
               <path d="M10.5 12H4" /><path d="M6 9.5 3.5 12 6 14.5" />
               <path d="M13.5 12H20" /><path d="M18 9.5 20.5 12 18 14.5" />
             </svg>
-            <span className="rail-label">{exploded ? 'Assemble' : 'Explode'}</span>
+            <span className="rail-label">{exploded ? U.assemble : U.explode}</span>
           </button>
 
           <button className={`rail-btn rail-btn--view${modelView ? ' is-active' : ''}`} onClick={() => setModelView(v => !v)} title="Enter / exit model view">
@@ -404,7 +373,7 @@
               <path d="M4.5 7.3 12 11.6l7.5-4.3" />
               <path d="M12 11.6V21" />
             </svg>
-            <span className="rail-label">{modelView ? 'Exit View' : 'Model View'}</span>
+            <span className="rail-label">{modelView ? U.exitView : U.modelView}</span>
           </button>
 
           <span className="rail-cross" aria-hidden="true">+</span>

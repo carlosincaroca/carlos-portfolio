@@ -14,44 +14,25 @@
   }
 
   /* ── Mode content ──────────────────────────────────────────── */
-  const MODES = {
-    ventilation: {
-      title: 'Ventilation modes',
-      desc: 'Pressure-support, volume-control, and CPAP modes with auto-PEEP detection. Breath-by-breath adaptive triggering for patient synchrony.',
-      items: ['PSV / VCV / CPAP modes', 'Auto-PEEP detection', 'Adaptive triggering <5ms'],
-    },
-    monitoring: {
-      title: 'Monitoring system',
-      desc: 'Continuous SpO₂, ETCO₂, and respiratory mechanics tracking. Alarm escalation with cloud telemetry for remote clinician review.',
-      items: ['SpO₂ + ETCO₂ sensing', 'Respiratory mechanics loop', 'Cloud telemetry dashboard'],
-    },
-  };
 
-  const PROTOCOLS = [
-    { name: 'Bench testing',   detail: 'ASL 5000 lung simulator testing across 40 patient conditions. Trigger delay, leak compensation, and alarm validation.', status: 'COMPLETE' },
-    { name: 'Clinical study',  detail: '30-patient step-down ICU study. Primary: patient-ventilator synchrony score vs standard of care.', status: 'COMPLETE' },
-    { name: 'FDA submission',  detail: '510(k) predicate comparison submitted. Awaiting additional performance data request response.', status: 'ACTIVE' },
-  ];
 
-  const STACK = ['Turbine blower', 'PID flow control', 'LabVIEW FPGA', 'ISO 80601-2-12', 'FDA 510(k)'];
 
-  /* ── Lung glyph SVG ────────────────────────────────────────── */
-  function LungGlyph() {
+  /* ── Robot glyph SVG ───────────────────────────────────────── */
+  function RobotGlyph() {
     return (
       <svg viewBox="0 0 120 120" className="dl-deck-glyph" aria-hidden="true">
         <circle className="dl-glyph-orbit" cx="60" cy="60" r="46" fill="none" strokeWidth="1.4" stroke="var(--red)" />
-        {/* Trachea */}
-        <line x1="60" y1="20" x2="60" y2="48" stroke="var(--red)" strokeWidth="1.4" opacity="0.7" />
-        {/* Left bronchus */}
-        <path d="M60 48 Q44 52 38 62" fill="none" stroke="var(--red)" strokeWidth="1.2" opacity="0.7" />
-        {/* Right bronchus */}
-        <path d="M60 48 Q76 52 82 62" fill="none" stroke="var(--red)" strokeWidth="1.2" opacity="0.7" />
-        {/* Left lung lobe */}
-        <ellipse cx="38" cy="74" rx="14" ry="18" fill="none" stroke="var(--red)" strokeWidth="1.1" opacity="0.45" />
-        {/* Right lung lobe */}
-        <ellipse cx="82" cy="74" rx="14" ry="18" fill="none" stroke="var(--red)" strokeWidth="1.1" opacity="0.45" />
-        <circle className="dl-glyph-pulse" cx="60" cy="14" r="3.5" fill="var(--red)" />
-        <circle cx="60" cy="60" r="3" fill="var(--red)" opacity="0.5" />
+        {/* Chassis */}
+        <rect x="34" y="50" width="52" height="22" rx="3" fill="none" stroke="var(--red)" strokeWidth="1.3" opacity="0.75" />
+        {/* Sensor mast + beam */}
+        <line x1="60" y1="50" x2="60" y2="38" stroke="var(--red)" strokeWidth="1.2" opacity="0.7" />
+        <path d="M64 36 L88 30 M64 38 L88 38 M64 40 L88 46" stroke="var(--red)" strokeWidth="0.8" opacity="0.35" />
+        {/* Wheels */}
+        <circle cx="44" cy="78" r="8" fill="none" stroke="var(--red)" strokeWidth="1.2" opacity="0.55" />
+        <circle cx="76" cy="78" r="8" fill="none" stroke="var(--red)" strokeWidth="1.2" opacity="0.55" />
+        {/* Line to follow */}
+        <line x1="22" y1="90" x2="98" y2="90" stroke="var(--red)" strokeWidth="0.8" strokeDasharray="3 3" opacity="0.3" />
+        <circle className="dl-glyph-pulse" cx="60" cy="36" r="3.5" fill="var(--red)" />
       </svg>
     );
   }
@@ -78,7 +59,13 @@
 
   /* ── Main component ────────────────────────────────────────── */
   function RespiratoryCaseStudy({ project, onBack }) {
-    const [mode, setMode]           = React.useState('ventilation');
+    const { lang } = window.useLang();
+    const T = window.caseCopy(lang, 'auto');
+    const U = window.caseUI(lang);
+    const MODES = T.modes;
+    const PROTOCOLS = T.phases;
+    const STACK = T.stack;
+    const [mode, setMode]           = React.useState('hardware');
     const [exploded, setExploded]   = React.useState(false);
     const [modelView, setModelView] = React.useState(false);
     const [scrolled, setScrolled]   = React.useState(false);
@@ -134,40 +121,31 @@
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" />
             </svg>
-            BACK TO INDEX
+            {U.back}
           </button>
 
           <header className="dl-header" style={{ opacity: modelView ? 0 : 1, transition: 'opacity 0.35s ease', pointerEvents: modelView ? 'none' : undefined, willChange: 'opacity' }}>
             <div className="dl-header-left">
               <div className="dl-badges">
-                <span className="dl-pill"><span className="dl-pill-dot"></span>Robotics / Autonomous Systems</span>
-                <span className="dl-pill dl-pill-ghost">BIO MECH / PROJECT 05</span>
+                <span className="dl-pill"><span className="dl-pill-dot"></span>{T.pill}</span>
+                <span className="dl-pill dl-pill-ghost">{U.brand} / {U.project} 05</span>
               </div>
 
               <div>
-                <h1 className="dl-title">
-                  Multi-task<br />
-                  autonomous<br />
-                  robot.
-                </h1>
-                <p className="dl-lead">
-                  A portable ventilatory assist device delivering up to 15 L/min at 25 cmH₂O with auto-compliance sensing — designed for step-down care and home ventilation in COPD and post-surgical patients.
-                </p>
+                <h1 className="dl-title">{T.title.map((l, i) => <React.Fragment key={i}>{l}{i < T.title.length - 1 && <br />}</React.Fragment>)}</h1>
+                <p className="dl-lead">{T.lead}</p>
               </div>
 
               <div className="dl-metrics-row">
                 <div className="dl-status-pill">
                   <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <span className="dl-pill-dot"></span>FDA review
+                    <span className="dl-pill-dot"></span>{T.statusLabel}
                   </span>
                   <span style={{ opacity: 0.5 }}>∙</span>
-                  <span>510(k) submission filed</span>
+                  <span>{T.statusSub}</span>
                 </div>
                 <div className="dl-metrics-strip">
-                  <div className="dl-metric"><span className="dl-metric-lbl">Flow</span><span className="dl-metric-val">15L/min</span></div>
-                  <div className="dl-metric"><span className="dl-metric-lbl">Pressure</span><span className="dl-metric-val">25cmH₂O</span></div>
-                  <div className="dl-metric"><span className="dl-metric-lbl">FiO₂</span><span className="dl-metric-val">21–100%</span></div>
-                  <div className="dl-metric"><span className="dl-metric-lbl">Compliance</span><span className="dl-metric-val">AUTO</span></div>
+                  {T.metrics.map(([l, v], i) => <div key={i} className="dl-metric"><span className="dl-metric-lbl">{l}</span><span className="dl-metric-val">{v}</span></div>)}
                 </div>
               </div>
             </div>
@@ -175,15 +153,15 @@
             <div className="dl-card">
               <div className="dl-mode-header">
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                  <p className="dl-lbl dl-subtle">Mode</p>
+                  <p className="dl-lbl dl-subtle">{U.mode}</p>
                   <h2 className="dl-mode-title">{md.title}</h2>
                 </div>
-                <LungGlyph />
+                <RobotGlyph />
               </div>
               <p className="dl-subtle" style={{ fontSize: '14px', lineHeight: '1.65' }}>{md.desc}</p>
               <div className="dl-mode-toggle">
-                <button className={`dl-mode-btn${mode === 'ventilation' ? ' active' : ''}`} onClick={() => setMode('ventilation')}>Ventilation</button>
-                <button className={`dl-mode-btn${mode === 'monitoring'  ? ' active' : ''}`} onClick={() => setMode('monitoring')}>Monitoring</button>
+                <button className={`dl-mode-btn${mode === 'hardware' ? ' active' : ''}`} onClick={() => setMode('hardware')}>{MODES.hardware.label}</button>
+                <button className={`dl-mode-btn${mode === 'control'  ? ' active' : ''}`} onClick={() => setMode('control')}>{MODES.control.label}</button>
               </div>
               <ul className="dl-mode-items">
                 {md.items.map((item, i) => (
@@ -199,11 +177,11 @@
           <div className="dl-middle" style={{ opacity: modelView ? 0 : 1, transition: 'opacity 0.35s ease', pointerEvents: modelView ? 'none' : undefined, willChange: 'opacity' }}>
             <div className="dl-card dl-control-card">
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <h3 className="dl-lbl">Tech stack</h3>
+                <h3 className="dl-lbl">{U.techStack}</h3>
                 <span className="dl-lbl dl-subtle">v1.0</span>
               </div>
               <p className="dl-subtle" style={{ fontSize: '14px', lineHeight: '1.65' }}>
-                Turbine blower with PID flow control and LabVIEW FPGA closed-loop sensing. Breath-by-breath adaptive triggering validated on ASL 5000 lung simulator.
+                {T.stackText}
               </p>
               <div className="dl-stack-items">
                 {STACK.map((item, i) => (
@@ -215,21 +193,21 @@
             <figure className="dl-img-figure">
               <div className="dl-img-wrap">
                 <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <LungGlyph />
+                  <RobotGlyph />
                 </div>
                 <span className="dl-ring1"></span>
                 <span className="dl-ring2"></span>
               </div>
               <figcaption className="dl-figcaption">
-                <span>Assembly diagram</span>
-                <span className="dl-fig-line"><span className="dl-fig-dash"></span>Mechanical system</span>
+                <span>{T.fig[0]}</span>
+                <span className="dl-fig-line"><span className="dl-fig-dash"></span>{T.fig[1]}</span>
               </figcaption>
             </figure>
 
             <div className="dl-card dl-proto-card">
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <h3 className="dl-lbl">Project phases</h3>
-                <span className="dl-lbl dl-subtle">Indexed</span>
+                <h3 className="dl-lbl">{U.phases}</h3>
+                <span className="dl-lbl dl-subtle">{U.indexed}</span>
               </div>
               <ul className="dl-protocols">
                 {PROTOCOLS.map((p, i) => <ProtocolItem key={i} p={p} />)}
@@ -239,7 +217,7 @@
         </div>
 
         <aside className={`ctrl-rail${scrolled && !modelView ? ' is-collapsed' : ''}`} aria-label="Assembly controls">
-          <span className="rail-spine" aria-hidden="true">Assembly · Ctrl</span>
+          <span className="rail-spine" aria-hidden="true">{U.railAssembly}</span>
           <span className="rail-cross" aria-hidden="true">+</span>
 
           <button className={`rail-btn${exploded ? ' is-active' : ''}`} onClick={handleExplode} title="Explode / assemble the model">
@@ -250,7 +228,7 @@
               <path d="M10.5 12H4" /><path d="M6 9.5 3.5 12 6 14.5" />
               <path d="M13.5 12H20" /><path d="M18 9.5 20.5 12 18 14.5" />
             </svg>
-            <span className="rail-label">{exploded ? 'Assemble' : 'Explode'}</span>
+            <span className="rail-label">{exploded ? U.assemble : U.explode}</span>
           </button>
 
           <button className={`rail-btn rail-btn--view${modelView ? ' is-active' : ''}`} onClick={() => setModelView(v => !v)} title="Enter / exit model view">
@@ -260,7 +238,7 @@
               <path d="M4.5 7.3 12 11.6l7.5-4.3" />
               <path d="M12 11.6V21" />
             </svg>
-            <span className="rail-label">{modelView ? 'Exit View' : 'Model View'}</span>
+            <span className="rail-label">{modelView ? U.exitView : U.modelView}</span>
           </button>
 
           <span className="rail-cross" aria-hidden="true">+</span>

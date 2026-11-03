@@ -78,8 +78,8 @@ function Navigation({ projectCount, onLogoClick, onIndexClick }) {
     <React.Fragment>
       <nav className="nav" style={{ backgroundColor: bg, color: textColor }}>
         <div className="nav-inner">
-          <button className={`nav-link black tight nav-logo${scrolled ? ' shrunk' : ''}`} onClick={onLogoClick} style={{ fontSize: '1.5rem' }} aria-label="IATR — back to top">
-            <span className="pulse-soft nav-logo-mark"><span className="nlm-i">I</span><span className="nlm-core">ατ</span><span className="nlm-r">R</span></span>
+          <button className={`nav-link black tight nav-logo${scrolled ? ' shrunk' : ''}`} onClick={onLogoClick} style={{ fontSize: '1.5rem' }} aria-label="Alpha Tau — back to top">
+            <span className="pulse-soft nav-logo-mark"><span className="nlm-core">ατ</span></span>
           </button>
           <div className="nav-desktop flex" style={{ alignItems: 'center', gap: '2rem' }}>
             <button className="nav-link bold uppercase wider" onClick={onIndexClick} style={{ fontSize: '0.875rem' }}>{c.nav.indexOfWorks} [{projectCount}]</button>
