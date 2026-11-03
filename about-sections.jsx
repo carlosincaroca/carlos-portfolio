@@ -218,7 +218,7 @@ function AboutSection() {
                 <span>{c.about.eyebrow}</span>
               </div>
               <h2 className="as-name"><ScrambleText text="CARLOS" /><br /><ScrambleText text="INCA ROCA" delay={300} /></h2>
-              <p className="as-bio">{c.about.bio}</p>
+              {c.about.bio && <p className="as-bio">{c.about.bio}</p>}
               <div className="as-meta-table">
                 {meta.map(({ k, v }) => (
                   <div key={k} className="as-meta-row">

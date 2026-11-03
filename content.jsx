@@ -20,7 +20,6 @@ window.CONTENT = {
     },
     about: {
       eyebrow: '// PROFILE',
-      bio: 'Mechanical engineer working where robotics, neuromechanics, and deep learning meet. I design systems where precision engineering serves real people.',
       blueprintTag: 'ANATOMICAL REF SHEET — REV 3.1',
       meta: [
         { k: 'NOW', v: 'M.S. Mechanical Engineering, BYU' },
@@ -63,7 +62,6 @@ window.CONTENT = {
     },
     about: {
       eyebrow: '// プロフィール',
-      bio: 'ロボティクス、ニューロメカニクス、深層学習が交わる領域で活動する機械エンジニア。精密工学が実際の人々の役に立つシステムを設計しています。',
       blueprintTag: '解剖参照シート — REV 3.1',
       meta: [
         { k: '現在', v: '機械工学 修士課程, BYU' },
@@ -106,7 +104,6 @@ window.CONTENT = {
     },
     about: {
       eyebrow: '// PROFIL',
-      bio: 'Maschinenbauingenieur an der Schnittstelle von Robotik, Neuromechanik und Deep Learning. Ich entwickle Systeme, in denen Präzisionstechnik echten Menschen dient.',
       blueprintTag: 'ANATOMISCHES REFERENZBLATT — REV 3.1',
       meta: [
         { k: 'AKTUELL', v: 'M.Sc. Maschinenbau, BYU' },
@@ -149,7 +146,6 @@ window.CONTENT = {
     },
     about: {
       eyebrow: '// PROFIL',
-      bio: "Ingénieur en mécanique, à la croisée de la robotique, de la neuromécanique et du deep learning. Je conçois des systèmes où l'ingénierie de précision est au service de vraies personnes.",
       blueprintTag: 'FICHE DE RÉFÉRENCE ANATOMIQUE — RÉV. 3.1',
       meta: [
         { k: 'ACTUEL', v: 'Master en génie mécanique, BYU' },
@@ -192,7 +188,6 @@ window.CONTENT = {
     },
     about: {
       eyebrow: '// 프로필',
-      bio: '로보틱스, 신경역학, 딥러닝이 만나는 지점에서 일하는 기계공학 엔지니어. 정밀공학이 실제 사람들에게 도움이 되는 시스템을 설계합니다.',
       blueprintTag: '해부 참조 시트 — REV 3.1',
       meta: [
         { k: '현재', v: '기계공학 석사과정, BYU' },
@@ -235,7 +230,6 @@ window.CONTENT = {
     },
     about: {
       eyebrow: '// PERFIL',
-      bio: 'Ingeniero mecánico que trabaja donde se cruzan la robótica, la neuromecánica y el deep learning. Diseño sistemas donde la ingeniería de precisión está al servicio de personas reales.',
       blueprintTag: 'FICHA DE REFERENCIA ANATÓMICA — REV. 3.1',
       meta: [
         { k: 'ACTUAL', v: 'M.S. en Ingeniería Mecánica, BYU' },
