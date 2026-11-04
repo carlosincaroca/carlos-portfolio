@@ -78,8 +78,9 @@ function Navigation({ projectCount, onLogoClick, onIndexClick }) {
     <React.Fragment>
       <nav className="nav" style={{ backgroundColor: bg, color: textColor }}>
         <div className="nav-inner">
-          <button className={`nav-link black tight nav-logo${scrolled ? ' shrunk' : ''}`} onClick={onLogoClick} style={{ fontSize: '1.5rem' }} aria-label="Alpha Tau — back to top">
+          <button className={`nav-link black tight nav-logo${scrolled ? ' shrunk' : ''}`} onClick={onLogoClick} style={{ fontSize: '1.5rem' }} aria-label="Carlos Inca Roca — back to top">
             <span className="pulse-soft nav-logo-mark"><span className="nlm-core">ατ</span></span>
+            <span className="nav-logo-name">Carlos Inca Roca</span>
           </button>
           <div className="nav-desktop flex" style={{ alignItems: 'center', gap: '2rem' }}>
             <button className="nav-link bold uppercase wider" onClick={onIndexClick} style={{ fontSize: '0.875rem' }}>{c.nav.indexOfWorks} [{projectCount}]</button>
@@ -114,7 +115,7 @@ function Navigation({ projectCount, onLogoClick, onIndexClick }) {
       <div className={`nav-drawer${menuOpen ? ' open' : ''}`} role="dialog" aria-modal="true" aria-hidden={!menuOpen}>
         <div className="nav-drawer-grid" aria-hidden="true"></div>
         <div className="nav-drawer-top">
-          <span className="nav-drawer-logo black tight">BIO•MECH</span>
+          <span className="nav-drawer-logo black tight">ατ <span className="nav-logo-name">Carlos Inca Roca</span></span>
           <button className="nav-drawer-close" onClick={() => setMenuOpen(false)} aria-label="Close menu">
             <span></span><span></span>
           </button>

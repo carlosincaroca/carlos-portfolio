@@ -231,7 +231,11 @@ function SiteFooter() {
   const toTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
   const links = [
     { id: 'linkedin', label: 'LinkedIn', href: 'https://www.linkedin.com/in/carlos-incaroca/', ext: true, icon: (
-      <path d="M4.98 3.5C4.98 4.88 3.87 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1s2.48 1.12 2.48 2.5zM5 8H0v16h5V8zm7.98 0H8.96v16h4.02v-8.4c0-3.94 5.13-4.26 5.13 0V24H22V13.36c0-6.66-7.13-6.41-8.04-3.13V8z" />
+      <React.Fragment>
+        <rect x="2.5" y="2.5" width="19" height="19" rx="2.5" fill="none" stroke="currentColor" strokeWidth="1.8" />
+        <circle cx="8" cy="7.9" r="1.2" />
+        <path d="M8 11v6M12 17v-6M12 13.6c0-1.6 1.1-2.6 2.5-2.6s2.5 1 2.5 2.6V17" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+      </React.Fragment>
     ) },
     { id: 'email', label: 'Email', href: 'mailto:carlos.incaroca@gmail.com', ext: false, icon: (
       <React.Fragment>

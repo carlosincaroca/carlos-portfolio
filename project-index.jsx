@@ -61,18 +61,6 @@ function ProjectIndex({ projects, onProjectSelect }) {
             <div className="shimmer"></div>
             <div style={{ position: 'relative', zIndex: 1 }}>
               <h1 className="index-title" dangerouslySetInnerHTML={{ __html: c.index.titleHTML }}></h1>
-              <div className="index-meta">
-                {[
-                  { color: '#2E5C9A', label: `${String(projects.length).padStart(2, '0')} ${c.index.projectsWord}` },
-                  { color: '#C4364D', label: `04 ${c.index.systemsWord}` },
-                  { color: '#374151', label: `∞ ${c.index.revisionsWord}` },
-                ].map((it, i) => (
-                  <div key={i} className="item">
-                    <div className="swatch" style={{ backgroundColor: it.color, animationDelay: `${i * 0.3}s` }}></div>
-                    <span>{it.label}</span>
-                  </div>
-                ))}
-              </div>
             </div>
           </div>
         </window.Reveal>
