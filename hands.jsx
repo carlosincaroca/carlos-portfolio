@@ -125,7 +125,12 @@
       const sparkRingMesh = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.TorusGeometry(0.22,0.012,4,24),1),inkMat);
       sparkRingMesh.rotation.x=Math.PI/2; spark.add(sparkRingMesh); handsGroup.add(spark);
 
-      const onResize = () => { const r=container.getBoundingClientRect(); width=r.width; height=r.height; if(!width||!height)return; renderer.setSize(width,height); camera.aspect=width/height; camera.updateProjectionMatrix(); };
+      // Wide stages keep the original 32° view. Taller stages (phones, portrait tablets) hold a fixed
+      // horizontal half-width instead, so the hands fill the frame rather than shrinking with the width.
+      const MIN_HALF_W = 3.1, BASE_HALF_H = 8.5 * Math.tan((16 * Math.PI) / 180);
+      const fitCamera = () => { camera.aspect = width / height; const halfW = Math.max(MIN_HALF_W, BASE_HALF_H * camera.aspect); camera.fov = (2 * Math.atan(halfW / camera.aspect / 8.5) * 180) / Math.PI; camera.updateProjectionMatrix(); };
+      fitCamera();
+      const onResize = () => { const r=container.getBoundingClientRect(); width=r.width; height=r.height; if(!width||!height)return; renderer.setSize(width,height); fitCamera(); };
       const ro = new ResizeObserver(onResize); ro.observe(container);
 
       const rotAxis = new THREE.Vector3(0.35,1.0,0.22).normalize();

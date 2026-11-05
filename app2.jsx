@@ -193,7 +193,7 @@ function App() {
             <h1 className="hero-title" style={{ opacity: Math.max(0, 1 - Math.max(0, titleFade - 0.35) / 0.55), transform: `translateY(${-45 * titleFade}%)`, willChange: 'opacity, transform' }}><RevealTitle text={c.hero.title || 'ENGINEERING PORTFOLIO'} /></h1>
             <div className="hero-eyebrow">
               <div className="bar"></div>
-              <p className="uppercase wide" style={{ margin: 0, color: 'var(--ink)' }}>{c.hero.tagline}</p>
+              <p className="uppercase wide hero-tagline" style={{ margin: 0, color: 'var(--ink)' }}>{c.hero.tagline.split(' • ').map((t, i, a) => <React.Fragment key={i}><span className="ht-item">{t}</span>{i < a.length - 1 && <span className="ht-sep"> • </span>}</React.Fragment>)}</p>
             </div>
           </div>
           <div className="hero-blueprint">
