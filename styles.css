@@ -349,7 +349,72 @@ svg { display: block; }
 .as-eyebrow-inv { color: rgba(255,255,255,0.4); }
 .as-bar { height: 2px; width: 28px; flex-shrink: 0; background: var(--red); }
 
-.as-intro { padding: 7rem 2rem 6rem; border-top: 4px solid var(--red); position: relative; z-index: 20; background: var(--paper); }
+.as-intro { padding: 7rem 2rem 6rem; border-top: 4px solid var(--red); position: relative; z-index: 20; background: var(--paper); overflow: hidden; }
+.as-intro-grid { position: relative; z-index: 1; display: grid; grid-template-columns: minmax(0, 47rem) minmax(300px, 1fr); gap: clamp(2rem, 5vw, 5rem); align-items: center; }
+@media (max-width: 1000px) { .as-intro-grid { grid-template-columns: 1fr; } }
+
+/* --- Thomas attractor (Intro figure) --- */
+/* drawing layer = the whole Intro section, behind the text, so rotating only ever meets the page edge */
+/* --thomas-strength multiplies the particle opacity (read by the engine on resize): stronger on desktop */
+.thomas-layer { position: absolute; inset: 0; z-index: 0; pointer-events: none; --thomas-strength: 1.5; }
+.thomas-layer canvas { position: absolute; inset: 0; width: 100% !important; height: 100% !important; display: block; }
+/* desktop: the figure column spans exactly the text block. Controls sit on the "Introduction" line and the
+   caption on the accent line, right-aligned to the header edge; the attractor is sized from the text block's
+   height and may spill past it into the section padding. */
+.thomas { position: relative; margin: 0; margin-right: min(-2rem, calc((1280px - 100vw) / 2)); align-self: stretch; }
+.thomas-stage { position: absolute; height: 160%; width: auto; aspect-ratio: 1 / 1; top: -30%; left: 50%; transform: translateX(-50%); touch-action: pan-y; cursor: grab; }
+.thomas-stage:active { cursor: grabbing; }
+/* faint control row: full strength only while pointing at the controls themselves
+   (or tabbing through them, or mid-drag on the slider), then it fades back */
+.thomas-bar { position: absolute; top: -9px; right: 0; z-index: 2; display: flex; justify-content: flex-end; padding-right: 2rem; margin: 0; opacity: .45; transition: opacity .35s ease; }
+.thomas-bar:hover, .thomas-bar:has(:focus-visible), .thomas.tuning .thomas-bar { opacity: 1; }
+/* name + equations, faint like the controls; full strength on hover and while b is being tuned (its b's turn red) */
+.thomas-cap { position: absolute; bottom: 0; right: 0; z-index: 2; margin: 0; padding-right: 2rem; text-align: right; opacity: .45; transition: opacity .35s ease; }
+.thomas-cap:hover, .thomas.tuning .thomas-cap { opacity: 1; }
+.thomas-legend { display: inline-block; }
+.thomas-name { font-size: .8125rem; font-weight: 600; line-height: 1.3; color: var(--ink); margin: 0 0 .4rem; }
+.thomas-eqs { display: grid; grid-template-columns: auto auto auto; justify-items: end; column-gap: .45em; row-gap: .1rem; font: italic 400 .98rem/1.35 'STIX Two Text', 'Times New Roman', serif; color: var(--gray-600); }
+.thomas-eqs .op, .thomas-eqs .fn { font-style: normal; }
+.thomas-eqs .b { transition: color .25s; }
+.thomas.tuning .thomas-eqs .b { color: var(--red); }
+/* stacked column, right-aligned: b slider, then Rotate, then Recenter; all text ends on the caption's right edge */
+.thomas-ctrl { display: flex; flex-direction: column; align-items: flex-end; gap: .3rem; opacity: 0; transform: translateY(6px); pointer-events: none; transition: opacity .6s ease, transform .6s ease; }
+.thomas.ready .thomas-ctrl { opacity: 1; transform: none; pointer-events: auto; }
+.thomas-b { display: flex; flex-direction: column; align-items: center; gap: .4rem; margin-bottom: .35rem; } /* b, upright slider, value */
+.thomas-b label { font: italic 400 1.05rem 'STIX Two Text', 'Times New Roman', serif; color: var(--ink); }
+.thomas-b output { font-family: 'JetBrains Mono', monospace; font-size: .75rem; font-weight: 500; color: var(--red); min-width: 3.4em; text-align: center; }
+/* upright slider: a horizontal range turned a quarter turn (up = larger b); the margins swap its layout box to 18 × 110 */
+.thomas-b input[type=range] { -webkit-appearance: none; appearance: none; width: 110px; height: 18px; background: transparent; cursor: pointer; margin: 46px -46px; transform: rotate(-90deg); }
+.thomas-b input[type=range]::-webkit-slider-runnable-track { height: 2px; background: color-mix(in srgb, var(--ink) 25%, transparent); }
+.thomas-b input[type=range]::-moz-range-track { height: 2px; background: color-mix(in srgb, var(--ink) 25%, transparent); }
+.thomas-b input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 12px; height: 12px; border-radius: 50%; background: var(--red); margin-top: -5px; border: 0; }
+.thomas-b input[type=range]::-moz-range-thumb { width: 12px; height: 12px; border-radius: 50%; background: var(--red); border: 0; }
+.thomas-b input[type=range]:focus-visible { outline: 2px solid var(--red); outline-offset: 4px; }
+.thomas-btn { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 600; letter-spacing: .2em; text-transform: uppercase; color: var(--ink); background: transparent; border: 1px solid transparent; border-radius: 999px; padding: .35rem .6rem; margin-right: calc(-.6rem - 1px - .2em); cursor: pointer; transition: background-color .2s, border-color .2s, color .2s; }
+.thomas-btn:hover { border-color: var(--red); }
+.thomas-btn[aria-pressed="true"] { background: var(--red); border-color: var(--red); color: #fff; }
+.thomas-btn:focus-visible { outline: 2px solid var(--red); outline-offset: 3px; }
+/* every touch device in any orientation (phones, tablets up to iPad Pro 13 landscape) and any narrow window:
+   faint background behind the intro text instead of a figure. No controls or caption and no added height;
+   a sideways swipe over it still rotates it (vertical swipes scroll the page). Sized to the text block's
+   height so it stays inside the section. A Surface with its keyboard/trackpad attached reports a fine
+   pointer, so it gets the desktop figure like any laptop. */
+@media (max-width: 1000px), (hover: none) and (pointer: coarse) {
+  .thomas { position: absolute; inset: 0; margin: 0; pointer-events: none; }
+  .thomas-bar, .thomas-cap { display: none; }
+  .thomas-stage { position: absolute; height: 160%; width: auto; top: -30%; right: -12%; left: auto; transform: none; pointer-events: auto; }
+  .thomas-layer { opacity: .4; --thomas-strength: 1; }
+}
+/* landscape, and big tablets (820px+ wide: iPad Air/Pro, Surface Pro) in any orientation: there is room for
+   the attractor to sit mostly beside the text rather than under it, so it can be stronger */
+@media (orientation: landscape) and (max-width: 1000px), (orientation: landscape) and (hover: none) and (pointer: coarse),
+       (min-width: 820px) and (hover: none) and (pointer: coarse) {
+  .thomas-layer { opacity: .8; }
+}
+/* portrait phones: tall, narrow text block, so size by width and sit lower, bleeding off the right edge */
+@media (max-width: 640px) {
+  .thomas-stage { width: 115%; height: auto; top: 38%; right: -42%; }
+}
 .as-intro-headline { font-size: clamp(2.25rem, 4.5vw, 4.25rem); font-weight: 900; line-height: 1.05; letter-spacing: -0.03em; color: var(--ink); margin: 0 0 2rem; max-width: 50rem; }
 .as-intro-headline em { color: var(--red); font-style: normal; }
 .as-intro-body { font-size: 1.0625rem; line-height: 1.75; color: var(--ink-soft); max-width: 42rem; margin: 0 0 3rem; }

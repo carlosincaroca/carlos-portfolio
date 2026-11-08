@@ -17,6 +17,7 @@ window.CONTENT = {
       eyebrow: '// INTRODUCTION',
       headlineHTML: '<em>Dynamics</em>, <em>simulation</em>, and <em>robotics</em>, from the lab to the field.',
       body: "I'm a mechanical engineer working on robotics, finite element analysis of mechanical vibrations, human body dynamics, and neural networks that obey physics.",
+      thomas: { name: 'Thomas attractor', rotate: 'Rotate', recenter: 'Recenter' },
     },
     about: {
       eyebrow: '// PROFILE',
@@ -60,6 +61,7 @@ window.CONTENT = {
       eyebrow: '// イントロダクション',
       headlineHTML: '<em>ダイナミクス</em>、<em>シミュレーション</em>、<em>ロボティクス</em>。研究室から現場まで。',
       body: 'ロボティクス、機械振動の有限要素解析、人体の動力学、そして物理法則に従うニューラルネットワークに取り組む機械エンジニアです。',
+      thomas: { name: 'トーマス・アトラクター', rotate: '回転', recenter: '元に戻す' },
     },
     about: {
       eyebrow: '// プロフィール',
@@ -103,6 +105,7 @@ window.CONTENT = {
       eyebrow: '// EINFÜHRUNG',
       headlineHTML: '<em>Dynamik</em>, <em>Simulation</em> und <em>Robotik</em>, vom Labor bis ins Feld.',
       body: 'Ich bin Maschinenbauingenieur und arbeite an Robotik, Finite-Elemente-Analyse mechanischer Schwingungen, der Dynamik des menschlichen Körpers und neuronalen Netzen, die den Gesetzen der Physik folgen.',
+      thomas: { name: 'Thomas-Attraktor', rotate: 'Drehen', recenter: 'Zentrieren' },
     },
     about: {
       eyebrow: '// PROFIL',
@@ -146,6 +149,7 @@ window.CONTENT = {
       eyebrow: '// INTRODUCTION',
       headlineHTML: '<em>Dynamique</em>, <em>simulation</em> et <em>robotique</em>, du laboratoire au terrain.',
       body: "Je suis ingénieur en mécanique et je travaille sur la robotique, l'analyse par éléments finis des vibrations mécaniques, la dynamique du corps humain et des réseaux de neurones qui respectent la physique.",
+      thomas: { name: 'Attracteur de Thomas', rotate: 'Rotation', recenter: 'Recentrer' },
     },
     about: {
       eyebrow: '// PROFIL',
@@ -189,6 +193,7 @@ window.CONTENT = {
       eyebrow: '// 소개',
       headlineHTML: '<em>동역학</em>, <em>시뮬레이션</em>, <em>로보틱스</em>. 연구실에서 현장까지.',
       body: '저는 로보틱스, 기계 진동의 유한요소해석, 인체 동역학, 그리고 물리 법칙을 따르는 신경망을 다루는 기계공학 엔지니어입니다.',
+      thomas: { name: '토머스 어트랙터', rotate: '회전', recenter: '원위치' },
     },
     about: {
       eyebrow: '// 프로필',
@@ -232,6 +237,7 @@ window.CONTENT = {
       eyebrow: '// INTRODUCCIÓN',
       headlineHTML: '<em>Dinámica</em>, <em>simulación</em> y <em>robótica</em>, del laboratorio al campo.',
       body: 'Soy ingeniero mecánico y trabajo en robótica, análisis por elementos finitos de vibraciones mecánicas, dinámica del cuerpo humano y redes neuronales que obedecen a la física.',
+      thomas: { name: 'Atractor de Thomas', rotate: 'Rotar', recenter: 'Recentrar' },
     },
     about: {
       eyebrow: '// PERFIL',

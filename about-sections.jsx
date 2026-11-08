@@ -148,24 +148,29 @@ function BlueprintHuman() {
 
 function IntroSection() {
   const { c } = window.useLang();
+  const layerRef = React.useRef(null); // full-section drawing layer for the Thomas attractor
   return (
     <section id="intro" className="as-intro">
-      <div className="container-wide">
-        <window.Reveal>
-          <div className="as-eyebrow">
-            <div className="as-bar"></div>
-            <span>{c.intro.eyebrow}</span>
-          </div>
-        </window.Reveal>
-        <window.Reveal delay={100}>
-          <h2 className="as-intro-headline" dangerouslySetInnerHTML={{ __html: c.intro.headlineHTML }}></h2>
-        </window.Reveal>
-        <window.Reveal delay={200}>
-          <p className="as-intro-body">{c.intro.body}</p>
-        </window.Reveal>
-        <window.Reveal delay={280}>
-          <div className="as-intro-accent-line"></div>
-        </window.Reveal>
+      <div ref={layerRef} className="thomas-layer" aria-hidden="true"></div>
+      <div className="container-wide as-intro-grid">
+        <div>
+          <window.Reveal>
+            <div className="as-eyebrow">
+              <div className="as-bar"></div>
+              <span>{c.intro.eyebrow}</span>
+            </div>
+          </window.Reveal>
+          <window.Reveal delay={100}>
+            <h2 className="as-intro-headline" dangerouslySetInnerHTML={{ __html: c.intro.headlineHTML }}></h2>
+          </window.Reveal>
+          <window.Reveal delay={200}>
+            <p className="as-intro-body">{c.intro.body}</p>
+          </window.Reveal>
+          <window.Reveal delay={280}>
+            <div className="as-intro-accent-line"></div>
+          </window.Reveal>
+        </div>
+        <window.ThomasAttractor layerRef={layerRef} />
       </div>
     </section>
   );
