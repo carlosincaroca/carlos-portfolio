@@ -246,6 +246,8 @@
     const FOG_DARK     = 0x07090f;
     const FOG_LIGHT    = 0xF5F1E8;
 
+    /* ?embed: shown inside an Index of Works row on the home page: no UI, follows the site theme */
+    const EMBED = new URLSearchParams(location.search).has('embed');
     function isDark() {
       try { return window.parent.document.documentElement.getAttribute('data-theme') === 'dark'; }
       catch (e) { return false; }
@@ -257,6 +259,7 @@
     ground.rotation.x = -Math.PI / 2;
     ground.receiveShadow = true;
     scene.add(ground);
+    if (EMBED) ground.material = new THREE.ShadowMaterial({ opacity: 0.35 }); // embedded: floor shows shadows only, no visible edge
 
     /* Sync ground, fog, lights, the HUD theme class, and the stage variant to
        the parent page's data-theme. Dark = moody black stage; light = a bright
@@ -360,6 +363,7 @@
 
     /* ── Loaders ── */
     const loaderEl = document.getElementById('loader');
+    if (EMBED) { const hud = document.getElementById('hud'); if (hud) hud.style.display = 'none'; }
     const barEl    = document.getElementById('loader-bar');
     const pctEl    = document.getElementById('loader-pct');
 
@@ -463,9 +467,11 @@
     }
 
     // Default specimen blocks first paint; the rest stream in behind.
-    loadSpecimen('beam')
-      .then(() => { activateSpecimen('beam'); loaderEl.classList.add('hidden'); })
-      .then(() => Promise.all([loadSpecimen('fork'), loadSpecimen('gear')]))
+    // Embedded in the Index of Works row: show only the gear, load nothing else.
+    const FIRST = EMBED ? 'gear' : 'beam';
+    loadSpecimen(FIRST)
+      .then(() => { activateSpecimen(FIRST); loaderEl.classList.add('hidden'); })
+      .then(() => EMBED ? null : Promise.all([loadSpecimen('fork'), loadSpecimen('gear')]))
       .then(() => updateSpecimenTabs())
       .catch((err) => {
         console.error('GLB load error:', err);

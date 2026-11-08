@@ -1,7 +1,10 @@
 (function () {
 
   /* ── Entropy background ─────────────────────────────── */
-  function EntropyBg() {
+  /* contained: draw inside an Index of Works row (a 400px band centred in its parent) instead of the whole
+     window; forceDark: use the dark-theme strengths regardless of the page theme. */
+  const ENTROPY_BAND_H = 400;
+  function EntropyBg({ contained = false, forceDark = false } = {}) {
     const ref = React.useRef(null);
 
     React.useEffect(() => {
@@ -50,8 +53,8 @@
 
       function init() {
         const dpr = Math.min(window.devicePixelRatio || 1, 2);
-        W = window.innerWidth;
-        H = window.innerHeight;
+        W = contained ? canvas.parentElement.getBoundingClientRect().width : window.innerWidth;
+        H = contained ? ENTROPY_BAND_H : window.innerHeight;
         canvas.width  = W * dpr;
         canvas.height = H * dpr;
         canvas.style.width  = W + 'px';
@@ -89,7 +92,7 @@
       function animate() {
         ctx.clearRect(0, 0, W, H);
         if (time % 30 === 0) updateNeighbors();
-        const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+        const dark = forceDark || document.documentElement.getAttribute('data-theme') === 'dark';
         const dd = spacing * 3;
         particles.forEach(p => {
           p.update();
@@ -114,7 +117,10 @@
         animId = requestAnimationFrame(animate);
       }
 
-      const onMove  = e => { mouse.x = e.clientX; mouse.y = e.clientY; };
+      const onMove  = e => {
+        if (!contained) { mouse.x = e.clientX; mouse.y = e.clientY; return; }
+        const r = canvas.getBoundingClientRect(); mouse.x = e.clientX - r.left; mouse.y = e.clientY - r.top;
+      };
       const onLeave = () => { mouse.x = -9999; mouse.y = -9999; };
       const onResize = () => { cancelAnimationFrame(animId); init(); time = 0; animate(); };
       const onVisibility = () => { if (document.hidden) cancelAnimationFrame(animId); else animate(); };
@@ -137,7 +143,9 @@
 
     return React.createElement('canvas', {
       ref,
-      style: { position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none' },
+      style: contained
+        ? { position: 'absolute', left: 0, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }
+        : { position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none' },
     });
   }
 
@@ -389,4 +397,5 @@
   }
 
   window.DeepLearningCaseStudy = DeepLearningCaseStudy;
+  window.EntropyBg = EntropyBg; // reused by the Index of Works row
 })();

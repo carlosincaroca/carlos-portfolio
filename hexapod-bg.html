@@ -186,6 +186,8 @@
     const FOG_DARK     = 0x07090f;
     const FOG_LIGHT    = 0xF5F1E8;
 
+    /* ?embed: shown inside an Index of Works row on the home page: no UI, follows the site theme */
+    const EMBED = new URLSearchParams(location.search).has('embed');
     function isDark() {
       try { return window.parent.document.documentElement.getAttribute('data-theme') === 'dark'; }
       catch(e) { return false; }
@@ -199,6 +201,7 @@
     ground.rotation.x = -Math.PI / 2;
     ground.receiveShadow = true;
     scene.add(ground);
+    if (EMBED) ground.material = new THREE.ShadowMaterial({ opacity: 0.35 }); // embedded: floor shows shadows only, no visible edge
 
     /* Sync ground, fog, and the stage backdrop variant to the page theme.
        The dark stage stays dramatic; the light stage is a bright studio with

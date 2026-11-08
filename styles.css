@@ -256,7 +256,8 @@ svg { display: block; }
 .reg-mark.br { bottom: 10px; right: 10px; }
 .rot-readout { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); display: flex; gap: 0.5rem; font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; letter-spacing: 0.15em; color: var(--red); background: var(--rot-bg); border: 1px solid rgba(196,54,77,0.35); padding: 3px 8px; pointer-events: none; }
 
-.index-wrap { padding: 6rem 2rem 4rem; min-height: 100vh; }
+.index-wrap { padding: 2.5rem 2rem 4rem; border-top: 4px solid var(--red); scroll-margin-top: 4.25rem; } /* same header treatment as the desktop index */
+.index-wrap .as-spec-header { margin-bottom: 2rem; }
 .index-header { border: 4px solid var(--red); background: var(--surface); padding: 2rem; position: relative; overflow: hidden; margin-bottom: 3rem; }
 .index-header .shimmer { position: absolute; inset: 0; background: linear-gradient(to right, rgba(196,54,77,0.05), rgba(46,92,154,0.05)); animation: bg-shimmer 3s linear infinite; }
 .index-title { font-size: clamp(3rem, 7vw, 6rem); font-weight: 900; color: var(--red); text-transform: uppercase; line-height: 0.9; letter-spacing: -0.02em; margin: 0; }
@@ -264,6 +265,104 @@ svg { display: block; }
 .project-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.5rem; }
 @media (max-width: 1024px) { .project-grid { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 640px) { .project-grid { grid-template-columns: 1fr; } }
+
+/* --- Index of Works on touch screens and narrow windows (?grid shows the old cards). Same header and mono rows as the
+   desktop index; the arrow opens a row (one at a time; a mouse just hovers) and that project's animation plays in the
+   space under the row's title band. The rest of the row opens the project. --- */
+.cine-list { border-top: 1px solid var(--border-soft);
+  --cine-band: 4.5rem; --cine-open-h: 25rem; --cine-stage: #ECE6DA; --cine-go-bg: var(--ink); --cine-go-fg: var(--paper); }
+[data-theme="dark"] .cine-list { --cine-stage: #0B0E16; --cine-go-bg: #fff; --cine-go-fg: #000; }
+.cine-row { position: relative; display: flex; flex-direction: column; width: 100%; height: var(--cine-band); overflow: hidden; border-bottom: 1px solid var(--border-soft); transition: height .7s cubic-bezier(.25, 1, .5, 1); }
+.cine-row.open { height: var(--cine-open-h); }
+.cine-bg { position: absolute; inset: 0; z-index: 0; opacity: 0; transition: opacity .7s ease-out; }
+.cine-row.open .cine-bg { opacity: 1; }
+.cine-bg--stage { background: var(--cine-stage); }
+.cine-bg--brand { background: linear-gradient(135deg, rgba(196,54,77,.16), rgba(46,92,154,.08)), var(--cine-stage); }
+.cine-bg--brand::before { content: ""; position: absolute; inset: 0; background-image: linear-gradient(rgba(196,54,77,.1) 1px, transparent 1px), linear-gradient(90deg, rgba(196,54,77,.1) 1px, transparent 1px); background-size: 40px 40px; }
+[data-theme="dark"] .cine-bg--brand { background: linear-gradient(135deg, var(--red) 0%, #1F2937 85%); }
+[data-theme="dark"] .cine-bg--brand::before { background-image: linear-gradient(rgba(255,255,255,.07) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.07) 1px, transparent 1px); }
+/* scene (still + live): centred in the space under the title band, model ~70% of that height */
+.cine-frame { position: absolute; left: 50%; top: calc(var(--cine-band) + (100% - var(--cine-band)) / 2); width: calc((var(--cine-open-h) - var(--cine-band)) * .7 / var(--mh) * 16 / 9); height: auto; aspect-ratio: 16 / 9; transform: translate(calc(var(--fx) * -100%), calc(var(--fy) * -100%)); border: 0; display: block; pointer-events: none; }
+.cine-scene { opacity: 0; transition: opacity .6s ease; }
+.cine-scene.on { opacity: 1; }
+.cine-poster { transition: opacity .6s ease; }
+.cine-poster.off { opacity: 0; }
+[data-theme="dark"] .cine-poster--light, :root:not([data-theme="dark"]) .cine-poster--dark { display: none; }
+/* still figure (Neuromechanics), under the band, its white paper blended into the row */
+.cine-fig-slot { position: absolute; left: 1rem; right: 1rem; top: var(--cine-band); bottom: 1rem; pointer-events: none; }
+.cine-figure { position: absolute; top: 50%; left: 50%; max-width: 100%; max-height: 100%; width: auto; height: auto; transform: translate(-50%, -50%); mix-blend-mode: multiply; opacity: 0; transition: opacity .7s ease-out; }
+.cine-row.open .cine-figure { opacity: 1; }
+[data-theme="dark"] .cine-figure { filter: invert(1) hue-rotate(180deg); mix-blend-mode: screen; }
+/* title band: the desktop index's mono row, plus the arrow */
+.cine-content { display: flex; align-items: center; gap: 1rem; min-height: var(--cine-band); }
+.cine-main { flex: 1; min-width: 0; display: grid; grid-template-columns: 3rem minmax(0, 1.5fr) minmax(0, 1fr) minmax(0, 1fr); column-gap: 1.5rem; align-items: center; padding: 0; border: 0; background: none; color: var(--ink); font: 500 13px/1.4 'JetBrains Mono', monospace; letter-spacing: .06em; text-transform: uppercase; text-align: left; cursor: pointer; }
+/* the project link's ::after stretches over the whole row so any tap opens the project */
+.cine-main::after { content: ""; position: absolute; inset: 0; z-index: 1; }
+.cine-main > * { position: relative; z-index: 2; }
+.cine-row:has(.cine-main:focus-visible) { outline: 2px solid var(--red); outline-offset: -2px; }
+.cine-main:focus-visible { outline: none; }
+.cine-num { color: var(--gray-600); }
+.cine-title { font-weight: 700; }
+.cine-flow { text-align: right; }
+.cine-line { display: none; }
+.cine-right { position: relative; z-index: 2; flex-shrink: 0; }
+.cine-go { display: grid; place-items: center; width: 2.5rem; height: 2.5rem; padding: 0; border-radius: 50%; border: 1px solid var(--border-soft); background: transparent; color: var(--gray-600); cursor: pointer; transition: border-color .5s, background-color .5s, color .5s, transform .5s; }
+button.cine-go:hover { border-color: var(--ink); color: var(--ink); }
+span.cine-go { pointer-events: none; } /* mouse: decorative, clicks fall through to the project link */
+.cine-go:focus-visible { outline: 2px solid var(--red); outline-offset: 3px; }
+.cine-go svg { transition: transform .5s; }
+.cine-row.open .cine-go { border-color: var(--cine-go-bg); background: var(--cine-go-bg); color: var(--cine-go-fg); transform: scale(1.1); }
+.cine-row.open .cine-go svg { transform: rotate(-45deg); }
+.cine-row.open.by-touch .cine-go svg { transform: rotate(90deg); } /* touch: points down while the row is open */
+@media (max-width: 767px) {
+  /* phones: number + title, with "category · stat" on a line under it */
+  .cine-list { --cine-open-h: 22rem; }
+  .cine-main { grid-template-columns: 2rem minmax(0, 1fr); column-gap: .75rem; row-gap: .2rem; }
+  .cine-num { grid-row: span 2; align-self: start; }
+  .cine-cat, .cine-flow { display: none; }
+  .cine-line { display: block; font-size: 10px; color: var(--gray-600); }
+}
+@media (prefers-reduced-motion: reduce) { .cine-row, .cine-bg, .cine-scene, .cine-poster, .cine-figure, .cine-go, .cine-go svg { transition: none; } }
+
+/* --- Index of Works, desktop with a mouse: background swap (see SwapIndex). Hovering a row swaps the whole
+   section's background to that project's visual (zooms 1.2 -> 1 as it fades in); text inverts against it. --- */
+.swap-index { position: relative; min-height: 100vh; display: flex; flex-direction: column; padding: 2.5rem 2rem 6rem; border-top: 4px solid var(--red); overflow: hidden; scroll-margin-top: 4.25rem; } /* title close under the red line; nav jumps land below the fixed header */
+/* header: Core Competencies' eyebrow + title; the title inverts like the list */
+.swap-head { position: relative; width: 100%; } /* no z-index: a stacking context here would cut the text off from the background it inverts against */
+.swap-head .as-spec-header { margin-bottom: 0; }
+.swap-blend { color: #fff !important; mix-blend-mode: difference; }
+.swap-main { position: relative; flex: 1; font: 500 13px/1.4 'JetBrains Mono', monospace; display: grid; place-items: center; padding: 3.5rem 0 1.5rem; }
+.swap-bg { position: absolute; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; container-type: size; }
+.swap-layer { position: absolute; inset: 0; opacity: 0; transition: opacity .6s ease; }
+.swap-layer.on { opacity: 1; }
+.swap-zoom { position: absolute; inset: 0; transform: scale(1.2); background: #ECE6DA; }
+[data-theme="dark"] .swap-zoom { background: #0B0E16; }
+.swap-layer.on .swap-zoom { transform: scale(1); transition: transform .8s cubic-bezier(.25, .46, .45, .94); }
+/* the 16:9 scene (still + live), centred on its model in the space below the header (--head-h) and sized so the
+   model is ~85% of that space's height; the stills' backdrop matches the stage colour, so frame edges never show */
+.swap-frame { position: absolute; left: 50%; top: calc(var(--head-h, 0px) + (100cqh - var(--head-h, 0px)) / 2); width: calc(.85 * (100cqh - var(--head-h, 0px)) / var(--mh) * 16 / 9); height: auto; aspect-ratio: 16 / 9; transform: translate(calc(var(--fx) * -100%), calc(var(--fy) * -100%)); border: 0; display: block; pointer-events: none; }
+.swap-fig { position: absolute; left: 50%; top: calc(var(--head-h, 0px) + (100cqh - var(--head-h, 0px)) / 2); height: calc((100cqh - var(--head-h, 0px)) * .6); transform: translate(-50%, -50%); mix-blend-mode: multiply; }
+[data-theme="dark"] .swap-fig { filter: invert(1) hue-rotate(180deg); mix-blend-mode: screen; }
+.swap-zoom--brand { background: linear-gradient(135deg, rgba(196,54,77,.16), rgba(46,92,154,.08)), #ECE6DA; }
+.swap-zoom--brand::before { content: ""; position: absolute; inset: 0; background-image: linear-gradient(rgba(196,54,77,.1) 1px, transparent 1px), linear-gradient(90deg, rgba(196,54,77,.1) 1px, transparent 1px); background-size: 48px 48px; }
+[data-theme="dark"] .swap-zoom--brand { background: linear-gradient(135deg, var(--red), #1F2937 85%); }
+[data-theme="dark"] .swap-zoom--brand::before { background-image: linear-gradient(rgba(255,255,255,.07) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.07) 1px, transparent 1px); }
+/* white + difference: reads as ink on paper, and inverts over the models */
+.swap-list { position: relative; z-index: 1; list-style: none; margin: 0; padding: 0; width: min(1100px, 100%); color: #fff; mix-blend-mode: difference; }
+.swap-item { border-bottom: 1px solid rgba(255,255,255,.14); transition: opacity .3s ease; }
+.swap-item:first-child { border-top: 1px solid rgba(255,255,255,.14); }
+.swap-row { display: grid; grid-template-columns: 3rem minmax(0, 1.5fr) minmax(0, 1fr) minmax(0, 1fr); gap: 1.5rem; width: 100%; padding: .7rem 0; margin: 0; border: 0; background: none; color: inherit; font: inherit; text-align: left; text-transform: uppercase; letter-spacing: .06em; cursor: pointer; }
+.swap-row:focus-visible { outline: 1px solid currentColor; outline-offset: 4px; }
+.swap-num { opacity: .55; }
+.swap-title { font-weight: 700; }
+.swap-flow { text-align: right; }
+.swap-list.has-active .swap-item { opacity: .3; }
+.swap-list.has-active .swap-item.active { opacity: 1; }
+.swap-item.active .swap-num { opacity: 1; }
+@media (prefers-reduced-motion: reduce) {
+  .swap-layer, .swap-zoom, .swap-item { transition: none !important; }
+  .swap-zoom { transform: none; }
+}
 
 .project-card-num { background: var(--red); color: var(--white); font-weight: 900; font-size: 0.875rem; padding: 0.5rem 1rem; display: flex; justify-content: space-between; align-items: center; position: relative; overflow: hidden; transition: background-color 0.3s; }
 .project-card:hover .project-card-num { background: var(--blue); }
@@ -292,7 +391,7 @@ svg { display: block; }
 
 
 /* Site footer — Alpha Tau */
-.site-footer { position: relative; z-index: 20; background: var(--paper); border-top: 1px solid var(--border-soft); padding: clamp(3.25rem, 6vw, 5rem) 2rem clamp(2rem, 3vw, 2.5rem); }
+.site-footer { position: relative; z-index: 20; background: var(--paper); border-top: 4px solid var(--red); padding: clamp(3.25rem, 6vw, 5rem) 2rem clamp(2rem, 3vw, 2.5rem); }
 .sf-inner { max-width: 72rem; margin: 0 auto; display: flex; justify-content: space-between; align-items: flex-end; gap: 2rem; flex-wrap: wrap; }
 .sf-brand-col { display: flex; flex-direction: column; align-items: flex-start; gap: 0.6rem; }
 .sf-mark { font-size: 1.6rem; line-height: 1; color: var(--ink); letter-spacing: -0.03em; background: none; border: 0; padding: 0; cursor: pointer; }

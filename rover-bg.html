@@ -182,6 +182,8 @@
     const FOG_DARK     = 0x07090f;
     const FOG_LIGHT    = 0xF5F1E8;
 
+    /* ?embed: shown inside an Index of Works row on the home page: no UI, follows the site theme */
+    const EMBED = new URLSearchParams(location.search).has('embed');
     function isDark() {
       try { return window.parent.document.documentElement.getAttribute('data-theme') === 'dark'; }
       catch(e) { return false; }
@@ -192,6 +194,7 @@
     ground.rotation.x = -Math.PI / 2;
     ground.receiveShadow = true;
     scene.add(ground);
+    if (EMBED) ground.material = new THREE.ShadowMaterial({ opacity: 0.35 }); // embedded: floor shows shadows only, no visible edge
 
     function applyTheme() {
       const dark = isDark();
@@ -502,7 +505,7 @@
     /* ── Boot: rover first (paints fast), arm streams in behind ── */
     loadModel('rover', true)
       .then(() => { activate('rover', true); loaderEl.classList.add('hidden'); })
-      .then(() => loadModel('arm', false))
+      .then(() => EMBED ? null : loadModel('arm', false))   // embedded row only shows the rover
       .catch((err) => { console.error(err); pctEl.textContent = 'Error: ' + (err && (err.message || err.type) || err); });
 
     /* ════ Window API (parent page, same-origin) ════ */

@@ -37,7 +37,7 @@ window.CONTENT = {
     contact: { eyebrow: 'CONTACT', title: 'Send me a message', name: 'Name', email: 'Email', message: 'Message', send: 'Send message', sending: 'Sending…', sent: "Message sent. I'll get back to you soon.", error: 'Something went wrong. Please try again, or copy my email below.', copy: 'Or copy my email', copied: 'Copied ✓', close: 'Close' },
     index: {
       titleHTML: 'INDEX<br/>OF WORKS',
-      projectWord: 'PROJECT', technicalDiagram: 'TECHNICAL DIAGRAM', viewSpecs: 'VIEW SPECS →', endOfIndex: 'END OF INDEX', lastUpdated: 'LAST UPDATED',
+      eyebrow: '// SELECTED WORK', showAnim: 'Show animation', hideAnim: 'Hide animation', projectWord: 'PROJECT', technicalDiagram: 'TECHNICAL DIAGRAM', viewSpecs: 'VIEW SPECS →', endOfIndex: 'END OF INDEX', lastUpdated: 'LAST UPDATED',
     },
     projects: [
       { category: 'NEURAL / AI', title: 'DEEP LEARNING', flow: '9 ARCHITECTURES' },
@@ -81,7 +81,7 @@ window.CONTENT = {
     contact: { eyebrow: 'お問い合わせ', title: 'メッセージを送る', name: 'お名前', email: 'メールアドレス', message: 'メッセージ', send: '送信する', sending: '送信中…', sent: 'メッセージを送信しました。折り返しご連絡します。', error: 'エラーが発生しました。もう一度お試しいただくか、下のメールアドレスをコピーしてください。', copy: 'メールアドレスをコピー', copied: 'コピーしました ✓', close: '閉じる' },
     index: {
       titleHTML: '作品<br/>インデックス',
-      projectWord: 'プロジェクト', technicalDiagram: '技術図面', viewSpecs: '仕様を見る →', endOfIndex: 'インデックス終わり', lastUpdated: '最終更新',
+      eyebrow: '// 主な作品', showAnim: 'アニメーションを表示', hideAnim: 'アニメーションを隠す', projectWord: 'プロジェクト', technicalDiagram: '技術図面', viewSpecs: '仕様を見る →', endOfIndex: 'インデックス終わり', lastUpdated: '最終更新',
     },
     projects: [
       { category: 'ニューラル / AI', title: 'ディープラーニング', flow: '9つのアーキテクチャ' },
@@ -125,7 +125,7 @@ window.CONTENT = {
     contact: { eyebrow: 'KONTAKT', title: 'Schreib mir eine Nachricht', name: 'Name', email: 'E-Mail', message: 'Nachricht', send: 'Nachricht senden', sending: 'Wird gesendet…', sent: 'Nachricht gesendet. Ich melde mich bald.', error: 'Etwas ist schiefgelaufen. Bitte versuch es noch einmal oder kopiere unten meine E-Mail.', copy: 'Oder meine E-Mail kopieren', copied: 'Kopiert ✓', close: 'Schließen' },
     index: {
       titleHTML: 'WERK-<br/>VERZEICHNIS',
-      projectWord: 'PROJEKT', technicalDiagram: 'TECHNISCHE ZEICHNUNG', viewSpecs: 'DETAILS ANSEHEN →', endOfIndex: 'ENDE DES VERZEICHNISSES', lastUpdated: 'ZULETZT AKTUALISIERT',
+      eyebrow: '// AUSGEWÄHLTE ARBEITEN', showAnim: 'Animation anzeigen', hideAnim: 'Animation ausblenden', projectWord: 'PROJEKT', technicalDiagram: 'TECHNISCHE ZEICHNUNG', viewSpecs: 'DETAILS ANSEHEN →', endOfIndex: 'ENDE DES VERZEICHNISSES', lastUpdated: 'ZULETZT AKTUALISIERT',
     },
     projects: [
       { category: 'NEURONAL / KI', title: 'DEEP LEARNING', flow: '9 ARCHITEKTUREN' },
@@ -169,7 +169,7 @@ window.CONTENT = {
     contact: { eyebrow: 'CONTACT', title: 'Envoyez-moi un message', name: 'Nom', email: 'E-mail', message: 'Message', send: 'Envoyer', sending: 'Envoi…', sent: 'Message envoyé. Je vous réponds rapidement.', error: "Une erreur s'est produite. Réessayez, ou copiez mon e-mail ci-dessous.", copy: 'Ou copier mon e-mail', copied: 'Copié ✓', close: 'Fermer' },
     index: {
       titleHTML: 'INDEX DES<br/>TRAVAUX',
-      projectWord: 'PROJET', technicalDiagram: 'SCHÉMA TECHNIQUE', viewSpecs: 'VOIR LES SPÉCS →', endOfIndex: "FIN DE L'INDEX", lastUpdated: 'DERNIÈRE MISE À JOUR',
+      eyebrow: '// TRAVAUX CHOISIS', showAnim: "Afficher l'animation", hideAnim: "Masquer l'animation", projectWord: 'PROJET', technicalDiagram: 'SCHÉMA TECHNIQUE', viewSpecs: 'VOIR LES SPÉCS →', endOfIndex: "FIN DE L'INDEX", lastUpdated: 'DERNIÈRE MISE À JOUR',
     },
     projects: [
       { category: 'NEURONAL / IA', title: 'APPRENTISSAGE PROFOND', flow: '9 ARCHITECTURES' },
@@ -213,7 +213,7 @@ window.CONTENT = {
     contact: { eyebrow: '연락처', title: '메시지 보내기', name: '이름', email: '이메일', message: '메시지', send: '보내기', sending: '보내는 중…', sent: '메시지를 보냈습니다. 곧 답장드리겠습니다.', error: '문제가 발생했습니다. 다시 시도하시거나 아래 이메일을 복사해 주세요.', copy: '또는 이메일 복사', copied: '복사됨 ✓', close: '닫기' },
     index: {
       titleHTML: '작품<br/>색인',
-      projectWord: '프로젝트', technicalDiagram: '기술 도면', viewSpecs: '사양 보기 →', endOfIndex: '색인 끝', lastUpdated: '마지막 업데이트',
+      eyebrow: '// 주요 작업', showAnim: '애니메이션 보기', hideAnim: '애니메이션 숨기기', projectWord: '프로젝트', technicalDiagram: '기술 도면', viewSpecs: '사양 보기 →', endOfIndex: '색인 끝', lastUpdated: '마지막 업데이트',
     },
     projects: [
       { category: '뉴럴 / AI', title: '딥러닝', flow: '9개 아키텍처' },
@@ -257,7 +257,7 @@ window.CONTENT = {
     contact: { eyebrow: 'CONTACTO', title: 'Envíame un mensaje', name: 'Nombre', email: 'Correo', message: 'Mensaje', send: 'Enviar mensaje', sending: 'Enviando…', sent: 'Mensaje enviado. Te responderé pronto.', error: 'Algo salió mal. Inténtalo de nuevo o copia mi correo abajo.', copy: 'O copia mi correo', copied: 'Copiado ✓', close: 'Cerrar' },
     index: {
       titleHTML: 'ÍNDICE DE<br/>TRABAJOS',
-      projectWord: 'PROYECTO', technicalDiagram: 'DIAGRAMA TÉCNICO', viewSpecs: 'VER ESPECIF. →', endOfIndex: 'FIN DEL ÍNDICE', lastUpdated: 'ÚLTIMA ACTUALIZACIÓN',
+      eyebrow: '// TRABAJOS SELECCIONADOS', showAnim: 'Mostrar animación', hideAnim: 'Ocultar animación', projectWord: 'PROYECTO', technicalDiagram: 'DIAGRAMA TÉCNICO', viewSpecs: 'VER ESPECIF. →', endOfIndex: 'FIN DEL ÍNDICE', lastUpdated: 'ÚLTIMA ACTUALIZACIÓN',
     },
     projects: [
       { category: 'NEURONAL / IA', title: 'APRENDIZAJE PROFUNDO', flow: '9 ARQUITECTURAS' },
